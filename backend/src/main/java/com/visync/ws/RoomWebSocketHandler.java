@@ -301,6 +301,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                                     newStroke.put("userId", event.getUserId());
                                     newStroke.put("color", plNode.has("color") ? plNode.get("color").asText() : "#000000");
                                     newStroke.put("strokeWidth", plNode.has("strokeWidth") ? plNode.get("strokeWidth").asInt() : 2);
+                                    newStroke.put("tool", plNode.has("tool") ? plNode.get("tool").asText() : "pen");
                                     newStroke.put("points", new ArrayList<Map<String, Double>>());
                                     strokes.put(sId, newStroke);
                                     break;

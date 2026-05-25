@@ -19,6 +19,7 @@
 *.njsproj
 *.sln
 *.sw?
+.github/
 
 # Java / Maven build output
 **/target/
