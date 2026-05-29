@@ -26,9 +26,9 @@ public class RoomController {
     private final ChatMessageRepository chatMessageRepository;
 
     public RoomController(RoomRepository roomRepository,
-                          DrawingEventRepository drawingEventRepository,
-                          BoardSnapshotRepository boardSnapshotRepository,
-                          ChatMessageRepository chatMessageRepository) {
+            DrawingEventRepository drawingEventRepository,
+            BoardSnapshotRepository boardSnapshotRepository,
+            ChatMessageRepository chatMessageRepository) {
         this.roomRepository = roomRepository;
         this.drawingEventRepository = drawingEventRepository;
         this.boardSnapshotRepository = boardSnapshotRepository;
@@ -61,7 +61,8 @@ public class RoomController {
         }
 
         // Fetch latest snapshot
-        Optional<BoardSnapshot> latestSnapshotOpt = boardSnapshotRepository.findFirstByRoomIdOrderByCreatedAtDesc(roomId);
+        Optional<BoardSnapshot> latestSnapshotOpt = boardSnapshotRepository
+                .findFirstByRoomIdOrderByCreatedAtDesc(roomId);
         String snapshotState = latestSnapshotOpt.map(BoardSnapshot::getBoardState).orElse("[]");
 
         // Fetch all chronological drawing events
@@ -71,15 +72,24 @@ public class RoomController {
         if (latestSnapshotOpt.isPresent()) {
             BoardSnapshot snapshot = latestSnapshotOpt.get();
             // In a production setup, we'd filter events created AFTER the snapshot.
-            // Since we save snapshots periodically, we can filter drawing events that occurred after the snapshot timestamp.
-            // But for safety and simpler code in our MVP, if we have a snapshot, we can fetch all events and filter out those prior or
-            // just return recent events since then. To be safe, if we have a snapshot, we only return drawing events that are still relevant.
-            // Actually, we can return all events or filter based on timestamp. Since snapshot captures the board at a certain time,
-            // we can filter event.getTimestamp() > snapshot.getCreatedAt().toEpochSecond() or similar.
-            // A simple robust approach: just return recent events that aren't yet snapshot-compacted,
-            // or simply return the entire history if the canvas board clears drawingEvents after snapshots.
-            // Let's just return all drawing events that happened after the snapshot's creation time.
-            long snapshotEpoch = snapshot.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli();
+            // Since we save snapshots periodically, we can filter drawing events that
+            // occurred after the snapshot timestamp.
+            // But for safety and simpler code in our MVP, if we have a snapshot, we can
+            // fetch all events and filter out those prior or
+            // just return recent events since then. To be safe, if we have a snapshot, we
+            // only return drawing events that are still relevant.
+            // Actually, we can return all events or filter based on timestamp. Since
+            // snapshot captures the board at a certain time,
+            // we can filter event.getTimestamp() > snapshot.getCreatedAt().toEpochSecond()
+            // or similar.
+            // A simple robust approach: just return recent events that aren't yet
+            // snapshot-compacted,
+            // or simply return the entire history if the canvas board clears drawingEvents
+            // after snapshots.
+            // Let's just return all drawing events that happened after the snapshot's
+            // creation time.
+            long snapshotEpoch = snapshot.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toInstant()
+                    .toEpochMilli();
             recentEvents = allEvents.stream()
                     .filter(e -> e.getTimestamp() > snapshotEpoch)
                     .collect(Collectors.toList());
@@ -98,11 +108,21 @@ public class RoomController {
         private String name;
         private String createdBy;
 
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
+        public String getName() {
+            return name;
+        }
 
-        public String getCreatedBy() { return createdBy; }
-        public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getCreatedBy() {
+            return createdBy;
+        }
+
+        public void setCreatedBy(String createdBy) {
+            this.createdBy = createdBy;
+        }
     }
 
     public static class RoomHistoryResponse {
@@ -110,19 +130,35 @@ public class RoomController {
         private List<DrawingEvent> recentEvents;
         private List<ChatMessage> chatHistory;
 
-        public RoomHistoryResponse(String boardSnapshot, List<DrawingEvent> recentEvents, List<ChatMessage> chatHistory) {
+        public RoomHistoryResponse(String boardSnapshot, List<DrawingEvent> recentEvents,
+                List<ChatMessage> chatHistory) {
             this.boardSnapshot = boardSnapshot;
             this.recentEvents = recentEvents;
             this.chatHistory = chatHistory;
         }
 
-        public String getBoardSnapshot() { return boardSnapshot; }
-        public void setBoardSnapshot(String boardSnapshot) { this.boardSnapshot = boardSnapshot; }
+        public String getBoardSnapshot() {
+            return boardSnapshot;
+        }
 
-        public List<DrawingEvent> getRecentEvents() { return recentEvents; }
-        public void setRecentEvents(List<DrawingEvent> recentEvents) { this.recentEvents = recentEvents; }
+        public void setBoardSnapshot(String boardSnapshot) {
+            this.boardSnapshot = boardSnapshot;
+        }
 
-        public List<ChatMessage> getChatHistory() { return chatHistory; }
-        public void setChatHistory(List<ChatMessage> chatHistory) { this.chatHistory = chatHistory; }
+        public List<DrawingEvent> getRecentEvents() {
+            return recentEvents;
+        }
+
+        public void setRecentEvents(List<DrawingEvent> recentEvents) {
+            this.recentEvents = recentEvents;
+        }
+
+        public List<ChatMessage> getChatHistory() {
+            return chatHistory;
+        }
+
+        public void setChatHistory(List<ChatMessage> chatHistory) {
+            this.chatHistory = chatHistory;
+        }
     }
 }

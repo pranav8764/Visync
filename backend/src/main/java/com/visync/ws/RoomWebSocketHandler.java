@@ -11,6 +11,7 @@ import com.visync.repository.BoardSnapshotRepository;
 import com.visync.repository.ChatMessageRepository;
 import com.visync.repository.DrawingEventRepository;
 import com.visync.repository.RoomRepository;
+import com.visync.service.BoardService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -29,22 +30,25 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
     private final DrawingEventRepository drawingEventRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final BoardSnapshotRepository boardSnapshotRepository;
+    private final BoardService boardService;
 
     private final ConcurrentMap<String, Set<WebSocketSession>> rooms = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, String> sessionUsernames = new ConcurrentHashMap<>(); // sessionId -> username
-    private final ConcurrentMap<String, String> sessionUserIds = new ConcurrentHashMap<>();   // sessionId -> userId
-    private final ConcurrentMap<String, String> sessionRoomIds = new ConcurrentHashMap<>();   // sessionId -> roomId
+    private final ConcurrentMap<String, String> sessionUserIds = new ConcurrentHashMap<>(); // sessionId -> userId
+    private final ConcurrentMap<String, String> sessionRoomIds = new ConcurrentHashMap<>(); // sessionId -> roomId
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public RoomWebSocketHandler(RoomRepository roomRepository,
-                                  DrawingEventRepository drawingEventRepository,
-                                  ChatMessageRepository chatMessageRepository,
-                                  BoardSnapshotRepository boardSnapshotRepository) {
+            DrawingEventRepository drawingEventRepository,
+            ChatMessageRepository chatMessageRepository,
+            BoardSnapshotRepository boardSnapshotRepository,
+            BoardService boardService) {
         this.roomRepository = roomRepository;
         this.drawingEventRepository = drawingEventRepository;
         this.chatMessageRepository = chatMessageRepository;
         this.boardSnapshotRepository = boardSnapshotRepository;
+        this.boardService = boardService;
     }
 
     @Override
@@ -62,6 +66,22 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
             Set<WebSocketSession> set = rooms.get(roomId);
             if (set != null) {
                 set.remove(session);
+                if (set.isEmpty()) {
+                    rooms.remove(roomId);
+                    final String emptyRoomId = roomId;
+                    CompletableFuture.runAsync(() -> {
+                        try {
+                            boardService.compactSnapshot(emptyRoomId, true);
+                            UUID rId = UUID.fromString(emptyRoomId);
+                            roomRepository.findById(rId).ifPresent(room -> {
+                                room.setActive(false);
+                                roomRepository.save(room);
+                            });
+                        } catch (Exception e) {
+                            System.err.println("Failed to set room inactive/compact on close: " + e.getMessage());
+                        }
+                    });
+                }
             }
 
             // Broadcast USER_LEAVE if the user had completed JOIN
@@ -71,7 +91,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                 leaveEvent.put("userId", userId);
                 leaveEvent.put("roomId", roomId);
                 leaveEvent.put("timestamp", System.currentTimeMillis());
-                
+
                 Map<String, String> payload = new HashMap<>();
                 payload.put("username", username);
                 leaveEvent.put("payload", payload);
@@ -98,7 +118,8 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         long timestamp = rootNode.has("timestamp") ? rootNode.get("timestamp").asLong() : System.currentTimeMillis();
         JsonNode payloadNode = rootNode.get("payload");
 
-        if (roomId.isEmpty() || eventType.isEmpty()) return;
+        if (roomId.isEmpty() || eventType.isEmpty())
+            return;
 
         // Process message according to eventType
         switch (eventType) {
@@ -122,9 +143,10 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                 final JsonNode currentPayloadNode = payloadNode;
                 final long currentTimestamp = timestamp;
                 CompletableFuture.runAsync(() -> {
-                    persistDrawingEvent(currentRoomId, currentUserId, currentEventType, currentPayloadNode, currentTimestamp);
+                    persistDrawingEvent(currentRoomId, currentUserId, currentEventType, currentPayloadNode,
+                            currentTimestamp);
                 });
-                
+
                 // If DRAW_END, check if we should trigger snapshot compaction
                 if (eventType.equals("DRAW_END")) {
                     triggerSnapshotCompaction(roomId);
@@ -152,14 +174,31 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    private void handleUserJoin(WebSocketSession session, String roomId, String userId, long timestamp, JsonNode payloadNode) {
-        String username = (payloadNode != null && payloadNode.has("username")) ? payloadNode.get("username").asText() : "Guest";
-        
+    private void handleUserJoin(WebSocketSession session, String roomId, String userId, long timestamp,
+            JsonNode payloadNode) {
+        String username = (payloadNode != null && payloadNode.has("username")) ? payloadNode.get("username").asText()
+                : "Guest";
+
         sessionRoomIds.put(session.getId(), roomId);
         rooms.computeIfAbsent(roomId, k -> ConcurrentHashMap.newKeySet()).add(session);
 
         sessionUserIds.put(session.getId(), userId);
         sessionUsernames.put(session.getId(), username);
+
+        final String joinedRoomId = roomId;
+        CompletableFuture.runAsync(() -> {
+            try {
+                UUID rId = UUID.fromString(joinedRoomId);
+                roomRepository.findById(rId).ifPresent(room -> {
+                    if (!room.isActive()) {
+                        room.setActive(true);
+                        roomRepository.save(room);
+                    }
+                });
+            } catch (Exception e) {
+                System.err.println("Failed to reactivate room on join: " + e.getMessage());
+            }
+        });
 
         // Broadcast join event
         Map<String, Object> joinEvent = new HashMap<>();
@@ -182,7 +221,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         Set<WebSocketSession> sessions = rooms.getOrDefault(roomId, Collections.emptySet());
         List<Map<String, String>> usersList = new ArrayList<>();
         Set<String> processedUserIds = new HashSet<>();
-        
+
         for (WebSocketSession s : sessions) {
             String uId = sessionUserIds.get(s.getId());
             String uName = sessionUsernames.get(s.getId());
@@ -209,7 +248,8 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    private void persistDrawingEvent(String roomId, String userId, String eventType, JsonNode payloadNode, long timestamp) {
+    private void persistDrawingEvent(String roomId, String userId, String eventType, JsonNode payloadNode,
+            long timestamp) {
         try {
             UUID rId = UUID.fromString(roomId);
             String payloadStr = objectMapper.writeValueAsString(payloadNode);
@@ -220,16 +260,18 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    private void persistAndBroadcastChatMessage(String roomId, String userId, JsonNode originalMsg, JsonNode payloadNode, long timestamp, String senderSessionId) {
+    private void persistAndBroadcastChatMessage(String roomId, String userId, JsonNode originalMsg,
+            JsonNode payloadNode, long timestamp, String senderSessionId) {
         try {
             // 1. Broadcast immediately to minimize latency!
             broadcastToRoom(roomId, senderSessionId, originalMsg);
 
             // 2. Persist asynchronously in background thread!
             UUID rId = UUID.fromString(roomId);
-            String message = (payloadNode != null && payloadNode.has("message")) ? payloadNode.get("message").asText() : "";
+            String message = (payloadNode != null && payloadNode.has("message")) ? payloadNode.get("message").asText()
+                    : "";
             String username = sessionUsernames.getOrDefault(senderSessionId, "Guest");
-            
+
             final ChatMessage chatMsg = new ChatMessage(rId, userId, username, message, timestamp);
             CompletableFuture.runAsync(() -> {
                 try {
@@ -245,9 +287,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
 
     private void clearBoardData(String roomId) {
         try {
-            UUID rId = UUID.fromString(roomId);
-            drawingEventRepository.deleteByRoomId(rId);
-            boardSnapshotRepository.deleteByRoomId(rId);
+            boardService.clearBoard(roomId);
         } catch (Exception e) {
             System.err.println("Failed to clear board data: " + e.getMessage());
         }
@@ -257,84 +297,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         // Run asynchronously to not block WebSocket threads
         CompletableFuture.runAsync(() -> {
             try {
-                UUID rId = UUID.fromString(roomId);
-                List<DrawingEvent> allEvents = drawingEventRepository.findByRoomIdOrderByTimestampAsc(rId);
-                
-                // If there are a significant number of drawing events (e.g. > 100), compact them
-                if (allEvents.size() > 100) {
-                    // Fetch existing latest snapshot
-                    Optional<BoardSnapshot> latestSnapshotOpt = boardSnapshotRepository.findFirstByRoomIdOrderByCreatedAtDesc(rId);
-                    
-                    // We reconstruct the active strokes JSON state
-                    // In the client, the strokes are a list of stroke objects
-                    // Let's combine them on the backend as a simplified list of strokes
-                    // Structure: Map<strokeId, StrokeNode>
-                    Map<String, Map<String, Object>> strokes = new LinkedHashMap<>();
-                    
-                    // Apply existing snapshot first
-                    if (latestSnapshotOpt.isPresent()) {
-                        String existingState = latestSnapshotOpt.get().getBoardState();
-                        try {
-                            List<Map<String, Object>> existingStrokes = objectMapper.readValue(existingState, List.class);
-                            for (Map<String, Object> stroke : existingStrokes) {
-                                String sId = (String) stroke.get("id");
-                                if (sId != null) {
-                                    strokes.put(sId, stroke);
-                                }
-                            }
-                        } catch (Exception ex) {
-                            System.err.println("Failed to parse existing board snapshot state: " + ex.getMessage());
-                        }
-                    }
-                    
-                    // Now apply incremental events
-                    for (DrawingEvent event : allEvents) {
-                        try {
-                            JsonNode plNode = objectMapper.readTree(event.getPayload());
-                            String sId = plNode.has("strokeId") ? plNode.get("strokeId").asText() : null;
-                            if (sId == null) continue;
-                            
-                            switch (event.getEventType()) {
-                                case "DRAW_START":
-                                    Map<String, Object> newStroke = new HashMap<>();
-                                    newStroke.put("id", sId);
-                                    newStroke.put("userId", event.getUserId());
-                                    newStroke.put("color", plNode.has("color") ? plNode.get("color").asText() : "#000000");
-                                    newStroke.put("strokeWidth", plNode.has("strokeWidth") ? plNode.get("strokeWidth").asInt() : 2);
-                                    newStroke.put("tool", plNode.has("tool") ? plNode.get("tool").asText() : "pen");
-                                    newStroke.put("points", new ArrayList<Map<String, Double>>());
-                                    strokes.put(sId, newStroke);
-                                    break;
-                                case "DRAW_MOVE":
-                                    Map<String, Object> stroke = strokes.get(sId);
-                                    if (stroke != null) {
-                                        List<Map<String, Double>> pts = (List<Map<String, Double>>) stroke.get("points");
-                                        if (plNode.has("point")) {
-                                            JsonNode ptNode = plNode.get("point");
-                                            Map<String, Double> pt = new HashMap<>();
-                                            pt.put("x", ptNode.get("x").asDouble());
-                                            pt.put("y", ptNode.get("y").asDouble());
-                                            pts.add(pt);
-                                        }
-                                    }
-                                    break;
-                                case "DRAW_END":
-                                    // Nothing special, stroke is already active
-                                    break;
-                            }
-                        } catch (Exception ex) {
-                            System.err.println("Error parsing event payload during compaction: " + ex.getMessage());
-                        }
-                    }
-                    
-                    // Save new snapshot
-                    String newSnapshotState = objectMapper.writeValueAsString(new ArrayList<>(strokes.values()));
-                    BoardSnapshot newSnapshot = new BoardSnapshot(rId, newSnapshotState);
-                    boardSnapshotRepository.save(newSnapshot);
-                    
-                    // Delete compacted events
-                    drawingEventRepository.deleteByRoomId(rId);
-                }
+                boardService.compactSnapshot(roomId);
             } catch (Exception e) {
                 System.err.println("Failed to run snapshot compaction: " + e.getMessage());
             }
@@ -343,7 +306,8 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
 
     private void broadcastToRoom(String roomId, String senderSessionId, Object messageObj) {
         Set<WebSocketSession> set = rooms.getOrDefault(roomId, Collections.emptySet());
-        if (set.isEmpty()) return;
+        if (set.isEmpty())
+            return;
 
         String textMessageStr;
         try {
@@ -372,7 +336,8 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
     }
 
     private String extractRoomId(URI uri) {
-        if (uri == null) return "unknown";
+        if (uri == null)
+            return "unknown";
         String path = uri.getPath(); // e.g. /ws/rooms/{roomId}
         String[] parts = path.split("/");
         return parts.length >= 4 ? parts[3] : "unknown";
