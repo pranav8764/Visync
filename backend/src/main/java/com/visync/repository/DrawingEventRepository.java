@@ -13,5 +13,8 @@ public interface DrawingEventRepository extends JpaRepository<DrawingEvent, UUID
     
     @Transactional
     void deleteByRoomId(UUID roomId);
+
+    @Transactional
+    void deleteByRoomIdAndPayloadContaining(UUID roomId, String payload);
 }
 

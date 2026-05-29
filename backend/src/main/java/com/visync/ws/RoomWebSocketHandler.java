@@ -163,9 +163,35 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                 });
                 break;
             case "UNDO":
-            case "REDO":
-                // Broadcast state undo/redo triggers to other active rooms
                 broadcastToRoom(roomId, session.getId(), rootNode);
+                final String undoStrokeId = (payloadNode != null && payloadNode.has("strokeId")) ? payloadNode.get("strokeId").asText() : "";
+                if (!undoStrokeId.isEmpty()) {
+                    final String rId = roomId;
+                    final String sId = undoStrokeId;
+                    CompletableFuture.runAsync(() -> {
+                        try {
+                            boardService.undoStroke(rId, sId);
+                        } catch (Exception e) {
+                            System.err.println("Failed to run undo in background: " + e.getMessage());
+                        }
+                    });
+                }
+                break;
+            case "REDO":
+                broadcastToRoom(roomId, session.getId(), rootNode);
+                final JsonNode strokeNode = (payloadNode != null && payloadNode.has("stroke")) ? payloadNode.get("stroke") : null;
+                if (strokeNode != null) {
+                    final String rId = roomId;
+                    final String uId = userId;
+                    final JsonNode sNode = strokeNode;
+                    CompletableFuture.runAsync(() -> {
+                        try {
+                            boardService.redoStroke(rId, uId, sNode);
+                        } catch (Exception e) {
+                            System.err.println("Failed to run redo in background: " + e.getMessage());
+                        }
+                    });
+                }
                 break;
             default:
                 // Default fallback: broadcast to all other users
