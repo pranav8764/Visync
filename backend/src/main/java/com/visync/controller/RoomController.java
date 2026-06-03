@@ -8,6 +8,7 @@ import com.visync.repository.BoardSnapshotRepository;
 import com.visync.repository.ChatMessageRepository;
 import com.visync.repository.DrawingEventRepository;
 import com.visync.repository.RoomRepository;
+import com.visync.service.TokenService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,15 +25,18 @@ public class RoomController {
     private final DrawingEventRepository drawingEventRepository;
     private final BoardSnapshotRepository boardSnapshotRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final TokenService tokenService;
 
     public RoomController(RoomRepository roomRepository,
             DrawingEventRepository drawingEventRepository,
             BoardSnapshotRepository boardSnapshotRepository,
-            ChatMessageRepository chatMessageRepository) {
+            ChatMessageRepository chatMessageRepository,
+            TokenService tokenService) {
         this.roomRepository = roomRepository;
         this.drawingEventRepository = drawingEventRepository;
         this.boardSnapshotRepository = boardSnapshotRepository;
         this.chatMessageRepository = chatMessageRepository;
+        this.tokenService = tokenService;
     }
 
     @PostMapping
@@ -54,7 +58,9 @@ public class RoomController {
     }
 
     @GetMapping("/{roomId}/history")
-    public ResponseEntity<RoomHistoryResponse> getRoomHistory(@PathVariable UUID roomId) {
+    public ResponseEntity<RoomHistoryResponse> getRoomHistory(
+            @PathVariable UUID roomId,
+            @RequestParam("userId") String userId) {
         Optional<Room> roomOpt = roomRepository.findById(roomId);
         if (roomOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -65,42 +71,18 @@ public class RoomController {
                 .findFirstByRoomIdOrderByCreatedAtDesc(roomId);
         String snapshotState = latestSnapshotOpt.map(BoardSnapshot::getBoardState).orElse("[]");
 
-        // Fetch all chronological drawing events
-        List<DrawingEvent> allEvents = drawingEventRepository.findByRoomIdOrderByTimestampAsc(roomId);
-        List<DrawingEvent> recentEvents;
-
-        if (latestSnapshotOpt.isPresent()) {
-            BoardSnapshot snapshot = latestSnapshotOpt.get();
-            // In a production setup, we'd filter events created AFTER the snapshot.
-            // Since we save snapshots periodically, we can filter drawing events that
-            // occurred after the snapshot timestamp.
-            // But for safety and simpler code in our MVP, if we have a snapshot, we can
-            // fetch all events and filter out those prior or
-            // just return recent events since then. To be safe, if we have a snapshot, we
-            // only return drawing events that are still relevant.
-            // Actually, we can return all events or filter based on timestamp. Since
-            // snapshot captures the board at a certain time,
-            // we can filter event.getTimestamp() > snapshot.getCreatedAt().toEpochSecond()
-            // or similar.
-            // A simple robust approach: just return recent events that aren't yet
-            // snapshot-compacted,
-            // or simply return the entire history if the canvas board clears drawingEvents
-            // after snapshots.
-            // Let's just return all drawing events that happened after the snapshot's
-            // creation time.
-            long snapshotEpoch = snapshot.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toInstant()
-                    .toEpochMilli();
-            recentEvents = allEvents.stream()
-                    .filter(e -> e.getTimestamp() > snapshotEpoch)
-                    .collect(Collectors.toList());
-        } else {
-            recentEvents = allEvents;
-        }
+        // Fetch all chronological drawing events. 
+        // The compaction process already deletes events that are included in the snapshot, 
+        // so whatever is left in the DB MUST be sent to the client, regardless of timestamp.
+        List<DrawingEvent> recentEvents = drawingEventRepository.findByRoomIdOrderByTimestampAsc(roomId);
 
         // Fetch all chat messages in chronological order
         List<ChatMessage> chatHistory = chatMessageRepository.findByRoomIdOrderByTimestampAsc(roomId);
 
-        return ResponseEntity.ok(new RoomHistoryResponse(snapshotState, recentEvents, chatHistory));
+        // Generate token for WebSocket connection authentication
+        String wsToken = tokenService.generateToken(userId, roomId.toString());
+
+        return ResponseEntity.ok(new RoomHistoryResponse(snapshotState, recentEvents, chatHistory, wsToken));
     }
 
     // DTO Static Classes
@@ -129,12 +111,14 @@ public class RoomController {
         private String boardSnapshot;
         private List<DrawingEvent> recentEvents;
         private List<ChatMessage> chatHistory;
+        private String wsToken;
 
         public RoomHistoryResponse(String boardSnapshot, List<DrawingEvent> recentEvents,
-                List<ChatMessage> chatHistory) {
+                List<ChatMessage> chatHistory, String wsToken) {
             this.boardSnapshot = boardSnapshot;
             this.recentEvents = recentEvents;
             this.chatHistory = chatHistory;
+            this.wsToken = wsToken;
         }
 
         public String getBoardSnapshot() {
@@ -159,6 +143,14 @@ public class RoomController {
 
         public void setChatHistory(List<ChatMessage> chatHistory) {
             this.chatHistory = chatHistory;
+        }
+
+        public String getWsToken() {
+            return wsToken;
+        }
+
+        public void setWsToken(String wsToken) {
+            this.wsToken = wsToken;
         }
     }
 }

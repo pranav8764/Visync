@@ -37,6 +37,13 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
     private final ConcurrentMap<String, String> sessionUserIds = new ConcurrentHashMap<>(); // sessionId -> userId
     private final ConcurrentMap<String, String> sessionRoomIds = new ConcurrentHashMap<>(); // sessionId -> roomId
 
+    private final ConcurrentMap<String, TokenBucket> sessionRateLimiters = new ConcurrentHashMap<>();
+    private final Queue<DrawingEvent> fallbackQueue = new ConcurrentLinkedQueue<>();
+    private final ScheduledExecutorService fallbackScheduler = Executors.newSingleThreadScheduledExecutor();
+    
+    // Dedicated executor for blocking database operations to prevent latency
+    private final ExecutorService dbExecutor = Executors.newFixedThreadPool(32);
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public RoomWebSocketHandler(RoomRepository roomRepository,
@@ -49,6 +56,9 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         this.chatMessageRepository = chatMessageRepository;
         this.boardSnapshotRepository = boardSnapshotRepository;
         this.boardService = boardService;
+
+        // Schedule periodic database outage fallback queue flushing
+        this.fallbackScheduler.scheduleAtFixedRate(this::retryFailedPersists, 5, 5, TimeUnit.SECONDS);
     }
 
     @Override
@@ -61,6 +71,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         String roomId = sessionRoomIds.remove(session.getId());
         String userId = sessionUserIds.remove(session.getId());
         String username = sessionUsernames.remove(session.getId());
+        sessionRateLimiters.remove(session.getId());
 
         if (roomId != null) {
             Set<WebSocketSession> set = rooms.get(roomId);
@@ -80,7 +91,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                         } catch (Exception e) {
                             System.err.println("Failed to set room inactive/compact on close: " + e.getMessage());
                         }
-                    });
+                    }, dbExecutor);
                 }
             }
 
@@ -103,6 +114,13 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        // Apply rate limits per session (Capacity: 1000, Refill: 500 per sec -> 0.5 tokens/ms)
+        TokenBucket bucket = sessionRateLimiters.computeIfAbsent(session.getId(), k -> new TokenBucket(1000.0, 0.5));
+        if (!bucket.tryConsume()) {
+            // Silently drop messages exceeding the rate limit to avoid connection drops
+            return;
+        }
+
         String payload = message.getPayload();
         JsonNode rootNode;
         try {
@@ -113,13 +131,25 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         }
 
         String eventType = rootNode.has("eventType") ? rootNode.get("eventType").asText() : "";
-        String roomId = rootNode.has("roomId") ? rootNode.get("roomId").asText() : "";
-        String userId = rootNode.has("userId") ? rootNode.get("userId").asText() : "";
-        long timestamp = rootNode.has("timestamp") ? rootNode.get("timestamp").asLong() : System.currentTimeMillis();
-        JsonNode payloadNode = rootNode.get("payload");
+        
+        // Extract authenticated roomId and userId from Handshake attributes
+        String roomId = (String) session.getAttributes().get("roomId");
+        String userId = (String) session.getAttributes().get("userId");
+        long timestamp = System.currentTimeMillis(); // Override with server time
 
-        if (roomId.isEmpty() || eventType.isEmpty())
+        if (roomId == null || userId == null || eventType.isEmpty()) {
             return;
+        }
+
+        // Overwrite client payload parameters to prevent impersonation/timestamp spoofing
+        if (rootNode instanceof ObjectNode) {
+            ObjectNode objectNode = (ObjectNode) rootNode;
+            objectNode.put("userId", userId);
+            objectNode.put("roomId", roomId);
+            objectNode.put("timestamp", timestamp);
+        }
+
+        JsonNode payloadNode = rootNode.get("payload");
 
         // Process message according to eventType
         switch (eventType) {
@@ -127,16 +157,13 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                 handleUserJoin(session, roomId, userId, timestamp, payloadNode);
                 break;
             case "CURSOR_MOVE":
-                // Transient cursor tracking - broadcast only, do not persist
                 broadcastToRoom(roomId, session.getId(), rootNode);
                 break;
             case "DRAW_START":
             case "DRAW_MOVE":
             case "DRAW_END":
-                // 1. Broadcast immediately to minimize latency!
                 broadcastToRoom(roomId, session.getId(), rootNode);
 
-                // 2. Persist drawing events asynchronously in background thread!
                 final String currentRoomId = roomId;
                 final String currentUserId = userId;
                 final String currentEventType = eventType;
@@ -145,9 +172,8 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                 CompletableFuture.runAsync(() -> {
                     persistDrawingEvent(currentRoomId, currentUserId, currentEventType, currentPayloadNode,
                             currentTimestamp);
-                });
+                }, dbExecutor);
 
-                // If DRAW_END, check if we should trigger snapshot compaction
                 if (eventType.equals("DRAW_END")) {
                     triggerSnapshotCompaction(roomId);
                 }
@@ -160,7 +186,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                 final String clearRoomId = roomId;
                 CompletableFuture.runAsync(() -> {
                     clearBoardData(clearRoomId);
-                });
+                }, dbExecutor);
                 break;
             case "UNDO":
                 broadcastToRoom(roomId, session.getId(), rootNode);
@@ -174,7 +200,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                         } catch (Exception e) {
                             System.err.println("Failed to run undo in background: " + e.getMessage());
                         }
-                    });
+                    }, dbExecutor);
                 }
                 break;
             case "REDO":
@@ -190,11 +216,10 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                         } catch (Exception e) {
                             System.err.println("Failed to run redo in background: " + e.getMessage());
                         }
-                    });
+                    }, dbExecutor);
                 }
                 break;
             default:
-                // Default fallback: broadcast to all other users
                 broadcastToRoom(roomId, session.getId(), rootNode);
                 break;
         }
@@ -224,7 +249,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
             } catch (Exception e) {
                 System.err.println("Failed to reactivate room on join: " + e.getMessage());
             }
-        });
+        }, dbExecutor);
 
         // Broadcast join event
         Map<String, Object> joinEvent = new HashMap<>();
@@ -279,20 +304,53 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         try {
             UUID rId = UUID.fromString(roomId);
             String payloadStr = objectMapper.writeValueAsString(payloadNode);
+            String strokeId = (payloadNode != null && payloadNode.has("strokeId")) 
+                    ? payloadNode.get("strokeId").asText() 
+                    : null;
             DrawingEvent event = new DrawingEvent(rId, userId, eventType, payloadStr, timestamp);
+            event.setStrokeId(strokeId);
             drawingEventRepository.save(event);
         } catch (Exception e) {
-            System.err.println("Failed to save drawing event: " + e.getMessage());
+            System.err.println("Failed to save drawing event, enqueuing to fallback: " + e.getMessage());
+            try {
+                UUID rId = UUID.fromString(roomId);
+                String payloadStr = objectMapper.writeValueAsString(payloadNode);
+                String strokeId = (payloadNode != null && payloadNode.has("strokeId")) 
+                        ? payloadNode.get("strokeId").asText() 
+                        : null;
+                DrawingEvent event = new DrawingEvent(rId, userId, eventType, payloadStr, timestamp);
+                event.setStrokeId(strokeId);
+                fallbackQueue.add(event);
+            } catch (Exception ex) {
+                System.err.println("Fatal: failed to enqueue fallback event: " + ex.getMessage());
+            }
+        }
+    }
+
+    private void retryFailedPersists() {
+        if (fallbackQueue.isEmpty()) return;
+        System.out.println("Database fallback queue has " + fallbackQueue.size() + " pending drawing events. Retrying...");
+        List<DrawingEvent> toRetry = new ArrayList<>();
+        DrawingEvent ev;
+        while ((ev = fallbackQueue.poll()) != null) {
+            toRetry.add(ev);
+        }
+
+        for (DrawingEvent event : toRetry) {
+            try {
+                drawingEventRepository.save(event);
+            } catch (Exception e) {
+                fallbackQueue.add(event);
+                System.err.println("Database still unreachable. Re-enqueued event: " + event.getId());
+            }
         }
     }
 
     private void persistAndBroadcastChatMessage(String roomId, String userId, JsonNode originalMsg,
             JsonNode payloadNode, long timestamp, String senderSessionId) {
         try {
-            // 1. Broadcast immediately to minimize latency!
             broadcastToRoom(roomId, senderSessionId, originalMsg);
 
-            // 2. Persist asynchronously in background thread!
             UUID rId = UUID.fromString(roomId);
             String message = (payloadNode != null && payloadNode.has("message")) ? payloadNode.get("message").asText()
                     : "";
@@ -305,7 +363,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                 } catch (Exception e) {
                     System.err.println("Failed to save chat message: " + e.getMessage());
                 }
-            });
+            }, dbExecutor);
         } catch (Exception e) {
             System.err.println("Failed to process chat message: " + e.getMessage());
         }
@@ -320,14 +378,13 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void triggerSnapshotCompaction(String roomId) {
-        // Run asynchronously to not block WebSocket threads
         CompletableFuture.runAsync(() -> {
             try {
                 boardService.compactSnapshot(roomId);
             } catch (Exception e) {
                 System.err.println("Failed to run snapshot compaction: " + e.getMessage());
             }
-        });
+        }, dbExecutor);
     }
 
     private void broadcastToRoom(String roomId, String senderSessionId, Object messageObj) {
@@ -364,8 +421,41 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
     private String extractRoomId(URI uri) {
         if (uri == null)
             return "unknown";
-        String path = uri.getPath(); // e.g. /ws/rooms/{roomId}
+        String path = uri.getPath();
         String[] parts = path.split("/");
         return parts.length >= 4 ? parts[3] : "unknown";
+    }
+
+    // Per-session Token Bucket definition
+    private static class TokenBucket {
+        private final double capacity;
+        private final double refillRate;
+        private double tokens;
+        private long lastRefillTimestamp;
+
+        public TokenBucket(double capacity, double refillRate) {
+            this.capacity = capacity;
+            this.refillRate = refillRate;
+            this.tokens = capacity;
+            this.lastRefillTimestamp = System.currentTimeMillis();
+        }
+
+        public synchronized boolean tryConsume() {
+            refill();
+            if (tokens >= 1.0) {
+                tokens -= 1.0;
+                return true;
+            }
+            return false;
+        }
+
+        private void refill() {
+            long now = System.currentTimeMillis();
+            long delta = now - lastRefillTimestamp;
+            if (delta > 0) {
+                tokens = Math.min(capacity, tokens + (delta * refillRate));
+                lastRefillTimestamp = now;
+            }
+        }
     }
 }

@@ -11,6 +11,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -34,7 +35,7 @@ public class BoardService {
 
     public void undoStroke(String roomId, String strokeId) {
         UUID rId = UUID.fromString(roomId);
-        drawingEventRepository.deleteByRoomIdAndPayloadContaining(rId, strokeId);
+        drawingEventRepository.deleteByRoomIdAndStrokeId(rId, strokeId);
 
         Optional<BoardSnapshot> latestSnapshotOpt = boardSnapshotRepository
                 .findFirstByRoomIdOrderByCreatedAtDesc(rId);
@@ -86,6 +87,7 @@ public class BoardService {
                 objectMapper.writeValueAsString(startPayload),
                 System.currentTimeMillis()
             );
+            startEvent.setStrokeId(strokeId);
             drawingEventRepository.save(startEvent);
 
             // Reconstruct DRAW_MOVEs
@@ -102,6 +104,7 @@ public class BoardService {
                         objectMapper.writeValueAsString(movePayload),
                         System.currentTimeMillis() + i + 1
                     );
+                    moveEvent.setStrokeId(strokeId);
                     drawingEventRepository.save(moveEvent);
                 }
             }
@@ -116,6 +119,7 @@ public class BoardService {
                 objectMapper.writeValueAsString(endPayload),
                 System.currentTimeMillis() + (pointsNode != null ? pointsNode.size() : 0) + 2
             );
+            endEvent.setStrokeId(strokeId);
             drawingEventRepository.save(endEvent);
 
         } catch (Exception e) {
@@ -178,12 +182,24 @@ public class BoardService {
                             Map<String, Object> stroke = strokes.get(sId);
                             if (stroke != null) {
                                 List<Map<String, Double>> pts = (List<Map<String, Double>>) stroke.get("points");
+                                String tool = (String) stroke.get("tool");
                                 if (plNode.has("point")) {
                                     JsonNode ptNode = plNode.get("point");
                                     Map<String, Double> pt = new HashMap<>();
                                     pt.put("x", ptNode.get("x").asDouble());
                                     pt.put("y", ptNode.get("y").asDouble());
-                                    pts.add(pt);
+
+                                    if ("pen".equals(tool) || "eraser".equals(tool)) {
+                                        pts.add(pt);
+                                    } else {
+                                        if (pts.isEmpty()) {
+                                            pts.add(pt);
+                                        } else if (pts.size() == 1) {
+                                            pts.add(pt);
+                                        } else {
+                                            pts.set(1, pt);
+                                        }
+                                    }
                                 }
                             }
                             break;
@@ -200,10 +216,28 @@ public class BoardService {
                 BoardSnapshot newSnapshot = new BoardSnapshot(rId, newSnapshotState);
                 boardSnapshotRepository.save(newSnapshot);
 
-                drawingEventRepository.deleteByRoomId(rId);
+                // Collect IDs of the compiled events
+                List<UUID> compiledIds = allEvents.stream().map(DrawingEvent::getId).collect(Collectors.toList());
+                // Delete ONLY the compiled events
+                drawingEventRepository.deleteAllByIds(compiledIds);
+
+                // Cleanup older snapshots, keep only the latest one
+                cleanOldSnapshots(rId);
             } catch (Exception ex) {
                 System.err.println("Failed to save snapshot or delete events: " + ex.getMessage());
             }
+        }
+    }
+
+    private void cleanOldSnapshots(UUID roomId) {
+        try {
+            List<BoardSnapshot> snapshots = boardSnapshotRepository.findByRoomIdOrderByCreatedAtDesc(roomId);
+            if (snapshots.size() > 1) {
+                List<BoardSnapshot> toDelete = snapshots.subList(1, snapshots.size());
+                boardSnapshotRepository.deleteAll(toDelete);
+            }
+        } catch (Exception ex) {
+            System.err.println("Failed to clean up old board snapshots: " + ex.getMessage());
         }
     }
 }

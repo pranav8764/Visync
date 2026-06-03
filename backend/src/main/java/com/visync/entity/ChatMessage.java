@@ -4,7 +4,12 @@ import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "chat_messages")
+@Table(
+    name = "chat_messages",
+    indexes = {
+        @Index(name = "idx_chat_messages_room_timestamp", columnList = "room_id, timestamp ASC")
+    }
+)
 public class ChatMessage {
 
     @Id

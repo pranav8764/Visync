@@ -4,7 +4,13 @@ import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "drawing_events")
+@Table(
+    name = "drawing_events",
+    indexes = {
+        @Index(name = "idx_drawing_events_room_timestamp", columnList = "room_id, timestamp ASC"),
+        @Index(name = "idx_drawing_events_stroke_id", columnList = "stroke_id")
+    }
+)
 public class DrawingEvent {
 
     @Id
@@ -24,6 +30,9 @@ public class DrawingEvent {
 
     @Column(nullable = false)
     private Long timestamp;
+
+    @Column(name = "stroke_id")
+    private String strokeId;
 
     public DrawingEvent() {
         this.id = UUID.randomUUID();
@@ -56,4 +65,7 @@ public class DrawingEvent {
 
     public Long getTimestamp() { return timestamp; }
     public void setTimestamp(Long timestamp) { this.timestamp = timestamp; }
+
+    public String getStrokeId() { return strokeId; }
+    public void setStrokeId(String strokeId) { this.strokeId = strokeId; }
 }
