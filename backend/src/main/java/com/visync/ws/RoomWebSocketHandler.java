@@ -23,7 +23,6 @@ import java.util.*;
 import java.util.concurrent.*;
 
 @Component
-@Repository
 public class RoomWebSocketHandler extends TextWebSocketHandler {
 
     private final RoomRepository roomRepository;

@@ -14,7 +14,13 @@ public class TokenService {
 
     public TokenService() {
         String envKey = System.getenv("JWT_SECRET");
-        this.secretKey = (envKey != null && !envKey.isEmpty()) ? envKey : "visync-default-secure-dev-secret-key-123456789";
+        if (envKey == null || envKey.isEmpty()) {
+            throw new IllegalStateException(
+                "JWT_SECRET environment variable must be set. " +
+                "Generate one with: openssl rand -base64 32"
+            );
+        }
+        this.secretKey = envKey;
     }
 
     public String generateToken(String userId, String roomId) {
