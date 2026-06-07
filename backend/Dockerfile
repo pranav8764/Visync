@@ -19,5 +19,5 @@ USER myuser
 
 EXPOSE 8080
 
-# Run with production profile active
-ENTRYPOINT ["java", "-jar", "app.jar", "--spring.profiles.active=prod"]
+# Run with production profile active and force IPv4 to prevent 'Network is unreachable' socket errors
+ENTRYPOINT ["java", "-Djava.net.preferIPv4Stack=true", "-jar", "app.jar", "--spring.profiles.active=prod"]
