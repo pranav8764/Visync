@@ -477,8 +477,8 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
       return;
     }
 
-    // Left click in draw mode → start drawing
-    if (e.evt.button !== 0) return;
+    // Left click in draw mode → start drawing (allow touch events where button is undefined)
+    if (e.evt.button !== undefined && e.evt.button !== 0) return;
 
     setIsDrawing(true);
 
@@ -897,7 +897,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
           y={stageY}
           onWheel={handleWheel}
           onContextMenu={(e) => e.evt.preventDefault()}
-          className={`${cursorStyle} absolute inset-0`}
+          className={`${cursorStyle} absolute inset-0 touch-none`}
         >
           {/* Grid Layer — rendered behind everything, non-interactive */}
           <Layer listening={false}>
