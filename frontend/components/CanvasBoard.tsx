@@ -757,7 +757,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
           minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
           maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
         });
-        if (s.x !== undefined) { minX += s.x; maxX += s.x; minY += s.y; maxY += s.y; }
+        if (s.x !== undefined && s.y !== undefined) { minX += s.x; maxX += s.x; minY += s.y; maxY += s.y; }
         return !(minX > box.x + box.width || maxX < box.x || minY > box.y + box.height || maxY < box.y);
       });
       setSelectedIds(selected.map(s => s.id));
@@ -1194,8 +1194,6 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                 return (
                   <KonvaRect key={stroke.id}
                     id={stroke.id}
-                    x={stroke.x || 0}
-                    y={stroke.y || 0}
                     scaleX={stroke.scaleX || 1}
                     scaleY={stroke.scaleY || 1}
                     rotation={stroke.rotation || 0}
@@ -1232,8 +1230,8 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                         wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId: stroke.id, transform } });
                       }
                     }}
-                    x={x}
-                    y={y}
+                    x={stroke.x ?? x}
+                    y={stroke.y ?? y}
                     width={width}
                     height={height}
                     stroke={stroke.color}
@@ -1253,8 +1251,6 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                 return (
                   <KonvaCircle key={stroke.id}
                     id={stroke.id}
-                    x={stroke.x || 0}
-                    y={stroke.y || 0}
                     scaleX={stroke.scaleX || 1}
                     scaleY={stroke.scaleY || 1}
                     rotation={stroke.rotation || 0}
@@ -1291,8 +1287,8 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                         wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId: stroke.id, transform } });
                       }
                     }}
-                    x={p1.x}
-                    y={p1.y}
+                    x={stroke.x ?? p1.x}
+                    y={stroke.y ?? p1.y}
                     radius={r}
                     stroke={stroke.color}
                     strokeWidth={stroke.strokeWidth}
