@@ -163,19 +163,37 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
             case "DRAW_END":
                 broadcastToRoom(roomId, session.getId(), rootNode);
 
-                final String currentRoomId = roomId;
-                final String currentUserId = userId;
-                final String currentEventType = eventType;
-                final JsonNode currentPayloadNode = payloadNode;
-                final long currentTimestamp = timestamp;
-                CompletableFuture.runAsync(() -> {
-                    persistDrawingEvent(currentRoomId, currentUserId, currentEventType, currentPayloadNode,
-                            currentTimestamp);
-                }, dbExecutor);
+                if (!eventType.equals("DRAW_MOVE")) {
+                    final String currentRoomId = roomId;
+                    final String currentUserId = userId;
+                    final String currentEventType = eventType;
+                    final JsonNode currentPayloadNode = payloadNode;
+                    final long currentTimestamp = timestamp;
+                    CompletableFuture.runAsync(() -> {
+                        persistDrawingEvent(currentRoomId, currentUserId, currentEventType, currentPayloadNode,
+                                currentTimestamp);
+                    }, dbExecutor);
+                }
 
                 if (eventType.equals("DRAW_END")) {
                     triggerSnapshotCompaction(roomId);
                 }
+                break;
+            case "OBJECT_TRANSFORM":
+            case "OBJECT_DUPLICATE":
+                broadcastToRoom(roomId, session.getId(), rootNode);
+                
+                final String objRoomId = roomId;
+                final String objUserId = userId;
+                final String objEventType = eventType;
+                final JsonNode objPayloadNode = payloadNode;
+                final long objTimestamp = timestamp;
+                CompletableFuture.runAsync(() -> {
+                    persistDrawingEvent(objRoomId, objUserId, objEventType, objPayloadNode,
+                            objTimestamp);
+                }, dbExecutor);
+                
+                triggerSnapshotCompaction(roomId);
                 break;
             case "CHAT_MESSAGE":
                 persistAndBroadcastChatMessage(roomId, userId, rootNode, payloadNode, timestamp, session.getId());

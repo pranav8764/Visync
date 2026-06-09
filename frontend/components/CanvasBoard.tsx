@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
-import { Stage, Layer, Line as KonvaLine, Rect as KonvaRect, Circle as KonvaCircle } from 'react-konva';
+import { Stage, Layer, Line as KonvaLine, Rect as KonvaRect, Circle as KonvaCircle, Transformer } from 'react-konva';
 import Konva from 'konva';
 import axios from 'axios';
 import { useStore, Stroke, Point } from '@/lib/useStore';
@@ -133,14 +133,43 @@ function getAdaptiveGridSpacing(scale: number): { major: number; minor: number }
 }
 
 // ---------------------------------------------------------------------------
+// Reusable Tool Button Component
+// ---------------------------------------------------------------------------
+const ToolButton = ({
+  isActive,
+  onClick,
+  title,
+  children
+}: {
+  isActive: boolean;
+  onClick: () => void;
+  title: string;
+  children: React.ReactNode;
+}) => (
+  <button
+    onClick={onClick}
+    title={title}
+    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${
+      isActive
+        ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 scale-105'
+        : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-800'
+    }`}
+  >
+    {children}
+  </button>
+);
+
+// ---------------------------------------------------------------------------
 // Main Component
 // ---------------------------------------------------------------------------
 
 export default function CanvasBoard({ roomId, userId }: { roomId: string; userId: string }) {
   const stageRef = useRef<Konva.Stage>(null);
-  
+
   // ---- Zustand selections (fine-grained selectors) ----
   const activeTool = useStore((state) => state.activeTool);
+  const isDarkMode = useStore((state) => state.isDarkMode);
+  const toggleDarkMode = useStore((state) => state.toggleDarkMode);
   const color = useStore((state) => state.color);
   const strokeWidth = useStore((state) => state.strokeWidth);
   const username = useStore((state) => state.username);
@@ -150,6 +179,9 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
   const redoStack = useStore((state) => state.redoStack);
   const viewport = useStore((state) => state.viewport);
   const showGrid = useStore((state) => state.showGrid);
+  const selectedIds = useStore((state) => state.selectedIds);
+  const setSelectedIds = useStore((state) => state.setSelectedIds);
+  const updateStrokeTransform = useStore((state) => state.updateStrokeTransform);
 
   const setRoomName = useStore((state) => state.setRoomName);
   const setActiveTool = useStore((state) => state.setActiveTool);
@@ -185,6 +217,12 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(username || '');
 
+  // Selection Box State
+  const [selectionBox, setSelectionBox] = useState<{ x: number, y: number, width: number, height: number, visible: boolean } | null>(null);
+  const selectionStartRef = useRef<Point | null>(null);
+  const trRef = useRef<Konva.Transformer>(null);
+  const drawingLayerRef = useRef<Konva.Layer>(null);
+
   // Pan state tracking
   const [isPanMode, setIsPanMode] = useState(false);       // Explicit pan tool selected
   const [isSpacePanning, setIsSpacePanning] = useState(false); // Space key held
@@ -204,7 +242,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
   const lastCursorSendRef = useRef<number>(0);
   const chatBottomRef = useRef<HTMLDivElement>(null);
   const toolScrollRef = useRef<HTMLDivElement>(null);
-  
+
   // Pan tracking refs (avoid state re-renders during drag)
   const panStartRef = useRef<{ x: number; y: number } | null>(null);
   const viewportAtPanStartRef = useRef<Viewport | null>(null);
@@ -269,32 +307,88 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // 2. Keyboard listeners for Space-key panning
+  // 2. Global Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ignore if focused on an input/textarea
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
 
+      const state = useStore.getState();
+
       if (e.code === 'Space' && !e.repeat) {
         e.preventDefault();
         setIsSpacePanning(true);
         isSpacePanningRef.current = true;
       }
+
+      // Tool Switching & Deletion
+      if (!e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey) {
+        switch (e.key.toLowerCase()) {
+          case 'v': state.setActiveTool('select'); setIsPanMode(false); break;
+          case 'p': state.setActiveTool('pen'); setIsPanMode(false); break;
+          case 'r': state.setActiveTool('rect'); setIsPanMode(false); break;
+          case 'c': state.setActiveTool('circle'); setIsPanMode(false); break;
+          case 'l': state.setActiveTool('line'); setIsPanMode(false); break;
+          case 'e': state.setActiveTool('eraser'); setIsPanMode(false); break;
+          case 'backspace':
+          case 'delete':
+            if (state.selectedIds.length > 0) {
+              const remaining = state.strokes.filter(s => !state.selectedIds.includes(s.id));
+              state.setStrokes(remaining);
+              
+              if (wsRef.current) {
+                wsRef.current.send({
+                  eventType: 'OBJECT_DELETE',
+                  userId,
+                  roomId,
+                  timestamp: Date.now(),
+                  payload: { strokeIds: state.selectedIds }
+                });
+              }
+              state.setSelectedIds([]);
+            }
+            break;
+        }
+      }
+
+      // Undo / Redo Shortcuts (Cmd+Z / Cmd+Shift+Z)
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          // Redo
+          const popped = state.popFromRedo();
+          if (popped) {
+            state.pushToUndo(popped);
+            state.addStroke(popped);
+            wsRef.current?.send({ eventType: 'REDO', userId, roomId, timestamp: Date.now(), payload: { stroke: popped } });
+          }
+        } else {
+          // Undo
+          const popped = state.popFromUndo();
+          if (popped) {
+            state.pushToRedo(popped);
+            state.setStrokes((prev: Stroke[]) => prev.filter((s) => s.id !== popped.id));
+            wsRef.current?.send({ eventType: 'UNDO', userId, roomId, timestamp: Date.now(), payload: { strokeId: popped.id } });
+          }
+        }
+      }
     };
+    
     const handleKeyUp = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
         setIsSpacePanning(false);
         isSpacePanningRef.current = false;
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
+    
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keyup', handleKeyUp);
     };
-  }, []);
+  }, [roomId, userId]);
 
   // 3. Fetch Board Snapshot and Chronological Event History on Mount
   useEffect(() => {
@@ -323,7 +417,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
         // Apply recent incremental events since the snapshot
         if (Array.isArray(recentEvents)) {
           const eventsMap = new Map<string, Stroke>();
-          
+
           recoveredStrokes.forEach(s => eventsMap.set(s.id, s));
 
           recentEvents.forEach((event: any) => {
@@ -355,6 +449,18 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                       strokeObj.points[1] = payload.point;
                     }
                   }
+                }
+              } else if (event.eventType === 'DRAW_END' && eventsMap.has(sId)) {
+                if (payload.points && Array.isArray(payload.points)) {
+                  eventsMap.get(sId)!.points = payload.points;
+                }
+              } else if (event.eventType === 'OBJECT_TRANSFORM' && eventsMap.has(sId)) {
+                if (payload.transform) {
+                  Object.assign(eventsMap.get(sId)!, payload.transform);
+                }
+              } else if (event.eventType === 'OBJECT_DUPLICATE') {
+                if (payload.strokes && Array.isArray(payload.strokes)) {
+                  payload.strokes.forEach((s: any) => eventsMap.set(s.id, s));
                 }
               }
             } catch (ex) {
@@ -414,6 +520,19 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [historyLoading]);
 
+
+  useEffect(() => {
+    if (activeTool === 'select' && selectedIds.length > 0 && drawingLayerRef.current && trRef.current) {
+      const nodes = selectedIds.map(id => drawingLayerRef.current?.findOne(`#${id}`)).filter(Boolean);
+      trRef.current.nodes(nodes as Konva.Node[]);
+      trRef.current.getLayer()?.batchDraw();
+    } else if (trRef.current) {
+      trRef.current.nodes([]);
+      trRef.current.getLayer()?.batchDraw();
+    }
+  }, [selectedIds, activeTool, strokes]);
+
+
   // 6. Trigger scroll checks whenever tools render, window resizes, or history finishes loading
   useEffect(() => {
     const el = toolScrollRef.current;
@@ -465,6 +584,17 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
     if (!pos) return;
 
     const currentViewport = useStore.getState().viewport;
+
+    if (activeTool === 'select') {
+      const target = e.target;
+      if (target === stage) {
+        setSelectedIds([]);
+        const worldPos = screenToWorld(pos.x, pos.y, currentViewport);
+        selectionStartRef.current = worldPos;
+        setSelectionBox({ x: worldPos.x, y: worldPos.y, width: 0, height: 0, visible: true });
+      }
+      return;
+    }
 
     // Middle mouse button → always pan
     if (e.evt.button === 1) {
@@ -554,6 +684,18 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
       return; // Don't process drawing during pan
     }
 
+    if (activeTool === 'select' && selectionBox?.visible && selectionStartRef.current) {
+      const worldPos = screenToWorld(pos.x, pos.y, currentViewport);
+      setSelectionBox({
+        x: Math.min(selectionStartRef.current.x, worldPos.x),
+        y: Math.min(selectionStartRef.current.y, worldPos.y),
+        width: Math.abs(worldPos.x - selectionStartRef.current.x),
+        height: Math.abs(worldPos.y - selectionStartRef.current.y),
+        visible: true,
+      });
+      return;
+    }
+
     // --- Convert screen → world for drawing and cursor sync ---
     const worldPos = screenToWorld(pos.x, pos.y, currentViewport);
 
@@ -605,6 +747,25 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
    * Handle mouse up — finish drawing or finish panning.
    */
   const handleMouseUp = useCallback(() => {
+    if (activeTool === 'select' && selectionBox?.visible) {
+      const box = selectionBox;
+      const currentStrokes = useStore.getState().strokes;
+      const selected = currentStrokes.filter(s => {
+        if (s.points.length === 0) return false;
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        s.points.forEach(p => {
+          minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
+          maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
+        });
+        if (s.x !== undefined) { minX += s.x; maxX += s.x; minY += s.y; maxY += s.y; }
+        return !(minX > box.x + box.width || maxX < box.x || minY > box.y + box.height || maxY < box.y);
+      });
+      setSelectedIds(selected.map(s => s.id));
+      setSelectionBox(Object.assign({}, box, { visible: false }));
+      selectionStartRef.current = null;
+      return;
+    }
+
     // End panning
     if (isMiddlePanning) {
       setIsMiddlePanning(false);
@@ -653,7 +814,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
         userId,
         roomId,
         timestamp: Date.now(),
-        payload: { strokeId: currentStrokeIdRef.current }
+        payload: { strokeId: currentStrokeIdRef.current, points: activeStroke.points }
       });
     }
 
@@ -700,7 +861,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
     if (window.confirm('Are you sure you want to clear the entire whiteboard? This action will delete history.')) {
       clearStrokes();
       clearUndoRedo();
-      
+
       wsRef.current?.send({
         eventType: 'BOARD_CLEAR',
         userId,
@@ -874,10 +1035,10 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
   // ===================================================================
 
   return (
-    <div className="w-full h-[100dvh] bg-[#fafafa] flex overflow-hidden relative select-none">
-      
+    <div className={`w-full h-[100dvh] flex overflow-hidden relative select-none transition-colors duration-300 ${isDarkMode ? 'bg-zinc-950 text-zinc-50' : 'bg-[#fafafa] text-zinc-900'}`}>
+
       {/* 1. Interactive Whiteboard Canvas Stage Layer */}
-      <div className="flex-1 h-[100dvh] relative bg-[#fafafa]">
+      <div className={`flex-1 h-[100dvh] relative transition-colors duration-300 ${isDarkMode ? 'bg-zinc-950' : 'bg-[#fafafa]'}`}>
         {historyLoading && (
           <div className="absolute inset-0 bg-[#fafafa]/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center gap-3">
             <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
@@ -910,7 +1071,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
           </Layer>
 
           {/* Drawing Layer — all strokes rendered in world coordinates */}
-          <Layer>
+          <Layer ref={drawingLayerRef}>
             {strokes.map((stroke) => {
               const pointsArr = stroke.points.flatMap((p) => [p.x, p.y]);
 
@@ -918,21 +1079,98 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
 
               if (stroke.tool === 'pen' || stroke.tool === 'eraser') {
                 return (
-                  <KonvaLine
-                    key={stroke.id}
+                  <KonvaLine key={stroke.id}
+                    id={stroke.id}
+                    x={stroke.x || 0}
+                    y={stroke.y || 0}
+                    scaleX={stroke.scaleX || 1}
+                    scaleY={stroke.scaleY || 1}
+                    rotation={stroke.rotation || 0}
+                    draggable={activeTool === 'select'}
+                    onClick={(e) => {
+                      if (activeTool === 'select') {
+                        if (e.evt.shiftKey) {
+                          if (selectedIds.includes(stroke.id)) setSelectedIds(selectedIds.filter(id => id !== stroke.id));
+                          else setSelectedIds([...selectedIds, stroke.id]);
+                        } else {
+                          setSelectedIds([stroke.id]);
+                        }
+                        e.cancelBubble = true;
+                      }
+                    }}
+                    onTap={(e) => {
+                      if (activeTool === 'select') {
+                        setSelectedIds([stroke.id]);
+                        e.cancelBubble = true;
+                      }
+                    }}
+                    onDragEnd={(e) => {
+                      if (activeTool === 'select') {
+                        const transform = { x: e.target.x(), y: e.target.y() };
+                        updateStrokeTransform(stroke.id, transform);
+                        wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId: stroke.id, transform } });
+                      }
+                    }}
+                    onTransformEnd={(e) => {
+                      if (activeTool === 'select') {
+                        const node = e.target;
+                        const transform = { x: node.x(), y: node.y(), scaleX: node.scaleX(), scaleY: node.scaleY(), rotation: node.rotation() };
+                        updateStrokeTransform(stroke.id, transform);
+                        wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId: stroke.id, transform } });
+                      }
+                    }}
                     points={pointsArr}
                     stroke={stroke.color}
                     strokeWidth={stroke.strokeWidth}
                     lineCap="round"
                     lineJoin="round"
                     tension={0.5}
+                    globalCompositeOperation={stroke.tool === 'eraser' ? 'destination-out' : 'source-over'}
                   />
                 );
               } else if (stroke.tool === 'line') {
                 const p2 = stroke.points[1] || stroke.points[0];
                 return (
-                  <KonvaLine
-                    key={stroke.id}
+                  <KonvaLine key={stroke.id}
+                    id={stroke.id}
+                    x={stroke.x || 0}
+                    y={stroke.y || 0}
+                    scaleX={stroke.scaleX || 1}
+                    scaleY={stroke.scaleY || 1}
+                    rotation={stroke.rotation || 0}
+                    draggable={activeTool === 'select'}
+                    onClick={(e) => {
+                      if (activeTool === 'select') {
+                        if (e.evt.shiftKey) {
+                          if (selectedIds.includes(stroke.id)) setSelectedIds(selectedIds.filter(id => id !== stroke.id));
+                          else setSelectedIds([...selectedIds, stroke.id]);
+                        } else {
+                          setSelectedIds([stroke.id]);
+                        }
+                        e.cancelBubble = true;
+                      }
+                    }}
+                    onTap={(e) => {
+                      if (activeTool === 'select') {
+                        setSelectedIds([stroke.id]);
+                        e.cancelBubble = true;
+                      }
+                    }}
+                    onDragEnd={(e) => {
+                      if (activeTool === 'select') {
+                        const transform = { x: e.target.x(), y: e.target.y() };
+                        updateStrokeTransform(stroke.id, transform);
+                        wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId: stroke.id, transform } });
+                      }
+                    }}
+                    onTransformEnd={(e) => {
+                      if (activeTool === 'select') {
+                        const node = e.target;
+                        const transform = { x: node.x(), y: node.y(), scaleX: node.scaleX(), scaleY: node.scaleY(), rotation: node.rotation() };
+                        updateStrokeTransform(stroke.id, transform);
+                        wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId: stroke.id, transform } });
+                      }
+                    }}
                     points={[
                       stroke.points[0].x,
                       stroke.points[0].y,
@@ -952,10 +1190,48 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                 const y = Math.min(p1.y, p2.y);
                 const width = Math.abs(p1.x - p2.x);
                 const height = Math.abs(p1.y - p2.y);
-                
+
                 return (
-                  <KonvaRect
-                    key={stroke.id}
+                  <KonvaRect key={stroke.id}
+                    id={stroke.id}
+                    x={stroke.x || 0}
+                    y={stroke.y || 0}
+                    scaleX={stroke.scaleX || 1}
+                    scaleY={stroke.scaleY || 1}
+                    rotation={stroke.rotation || 0}
+                    draggable={activeTool === 'select'}
+                    onClick={(e) => {
+                      if (activeTool === 'select') {
+                        if (e.evt.shiftKey) {
+                          if (selectedIds.includes(stroke.id)) setSelectedIds(selectedIds.filter(id => id !== stroke.id));
+                          else setSelectedIds([...selectedIds, stroke.id]);
+                        } else {
+                          setSelectedIds([stroke.id]);
+                        }
+                        e.cancelBubble = true;
+                      }
+                    }}
+                    onTap={(e) => {
+                      if (activeTool === 'select') {
+                        setSelectedIds([stroke.id]);
+                        e.cancelBubble = true;
+                      }
+                    }}
+                    onDragEnd={(e) => {
+                      if (activeTool === 'select') {
+                        const transform = { x: e.target.x(), y: e.target.y() };
+                        updateStrokeTransform(stroke.id, transform);
+                        wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId: stroke.id, transform } });
+                      }
+                    }}
+                    onTransformEnd={(e) => {
+                      if (activeTool === 'select') {
+                        const node = e.target;
+                        const transform = { x: node.x(), y: node.y(), scaleX: node.scaleX(), scaleY: node.scaleY(), rotation: node.rotation() };
+                        updateStrokeTransform(stroke.id, transform);
+                        wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId: stroke.id, transform } });
+                      }
+                    }}
                     x={x}
                     y={y}
                     width={width}
@@ -975,8 +1251,46 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                 );
 
                 return (
-                  <KonvaCircle
-                    key={stroke.id}
+                  <KonvaCircle key={stroke.id}
+                    id={stroke.id}
+                    x={stroke.x || 0}
+                    y={stroke.y || 0}
+                    scaleX={stroke.scaleX || 1}
+                    scaleY={stroke.scaleY || 1}
+                    rotation={stroke.rotation || 0}
+                    draggable={activeTool === 'select'}
+                    onClick={(e) => {
+                      if (activeTool === 'select') {
+                        if (e.evt.shiftKey) {
+                          if (selectedIds.includes(stroke.id)) setSelectedIds(selectedIds.filter(id => id !== stroke.id));
+                          else setSelectedIds([...selectedIds, stroke.id]);
+                        } else {
+                          setSelectedIds([stroke.id]);
+                        }
+                        e.cancelBubble = true;
+                      }
+                    }}
+                    onTap={(e) => {
+                      if (activeTool === 'select') {
+                        setSelectedIds([stroke.id]);
+                        e.cancelBubble = true;
+                      }
+                    }}
+                    onDragEnd={(e) => {
+                      if (activeTool === 'select') {
+                        const transform = { x: e.target.x(), y: e.target.y() };
+                        updateStrokeTransform(stroke.id, transform);
+                        wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId: stroke.id, transform } });
+                      }
+                    }}
+                    onTransformEnd={(e) => {
+                      if (activeTool === 'select') {
+                        const node = e.target;
+                        const transform = { x: node.x(), y: node.y(), scaleX: node.scaleX(), scaleY: node.scaleY(), rotation: node.rotation() };
+                        updateStrokeTransform(stroke.id, transform);
+                        wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId: stroke.id, transform } });
+                      }
+                    }}
                     x={p1.x}
                     y={p1.y}
                     radius={r}
@@ -987,275 +1301,138 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
               }
               return null;
             })}
+            {activeTool === 'select' && <Transformer ref={trRef} boundBoxFunc={(oldBox, newBox) => { if (newBox.width < 5 || newBox.height < 5) return oldBox; return newBox; }} />}
+            {selectionBox?.visible && (
+              <KonvaRect
+                x={selectionBox.x} y={selectionBox.y} width={selectionBox.width} height={selectionBox.height}
+                fill="rgba(37, 99, 235, 0.1)" stroke="#2563eb" strokeWidth={1 / viewport.scale} listening={false}
+              />
+            )}
           </Layer>
         </Stage>
 
         {/* 2. Floating Collaborative Cursor Overlays */}
         <CollaborativeCursors userId={userId} viewport={viewport} />
 
-        {/* 3. Floating Responsive Premium Canvas Tool Dock */}
-        <div className={`absolute left-0 top-1/2 -translate-y-1/2 flex items-center z-40 select-none transition-transform duration-300 ease-in-out ${isToolbarOpen ? 'translate-x-0' : '-translate-x-[calc(100%-40px)]'}`}>
-          <div className="flex flex-col items-center gap-4 max-h-[85vh] pl-4 md:pl-6">
-            <div className="glass-panel-light p-2 md:p-2.5 rounded-2xl flex flex-col items-center shadow-2xl border border-zinc-200/80 backdrop-blur-lg relative">
-            
-            {/* Scroll Up Arrow */}
-            {canScrollUp || canScrollDown ? (
-              <button
-                onClick={() => scrollTools('up')}
-                title="Scroll Up"
-                className={`w-10 h-6 flex items-center justify-center text-blue-600 hover:text-blue-800 transition-all hover:bg-zinc-100 rounded-lg cursor-pointer mb-1 shrink-0 active:scale-95 ${
-                  canScrollUp ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-                }`}
-              >
-                <svg className="w-5 h-5 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
-                </svg>
-              </button>
-            ) : null}
-
-            {/* Scrollable Tools Button Wrapper */}
-            <div
-              ref={toolScrollRef}
-              onScroll={checkScroll}
-              className="flex flex-col items-center gap-2 overflow-y-auto no-scrollbar py-1.5 max-h-[45vh] md:max-h-[60vh] scroll-smooth w-full"
-              style={{
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-                WebkitOverflowScrolling: 'touch'
-              }}
+        {/* 3. Top Center Toolbar (Tools) */}
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center z-40 select-none shadow-2xl rounded-2xl glass-panel-light p-1 border border-zinc-200/80 backdrop-blur-lg">
+          <div className="flex items-center gap-1">
+            {/* Select Tool */}
+            <ToolButton isActive={activeTool === 'select' && !isPanMode} onClick={() => { setActiveTool('select'); setIsPanMode(false); }} title="Select & Move (V)">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+              </svg>
+            </ToolButton>
+            <div className="w-px h-6 bg-zinc-200 mx-1" />
+            {/* Pen Freehand */}
+            <ToolButton isActive={activeTool === 'pen' && !isPanMode} onClick={() => { setActiveTool('pen'); setIsPanMode(false); }} title="Freehand Draw (P)">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </ToolButton>
+            {/* Rectangle Shape */}
+            <ToolButton isActive={activeTool === 'rect' && !isPanMode} onClick={() => { setActiveTool('rect'); setIsPanMode(false); }} title="Rectangle (R)">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+              </svg>
+            </ToolButton>
+            {/* Circle Shape */}
+            <ToolButton isActive={activeTool === 'circle' && !isPanMode} onClick={() => { setActiveTool('circle'); setIsPanMode(false); }} title="Circle (C)">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <circle cx="12" cy="12" r="9" />
+              </svg>
+            </ToolButton>
+            {/* Line Shape */}
+            <ToolButton isActive={activeTool === 'line' && !isPanMode} onClick={() => { setActiveTool('line'); setIsPanMode(false); }} title="Line (L)">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <line strokeLinecap="round" x1="5" y1="19" x2="19" y2="5" />
+              </svg>
+            </ToolButton>
+            {/* Eraser Tool */}
+            <ToolButton isActive={activeTool === 'eraser' && !isPanMode} onClick={() => { setActiveTool('eraser'); setIsPanMode(false); }} title="Eraser (E)">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m20 20-5-5" />
+                <path d="M16 16 10 22 2 14 8 8 16 16z" />
+                <path d="M17 11 13 7" />
+              </svg>
+            </ToolButton>
+            <div className="w-px h-6 bg-zinc-200 mx-1" />
+            {/* Pan Board Tool */}
+            <ToolButton isActive={isPanMode} onClick={() => setIsPanMode(!isPanMode)} title="Pan Tool (Space)">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 11c0-.552-.448-1-1-1s-1 .448-1 1v3.5l-1-1.25c-.328-.41-.9-.475-1.3-.15-.4.328-.475.9-.15 1.3l2.45 3.06c.3.38.77.6 1.26.6h3.48c.84 0 1.54-.62 1.63-1.45l.41-3.69c.04-.37-.08-.74-.32-1.02-.24-.28-.58-.44-.95-.44h-.5c-.552 0-1 .448-1 1V11z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 10.5V6a1.5 1.5 0 013 0v4.5M6 12V8a1.5 1.5 0 013 0v4M12 10.5V5a1.5 1.5 0 013 0v5.5M15 12V9a1.5 1.5 0 013 0v3" />
+              </svg>
+            </ToolButton>
+            <div className="w-px h-6 bg-zinc-200 mx-1" />
+            <button
+              onClick={handleClearBoard}
+              title="Clear Board"
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-red-500 hover:bg-red-50"
             >
-              {/* Pen Freehand */}
-              <button
-                onClick={() => { setActiveTool('pen'); setIsPanMode(false); }}
-                title="Freehand Draw"
-                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${
-                  activeTool === 'pen' && !isPanMode ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 scale-105' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-800'
-                }`}
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-              </button>
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
 
-              {/* Line Shape */}
-              <button
-                onClick={() => { setActiveTool('line'); setIsPanMode(false); }}
-                title="Draw Line"
-                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${
-                  activeTool === 'line' && !isPanMode ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 scale-105' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-800'
-                }`}
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                  <line strokeLinecap="round" x1="5" y1="19" x2="19" y2="5" />
-                </svg>
-              </button>
-
-              {/* Rectangle Shape */}
-              <button
-                onClick={() => { setActiveTool('rect'); setIsPanMode(false); }}
-                title="Draw Rectangle"
-                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${
-                  activeTool === 'rect' && !isPanMode ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 scale-105' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-800'
-                }`}
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                  <rect x="3" y="3" width="18" height="18" rx="2" />
-                </svg>
-              </button>
-
-              {/* Circle Shape */}
-              <button
-                onClick={() => { setActiveTool('circle'); setIsPanMode(false); }}
-                title="Draw Circle"
-                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${
-                  activeTool === 'circle' && !isPanMode ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 scale-105' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-800'
-                }`}
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                  <circle cx="12" cy="12" r="9" />
-                </svg>
-              </button>
-
-              {/* Eraser Tool */}
-              <button
-                onClick={() => { setActiveTool('eraser'); setIsPanMode(false); }}
-                title="Eraser"
-                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${
-                  activeTool === 'eraser' && !isPanMode ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 scale-105' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-800'
-                }`}
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m20 20-5-5" />
-                  <path d="M16 16 10 22 2 14 8 8 16 16z" />
-                  <path d="M17 11 13 7" />
-                </svg>
-              </button>
-
-              {/* Pan Board Tool */}
-              <button
-                onClick={() => setIsPanMode(!isPanMode)}
-                title="Pan / Grab Board"
-                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${
-                  isPanMode ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 scale-105' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-800'
-                }`}
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 11c0-.552-.448-1-1-1s-1 .448-1 1v3.5l-1-1.25c-.328-.41-.9-.475-1.3-.15-.4.328-.475.9-.15 1.3l2.45 3.06c.3.38.77.6 1.26.6h3.48c.84 0 1.54-.62 1.63-1.45l.41-3.69c.04-.37-.08-.74-.32-1.02-.24-.28-.58-.44-.95-.44h-.5c-.552 0-1 .448-1 1V11z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 10.5V6a1.5 1.5 0 013 0v4.5M6 12V8a1.5 1.5 0 013 0v4M12 10.5V5a1.5 1.5 0 013 0v5.5M15 12V9a1.5 1.5 0 013 0v3" />
-                </svg>
-              </button>
-
-              {/* Toggle Grid */}
-              <button
-                onClick={toggleGrid}
-                title={showGrid ? 'Hide Grid' : 'Show Grid'}
-                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${
-                  showGrid ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 scale-105' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-800'
-                }`}
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h7v7H3V3zm11 0h7v7h-7V3zm-11 11h7v7H3v-7zm11 0h7v7h-7v-7z" />
-                </svg>
-              </button>
-
-            </div>
-
-            {/* Scroll Down Arrow */}
-            {canScrollUp || canScrollDown ? (
-              <button
-                onClick={() => scrollTools('down')}
-                title="Scroll Down"
-                className={`w-10 h-6 flex items-center justify-center text-blue-600 hover:text-blue-800 transition-all hover:bg-zinc-100 rounded-lg cursor-pointer mt-1 shrink-0 active:scale-95 ${
-                  canScrollDown ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-                }`}
-              >
-                <svg className="w-5 h-5 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-            ) : null}
-
-            <div className="w-8 h-px bg-zinc-200 my-1 shrink-0" />
-
-            {/* Combined Config / Operations */}
-            <div className="flex flex-col items-center gap-2 relative">
-              {/* Color Picker Toggle */}
-              {activeTool !== 'eraser' && (
-                <div className="relative">
-                  <button
-                    onClick={() => {
-                      setIsColorPickerOpen(!isColorPickerOpen);
-                      setIsWidthPickerOpen(false);
-                    }}
-                    title="Select Color"
-                    className="w-8 h-8 rounded-full border border-zinc-300 shadow-sm flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shrink-0"
-                    style={{ backgroundColor: color }}
-                  >
-                    <span className="sr-only">Color</span>
-                  </button>
-                  {isColorPickerOpen && (
-                    <div className="absolute left-12 top-1/2 -translate-y-1/2 glass-panel-light p-2 rounded-xl shadow-2xl border border-zinc-200 z-50 min-w-[120px] flex justify-center bg-white/95">
-                      <div className="grid grid-cols-4 gap-1.5">
-                        {colorsPalette.map((col) => (
-                          <button
-                            key={col}
-                            onClick={() => {
-                              setColor(col);
-                              setIsColorPickerOpen(false);
-                            }}
-                            className="w-6 h-6 rounded-full border border-black/15 transition-transform active:scale-95 flex items-center justify-center"
-                            style={{ backgroundColor: col }}
-                          >
-                            {color === col && (
-                              <span className={`w-1.5 h-1.5 rounded-full ${col === '#ffffff' ? 'bg-black' : 'bg-white'}`} />
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+        {/* 4. Left-Side Property & Action Panel */}
+        <div className={`absolute left-4 top-1/2 -translate-y-1/2 flex items-center z-40 select-none transition-transform duration-300 ease-in-out ${isToolbarOpen ? 'translate-x-0' : '-translate-x-[calc(100%+40px)]'}`}>
+          <div className="glass-panel-light p-2.5 rounded-2xl flex flex-col items-center gap-3 shadow-2xl border border-zinc-200/80 backdrop-blur-lg">
+            {/* Color Properties */}
+            {activeTool !== 'eraser' && (
+              <div className="flex flex-col gap-1.5 p-1.5 bg-white/50 rounded-xl w-full">
+                <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider text-center">Colors</div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {colorsPalette.slice(0, 8).map((col) => (
+                    <button
+                      key={col}
+                      onClick={() => setColor(col)}
+                      className={`w-8 h-8 rounded-full border-2 transition-transform active:scale-95 flex items-center justify-center ${color === col ? 'border-blue-500 scale-110 shadow-sm' : 'border-black/5 hover:scale-105'}`}
+                      style={{ backgroundColor: col }}
+                    >
+                    </button>
+                  ))}
                 </div>
-              )}
-
-              {/* Stroke Width Toggle */}
-              <div className="relative">
-                <button
-                  onClick={() => {
-                    setIsWidthPickerOpen(!isWidthPickerOpen);
-                    setIsColorPickerOpen(false);
-                  }}
-                  title="Select Size"
-                  className="w-8 h-8 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold border border-zinc-300 flex items-center justify-center transition-transform active:scale-95 shrink-0"
-                >
-                  <div className="rounded-full bg-zinc-800" style={{ width: `${Math.min(12, strokeWidth)}px`, height: `${Math.min(12, strokeWidth)}px` }} />
-                </button>
-                {isWidthPickerOpen && (
-                  <div className="absolute left-12 top-1/2 -translate-y-1/2 glass-panel-light p-2 rounded-xl shadow-2xl border border-zinc-200 z-50 flex flex-col gap-1.5 items-center bg-white/95 min-w-[40px]">
-                    {strokeWidths.map((width) => (
-                      <button
-                        key={width}
-                        onClick={() => {
-                          setStrokeWidth(width);
-                          setIsWidthPickerOpen(false);
-                        }}
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
-                          strokeWidth === width ? 'bg-zinc-200/80 border border-zinc-300' : 'hover:bg-zinc-100'
-                        }`}
-                      >
-                        <div className="rounded-full bg-zinc-800" style={{ width: `${Math.min(16, width + 1)}px`, height: `${Math.min(16, width + 1)}px` }} />
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
+            )}
 
-              <div className="w-8 h-px bg-zinc-200 my-1 shrink-0" />
-
-              {/* Operations: Undo, Redo, Export, Clear */}
-              <div className="flex flex-col items-center gap-1.5">
-                <button
-                  onClick={handleUndo}
-                  disabled={undoStack.length === 0}
-                  title="Undo"
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-600 hover:bg-zinc-100 disabled:opacity-30 shrink-0"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                  </svg>
-                </button>
-                <button
-                  onClick={handleRedo}
-                  disabled={redoStack.length === 0}
-                  title="Redo"
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-600 hover:bg-zinc-100 disabled:opacity-30 shrink-0"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 10H11a8 8 0 00-8 8v2m18-8l-6 6m6-6l-6-6" />
-                  </svg>
-                </button>
-                <button
-                  onClick={handleExportPNG}
-                  title="Export PNG"
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-600 hover:bg-zinc-100 shrink-0"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                </button>
-                <button
-                  onClick={handleClearBoard}
-                  title="Clear Board"
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-red-500 hover:bg-red-50 shrink-0"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
+            {/* Stroke Width */}
+            <div className="flex flex-col gap-1.5 w-full items-center p-1.5 bg-white/50 rounded-xl">
+              <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider text-center">Width</div>
+              <div className="flex flex-col gap-2 w-full items-center">
+                {strokeWidths.map((width) => (
+                  <button
+                    key={width}
+                    onClick={() => setStrokeWidth(width)}
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${strokeWidth === width ? 'bg-zinc-200/80 border border-zinc-300 shadow-inner' : 'hover:bg-zinc-100'}`}
+                  >
+                    <div className="rounded-full bg-zinc-800" style={{ width: `${Math.min(16, width + 1)}px`, height: `${Math.min(16, width + 1)}px` }} />
+                  </button>
+                ))}
               </div>
             </div>
-          </div>
-          </div>
 
+            <div className="w-10 h-px bg-zinc-200 my-1" />
+
+            {/* Operations */}
+            <div className="flex flex-col items-center gap-1.5 w-full">
+              <button
+                onClick={handleUndo} disabled={undoStack.length === 0} title="Undo (Cmd+Z)"
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-600 hover:bg-zinc-100 disabled:opacity-30"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
+              </button>
+              <button
+                onClick={handleRedo} disabled={redoStack.length === 0} title="Redo (Cmd+Shift+Z)"
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-600 hover:bg-zinc-100 disabled:opacity-30"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M21 10H11a8 8 0 00-8 8v2m18-8l-6 6m6-6l-6-6" /></svg>
+              </button>
+            </div>
+          </div>
+          
           <button
             onClick={() => setIsToolbarOpen(!isToolbarOpen)}
             className="ml-2 glass-panel-light p-1.5 rounded-xl shadow-lg border border-zinc-200 text-zinc-500 hover:text-zinc-800 transition-all hover:bg-zinc-50 active:scale-95"
@@ -1303,7 +1480,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
 
       {/* 4. Room Info Top Bar Panel */}
       <div className="absolute top-6 md:top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-50 pt-[env(safe-area-inset-top)]">
-        
+
         {/* Room Title & User Identity Docks */}
         <div className="glass-panel-light py-2 px-4 rounded-xl flex items-center gap-4 shadow-lg pointer-events-auto border border-zinc-200/80">
           <div className="flex items-center gap-3 pr-4 border-r border-zinc-200/60">
@@ -1344,7 +1521,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                     }
                   }}
                 />
-                <button 
+                <button
                   onClick={() => {
                     const newName = tempName.trim() || 'Guest';
                     setUsername(newName);
@@ -1376,6 +1553,26 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                 </svg>
               </div>
             )}
+            
+            <div className="w-px h-5 bg-zinc-200 mx-1" />
+            
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={toggleDarkMode}
+              title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isDarkMode ? 'text-yellow-400 hover:bg-zinc-800' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100'}`}
+            >
+              {isDarkMode ? (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              )}
+            </button>
+            
           </div>
         </div>
 
@@ -1504,9 +1701,8 @@ function AccessorySidebar({
 
   return (
     <div
-      className={`h-[100dvh] border-l border-zinc-200 bg-white flex flex-col z-40 transition-all duration-300 ease-in-out shadow-2xl absolute md:relative right-0 top-0 pt-14 md:pt-0 ${
-        isSidebarOpen ? 'w-80 max-w-[85vw]' : 'w-0 border-l-0 opacity-0 pointer-events-none'
-      }`}
+      className={`h-[100dvh] border-l border-zinc-200 bg-white flex flex-col z-40 transition-all duration-300 ease-in-out shadow-2xl absolute md:relative right-0 top-0 pt-14 md:pt-0 ${isSidebarOpen ? 'w-80 max-w-[85vw]' : 'w-0 border-l-0 opacity-0 pointer-events-none'
+        }`}
     >
       <div className="p-4 border-b border-zinc-150 flex flex-col gap-3">
         <div className="flex justify-between items-center w-full">
@@ -1522,7 +1718,7 @@ function AccessorySidebar({
             </svg>
           </button>
         </div>
-        
+
         <div className="flex flex-wrap gap-2">
           {activeUsers.map((user) => {
             const initial = user.username ? user.username.charAt(0).toUpperCase() : '?';
@@ -1565,12 +1761,12 @@ function AccessorySidebar({
         <div className="p-3 bg-zinc-50 border-b border-zinc-200">
           <h3 className="font-extrabold text-xs text-zinc-600 tracking-wider uppercase">Live Room Chat</h3>
         </div>
-        
+
         <div className="flex-1 p-4 overflow-y-auto space-y-3.5 select-text">
           {messages.map((msg, index) => {
             const isSystem = msg.senderId === 'system';
             const isSelf = msg.senderId === userId;
-            
+
             if (isSystem) {
               return (
                 <div key={index} className="text-center">
@@ -1584,17 +1780,15 @@ function AccessorySidebar({
             return (
               <div
                 key={index}
-                className={`flex flex-col max-w-[85%] ${
-                  isSelf ? 'ml-auto items-end' : 'mr-auto items-start'
-                }`}
+                className={`flex flex-col max-w-[85%] ${isSelf ? 'ml-auto items-end' : 'mr-auto items-start'
+                  }`}
               >
                 <span className="text-[10px] font-semibold text-zinc-500 mb-1 px-1">{msg.senderName}</span>
                 <div
-                  className={`p-3 rounded-2xl text-xs leading-relaxed ${
-                    isSelf
+                  className={`p-3 rounded-2xl text-xs leading-relaxed ${isSelf
                       ? 'bg-blue-600 text-white rounded-tr-none shadow-md shadow-blue-500/10'
                       : 'bg-white text-zinc-800 border border-zinc-200 rounded-tl-none shadow-sm'
-                  }`}
+                    }`}
                 >
                   {msg.message}
                 </div>

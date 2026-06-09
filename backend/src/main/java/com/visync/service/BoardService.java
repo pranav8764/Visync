@@ -204,6 +204,47 @@ public class BoardService {
                             }
                             break;
                         case "DRAW_END":
+                            if (plNode.has("points") && plNode.get("points").isArray()) {
+                                Map<String, Object> strokeToEnd = strokes.get(sId);
+                                if (strokeToEnd != null) {
+                                    List<Map<String, Double>> endPts = new ArrayList<>();
+                                    for (JsonNode pNode : plNode.get("points")) {
+                                        Map<String, Double> pt = new HashMap<>();
+                                        pt.put("x", pNode.get("x").asDouble());
+                                        pt.put("y", pNode.get("y").asDouble());
+                                        endPts.add(pt);
+                                    }
+                                    strokeToEnd.put("points", endPts);
+                                }
+                            }
+                            break;
+                        case "OBJECT_TRANSFORM":
+                            Map<String, Object> strokeToTransform = strokes.get(sId);
+                            if (strokeToTransform != null && plNode.has("transform")) {
+                                JsonNode transform = plNode.get("transform");
+                                if (transform.has("x")) strokeToTransform.put("x", transform.get("x").asDouble());
+                                if (transform.has("y")) strokeToTransform.put("y", transform.get("y").asDouble());
+                                if (transform.has("scaleX")) strokeToTransform.put("scaleX", transform.get("scaleX").asDouble());
+                                if (transform.has("scaleY")) strokeToTransform.put("scaleY", transform.get("scaleY").asDouble());
+                                if (transform.has("rotation")) strokeToTransform.put("rotation", transform.get("rotation").asDouble());
+                            }
+                            break;
+                        case "OBJECT_DUPLICATE":
+                            if (plNode.has("strokes") && plNode.get("strokes").isArray()) {
+                                for (JsonNode newStrokeNode : plNode.get("strokes")) {
+                                    Map<String, Object> duplicatedStroke = objectMapper.convertValue(newStrokeNode, Map.class);
+                                    if (duplicatedStroke != null && duplicatedStroke.get("id") != null) {
+                                        strokes.put((String) duplicatedStroke.get("id"), duplicatedStroke);
+                                    }
+                                }
+                            }
+                            break;
+                        case "OBJECT_DELETE":
+                            if (plNode.has("strokeIds") && plNode.get("strokeIds").isArray()) {
+                                for (JsonNode idNode : plNode.get("strokeIds")) {
+                                    strokes.remove(idNode.asText());
+                                }
+                            }
                             break;
                     }
                 } catch (Exception ex) {

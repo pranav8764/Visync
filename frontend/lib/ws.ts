@@ -14,7 +14,10 @@ export interface DrawEvent {
     | 'BOARD_CLEAR'
     | 'UNDO'
     | 'REDO'
-    | 'USER_NAME_CHANGE';
+    | 'USER_NAME_CHANGE'
+    | 'OBJECT_TRANSFORM'
+    | 'OBJECT_DUPLICATE'
+    | 'OBJECT_DELETE';
   userId: string;
   roomId: string;
   timestamp: number;
@@ -199,6 +202,33 @@ export class WebSocketClient {
       case 'DRAW_END':
         // Optional tracking logs
         break;
+      case 'OBJECT_TRANSFORM': {
+        const { strokeId, transform } = payload;
+        store.updateStrokeTransform(strokeId, transform);
+        break;
+      }
+      case 'OBJECT_DUPLICATE': {
+        if (payload.strokes && Array.isArray(payload.strokes)) {
+          payload.strokes.forEach((stroke: Stroke) => {
+            useStore.getState().addStroke(stroke);
+          });
+        }
+        break;
+      }
+      case 'OBJECT_DELETE': {
+        if (payload.strokeIds && Array.isArray(payload.strokeIds)) {
+          useStore.getState().setStrokes((prev: Stroke[]) => 
+            prev.filter(s => !payload.strokeIds.includes(s.id))
+          );
+          // Also clear from selection if currently selected
+          const { selectedIds, setSelectedIds } = useStore.getState();
+          const newSelected = selectedIds.filter(id => !payload.strokeIds.includes(id));
+          if (newSelected.length !== selectedIds.length) {
+            setSelectedIds(newSelected);
+          }
+        }
+        break;
+      }
       case 'CHAT_MESSAGE': {
         const msg: ChatMsg = {
           senderId: userId,

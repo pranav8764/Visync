@@ -12,7 +12,17 @@ export interface Stroke {
   points: Point[];
   color: string;
   strokeWidth: number;
-  tool: 'pen' | 'line' | 'rect' | 'circle' | 'eraser';
+  tool: 'pen' | 'line' | 'rect' | 'circle' | 'eraser' | 'select';
+  
+  // Transform & Style Properties
+  x?: number;
+  y?: number;
+  scaleX?: number;
+  scaleY?: number;
+  rotation?: number;
+  fill?: string;
+  opacity?: number;
+  isDeleted?: boolean;
 }
 
 export interface UserPresence {
@@ -35,12 +45,21 @@ export interface CursorState {
 }
 
 interface VisyncState {
+  // Global App State
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
+  setDarkMode: (isDark: boolean) => void;
+
   // Whiteboard configuration
-  activeTool: 'pen' | 'line' | 'rect' | 'circle' | 'eraser';
+  activeTool: 'pen' | 'line' | 'rect' | 'circle' | 'eraser' | 'select';
   color: string;
+  fillColor: string; // Used for shape fills
+  opacity: number;
   strokeWidth: number;
-  setActiveTool: (tool: 'pen' | 'line' | 'rect' | 'circle' | 'eraser') => void;
+  setActiveTool: (tool: 'pen' | 'line' | 'rect' | 'circle' | 'eraser' | 'select') => void;
   setColor: (color: string) => void;
+  setFillColor: (color: string) => void;
+  setOpacity: (opacity: number) => void;
   setStrokeWidth: (width: number) => void;
 
   // Viewport state for infinite canvas
@@ -69,9 +88,13 @@ interface VisyncState {
   strokes: Stroke[];
   undoStack: Stroke[];
   redoStack: Stroke[];
+  selectedIds: string[];
+  
   setStrokes: (strokes: Stroke[] | ((prev: Stroke[]) => Stroke[])) => void;
   addStroke: (stroke: Stroke) => void;
   updateLastStrokePoints: (strokeId: string, point: Point) => void;
+  updateStrokeTransform: (strokeId: string, transform: Partial<Stroke>) => void;
+  setSelectedIds: (ids: string[]) => void;
   clearStrokes: () => void;
   
   // Undo/Redo operations
@@ -94,8 +117,11 @@ interface VisyncState {
 
 export const useStore = create<VisyncState>((set, get) => ({
   // Defaults
+  isDarkMode: false,
   activeTool: 'pen',
   color: '#2563eb', // Modern Premium Royal Blue
+  fillColor: 'transparent',
+  opacity: 1,
   strokeWidth: 3,
   roomId: null,
   userId: null,
@@ -105,6 +131,7 @@ export const useStore = create<VisyncState>((set, get) => ({
   strokes: [],
   undoStack: [],
   redoStack: [],
+  selectedIds: [],
   cursors: {},
   messages: [],
 
@@ -115,9 +142,15 @@ export const useStore = create<VisyncState>((set, get) => ({
   ),
   showGrid: true,
 
+  // Global App setters
+  toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
+  setDarkMode: (isDark) => set({ isDarkMode: isDark }),
+
   // Whiteboard configuration setters
-  setActiveTool: (tool) => set({ activeTool: tool }),
+  setActiveTool: (tool) => set({ activeTool: tool, selectedIds: tool === 'select' ? get().selectedIds : [] }),
   setColor: (color) => set({ color }),
+  setFillColor: (fillColor) => set({ fillColor }),
+  setOpacity: (opacity) => set({ opacity }),
   setStrokeWidth: (strokeWidth) => set({ strokeWidth }),
 
   // Viewport setters
@@ -174,7 +207,15 @@ export const useStore = create<VisyncState>((set, get) => ({
     })
   })),
 
-  clearStrokes: () => set({ strokes: [], undoStack: [], redoStack: [] }),
+  updateStrokeTransform: (strokeId, transform) => set((state) => ({
+    strokes: state.strokes.map((s) => 
+      s.id === strokeId ? { ...s, ...transform } : s
+    )
+  })),
+
+  setSelectedIds: (ids) => set({ selectedIds: ids }),
+
+  clearStrokes: () => set({ strokes: [], undoStack: [], redoStack: [], selectedIds: [] }),
 
   // Undo/Redo stacks
   pushToUndo: (stroke) => set((state) => ({ undoStack: [...state.undoStack, stroke] })),
