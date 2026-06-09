@@ -158,6 +158,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
   const setStrokes = useStore((state) => state.setStrokes);
   const addStroke = useStore((state) => state.addStroke);
   const updateLastStrokePoints = useStore((state) => state.updateLastStrokePoints);
+  const setUsername = useStore((state) => state.setUsername);
   const clearStrokes = useStore((state) => state.clearStrokes);
   const pushToUndo = useStore((state) => state.pushToUndo);
   const popFromUndo = useStore((state) => state.popFromUndo);
@@ -179,6 +180,10 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
   const [isToolbarOpen, setIsToolbarOpen] = useState(true);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [wsToken, setWsToken] = useState<string | null>(null);
+
+  // User identity state
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState(username || '');
 
   // Pan state tracking
   const [isPanMode, setIsPanMode] = useState(false);       // Explicit pan tool selected
@@ -1299,12 +1304,78 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
       {/* 4. Room Info Top Bar Panel */}
       <div className="absolute top-6 md:top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-50 pt-[env(safe-area-inset-top)]">
         
-        {/* Room Title Docks */}
-        <div className="glass-panel-light py-2 px-4 rounded-xl flex items-center gap-3 shadow-lg pointer-events-auto border border-zinc-200/80">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 pulsing-dot"></div>
-          <div className="flex flex-col">
-            <span className="text-xs font-bold text-zinc-900 leading-tight">{roomName || 'Collaboration Board'}</span>
-            <span className="text-[10px] text-zinc-500 tracking-wide uppercase font-semibold">Active Workspace</span>
+        {/* Room Title & User Identity Docks */}
+        <div className="glass-panel-light py-2 px-4 rounded-xl flex items-center gap-4 shadow-lg pointer-events-auto border border-zinc-200/80">
+          <div className="flex items-center gap-3 pr-4 border-r border-zinc-200/60">
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 pulsing-dot"></div>
+            <div className="flex flex-col">
+              <span className="text-xs font-bold text-zinc-900 leading-tight">{roomName || 'Collaboration Board'}</span>
+              <span className="text-[10px] text-zinc-500 tracking-wide uppercase font-semibold">Active Workspace</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-[10px] flex items-center justify-center shadow-sm">
+              {username ? username.charAt(0).toUpperCase() : '?'}
+            </div>
+            {isEditingName ? (
+              <div className="flex items-center gap-1">
+                <input
+                  type="text"
+                  value={tempName}
+                  onChange={(e) => setTempName(e.target.value)}
+                  maxLength={15}
+                  className="h-6 w-24 text-xs px-1 border-b border-blue-500 bg-transparent outline-none font-semibold text-zinc-800"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const newName = tempName.trim() || 'Guest';
+                      setUsername(newName);
+                      localStorage.setItem('visync_nickname', newName);
+                      setIsEditingName(false);
+                      if (wsRef.current) {
+                        wsRef.current.send({
+                          eventType: 'USER_NAME_CHANGE',
+                          userId,
+                          roomId,
+                          timestamp: Date.now(),
+                          payload: { username: newName }
+                        });
+                      }
+                    }
+                  }}
+                />
+                <button 
+                  onClick={() => {
+                    const newName = tempName.trim() || 'Guest';
+                    setUsername(newName);
+                    localStorage.setItem('visync_nickname', newName);
+                    setIsEditingName(false);
+                    if (wsRef.current) {
+                      wsRef.current.send({
+                        eventType: 'USER_NAME_CHANGE',
+                        userId,
+                        roomId,
+                        timestamp: Date.now(),
+                        payload: { username: newName }
+                      });
+                    }
+                  }}
+                  className="text-emerald-600 hover:text-emerald-700"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 group cursor-pointer" onClick={() => {
+                setTempName(username || '');
+                setIsEditingName(true);
+              }}>
+                <span className="text-xs font-bold text-zinc-700">{username}</span>
+                <svg className="w-3.5 h-3.5 text-zinc-400 group-hover:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </div>
+            )}
           </div>
         </div>
 

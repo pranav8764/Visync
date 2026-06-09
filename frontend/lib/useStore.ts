@@ -63,6 +63,7 @@ interface VisyncState {
   setActiveUsers: (users: UserPresence[]) => void;
   addUserPresence: (user: UserPresence) => void;
   removeUserPresence: (userId: string) => void;
+  updateUserPresenceName: (userId: string, username: string) => void;
 
   // Strokes / Drawings (points stored in world coordinates)
   strokes: Stroke[];
@@ -143,6 +144,12 @@ export const useStore = create<VisyncState>((set, get) => ({
   
   removeUserPresence: (userId) => set((state) => ({
     activeUsers: state.activeUsers.filter((u) => u.userId !== userId)
+  })),
+
+  updateUserPresenceName: (userId, username) => set((state) => ({
+    activeUsers: state.activeUsers.map((u) => 
+      u.userId === userId ? { ...u, username } : u
+    )
   })),
 
   // Strokes / Drawing mutations (world coordinates)

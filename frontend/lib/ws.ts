@@ -13,7 +13,8 @@ export interface DrawEvent {
     | 'CHAT_MESSAGE'
     | 'BOARD_CLEAR'
     | 'UNDO'
-    | 'REDO';
+    | 'REDO'
+    | 'USER_NAME_CHANGE';
   userId: string;
   roomId: string;
   timestamp: number;
@@ -155,6 +156,16 @@ export class WebSocketClient {
       case 'PRESENCE_LIST': {
         if (Array.isArray(payload)) {
           store.setActiveUsers(payload);
+        }
+        break;
+      }
+      case 'USER_NAME_CHANGE': {
+        const username = payload.username || 'Guest';
+        store.updateUserPresenceName(userId, username);
+        // If they have a cursor, update its username too
+        const cursor = store.cursors[userId];
+        if (cursor) {
+          store.updateCursor(userId, username, cursor.x, cursor.y);
         }
         break;
       }

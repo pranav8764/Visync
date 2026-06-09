@@ -218,6 +218,13 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                     }, dbExecutor);
                 }
                 break;
+            case "USER_NAME_CHANGE":
+                if (payloadNode != null && payloadNode.has("username")) {
+                    String newName = payloadNode.get("username").asText();
+                    sessionUsernames.put(session.getId(), newName);
+                }
+                broadcastToRoom(roomId, session.getId(), rootNode);
+                break;
             default:
                 broadcastToRoom(roomId, session.getId(), rootNode);
                 break;

@@ -16,11 +16,18 @@ export default function Home() {
 
   // Extract shared link parameters and pre-populate creative random nickname on mount
   useEffect(() => {
-    const adjectives = ['Creative', 'Swift', 'Vibrant', 'Artistic', 'Electric', 'Active', 'Dynamic', 'Genius', 'Clever', 'Radiant'];
-    const animals = ['Owl', 'Falcon', 'Fox', 'Koala', 'Panda', 'Dolphin', 'Otter', 'Panther', 'Tiger', 'Badger'];
-    const randAdj = adjectives[Math.floor(Math.random() * adjectives.length)];
-    const randAnim = animals[Math.floor(Math.random() * animals.length)];
-    setNickname(`${randAdj} ${randAnim}`);
+    if (typeof window !== 'undefined') {
+      const savedNickname = localStorage.getItem('visync_nickname');
+      if (savedNickname) {
+        setNickname(savedNickname);
+      } else {
+        const adjectives = ['Creative', 'Swift', 'Vibrant', 'Artistic', 'Electric', 'Active', 'Dynamic', 'Genius', 'Clever', 'Radiant'];
+        const animals = ['Owl', 'Falcon', 'Fox', 'Koala', 'Panda', 'Dolphin', 'Otter', 'Panther', 'Tiger', 'Badger'];
+        const randAdj = adjectives[Math.floor(Math.random() * adjectives.length)];
+        const randAnim = animals[Math.floor(Math.random() * animals.length)];
+        setNickname(`${randAdj} ${randAnim}`);
+      }
+    }
 
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -57,11 +64,12 @@ export default function Home() {
 
       const room = res.data;
       
-      // Store session info in Zustand
+      // Store session info in Zustand and localStorage
       const store = useStore.getState();
       store.setUsername(nickname.trim());
       store.setRoomName(room.name);
       store.setRoomId(room.id);
+      localStorage.setItem('visync_nickname', nickname.trim());
 
       // Redirect to room page
       router.push(`/room/${room.id}`);
@@ -97,11 +105,12 @@ export default function Home() {
       const res = await axios.get(`${apiBaseUrl}/api/rooms/${cleanedCode}`);
       const room = res.data;
 
-      // Store in Zustand
+      // Store in Zustand and localStorage
       const store = useStore.getState();
       store.setUsername(nickname.trim());
       store.setRoomName(room.name);
       store.setRoomId(room.id);
+      localStorage.setItem('visync_nickname', nickname.trim());
 
       // Redirect
       router.push(`/room/${room.id}`);
