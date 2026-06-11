@@ -6,7 +6,7 @@ import Konva from 'konva';
 import axios from 'axios';
 import { useStore, Stroke, Point } from '@/lib/useStore';
 import { WebSocketClient } from '@/lib/ws';
-import { strokeIntersectsRect } from '@/lib/geometry';
+import { strokeIntersectsRect, getStrokeAABB, strokeIntersectsEraser, Segment } from '@/lib/geometry';
 import {
   Viewport,
   worldToScreen,
@@ -251,6 +251,11 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
   // Space key ref to avoid stale closure issues
   const isSpacePanningRef = useRef(false);
 
+  // Eraser state & refs
+  const [eraserCursorPos, setEraserCursorPos] = useState<Point | null>(null);
+  const eraserPrevPointRef = useRef<Point | null>(null);
+  const erasedStrokesInCurrentDragRef = useRef<Stroke[]>([]);
+
   // --- Derived: is panning active? ---
   const isPanning = isPanMode || isSpacePanning || isMiddlePanning;
 
@@ -308,6 +313,139 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const eraseStrokesAt = useCallback((startPoint: Point, endPoint: Point) => {
+    const currentStrokes = useStore.getState().strokes;
+    const eraserRadius = 16 / useStore.getState().viewport.scale;
+    const eraserSeg: Segment = {
+      x1: startPoint.x,
+      y1: startPoint.y,
+      x2: endPoint.x,
+      y2: endPoint.y
+    };
+
+    const toDelete: Stroke[] = [];
+    currentStrokes.forEach(stroke => {
+      if (stroke.isDeleted) return;
+      if (strokeIntersectsEraser(stroke, eraserSeg, eraserRadius)) {
+        toDelete.push(stroke);
+      }
+    });
+
+    if (toDelete.length > 0) {
+      const deleteIds = toDelete.map(s => s.id);
+      
+      setStrokes((prev: Stroke[]) => prev.filter(s => !deleteIds.includes(s.id)));
+      
+      toDelete.forEach(s => {
+        if (!erasedStrokesInCurrentDragRef.current.some(x => x.id === s.id)) {
+          erasedStrokesInCurrentDragRef.current.push({ ...s, isDeleted: true });
+        }
+      });
+
+      if (wsRef.current) {
+        wsRef.current.send({
+          eventType: 'OBJECT_DELETE',
+          userId,
+          roomId,
+          timestamp: Date.now(),
+          payload: { strokeIds: deleteIds }
+        });
+      }
+    }
+  }, [roomId, userId, setStrokes]);
+
+  const performUndo = useCallback(() => {
+    const poppedList = popFromUndo();
+    if (!poppedList || poppedList.length === 0) return;
+
+    pushToRedo(poppedList);
+
+    const toRestore: Stroke[] = [];
+    const toDeleteIds: string[] = [];
+
+    poppedList.forEach((s) => {
+      if (s.isDeleted) {
+        toRestore.push({ ...s, isDeleted: false });
+      } else {
+        toDeleteIds.push(s.id);
+      }
+    });
+
+    if (toRestore.length > 0) {
+      setStrokes((prev: Stroke[]) => {
+        const filtered = prev.filter(x => !toRestore.some(a => a.id === x.id));
+        return [...filtered, ...toRestore];
+      });
+      toRestore.forEach(s => {
+        wsRef.current?.send({
+          eventType: 'REDO',
+          userId,
+          roomId,
+          timestamp: Date.now(),
+          payload: { stroke: s }
+        });
+      });
+    }
+
+    if (toDeleteIds.length > 0) {
+      setStrokes((prev: Stroke[]) => prev.filter(x => !toDeleteIds.includes(x.id)));
+      toDeleteIds.forEach(id => {
+        wsRef.current?.send({
+          eventType: 'UNDO',
+          userId,
+          roomId,
+          timestamp: Date.now(),
+          payload: { strokeId: id }
+        });
+      });
+    }
+  }, [roomId, userId, popFromUndo, pushToRedo, setStrokes]);
+
+  const performRedo = useCallback(() => {
+    const poppedList = popFromRedo();
+    if (!poppedList || poppedList.length === 0) return;
+
+    pushToUndo(poppedList);
+
+    const toRestore: Stroke[] = [];
+    const toDeleteIds: string[] = [];
+
+    poppedList.forEach((s) => {
+      if (s.isDeleted) {
+        toDeleteIds.push(s.id);
+      } else {
+        toRestore.push(s);
+      }
+    });
+
+    if (toRestore.length > 0) {
+      setStrokes((prev: Stroke[]) => {
+        const filtered = prev.filter(x => !toRestore.some(a => a.id === x.id));
+        return [...filtered, ...toRestore];
+      });
+      toRestore.forEach(s => {
+        wsRef.current?.send({
+          eventType: 'REDO',
+          userId,
+          roomId,
+          timestamp: Date.now(),
+          payload: { stroke: s }
+        });
+      });
+    }
+
+    if (toDeleteIds.length > 0) {
+      setStrokes((prev: Stroke[]) => prev.filter(x => !toDeleteIds.includes(x.id)));
+      wsRef.current?.send({
+        eventType: 'OBJECT_DELETE',
+        userId,
+        roomId,
+        timestamp: Date.now(),
+        payload: { strokeIds: toDeleteIds }
+      });
+    }
+  }, [roomId, userId, popFromRedo, pushToUndo, setStrokes]);
+
   // 2. Global Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -335,6 +473,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
           case 'backspace':
           case 'delete':
             if (state.selectedIds.length > 0) {
+              const deletedStrokes = state.strokes.filter(s => state.selectedIds.includes(s.id)).map(s => ({ ...s, isDeleted: true }));
               const remaining = state.strokes.filter(s => !state.selectedIds.includes(s.id));
               state.setStrokes(remaining);
 
@@ -347,6 +486,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                   payload: { strokeIds: state.selectedIds }
                 });
               }
+              state.pushToUndo(deletedStrokes);
               state.setSelectedIds([]);
             }
             break;
@@ -357,21 +497,9 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault();
         if (e.shiftKey) {
-          // Redo
-          const popped = state.popFromRedo();
-          if (popped) {
-            state.pushToUndo(popped);
-            state.addStroke(popped);
-            wsRef.current?.send({ eventType: 'REDO', userId, roomId, timestamp: Date.now(), payload: { stroke: popped } });
-          }
+          performRedo();
         } else {
-          // Undo
-          const popped = state.popFromUndo();
-          if (popped) {
-            state.pushToRedo(popped);
-            state.setStrokes((prev: Stroke[]) => prev.filter((s) => s.id !== popped.id));
-            wsRef.current?.send({ eventType: 'UNDO', userId, roomId, timestamp: Date.now(), payload: { strokeId: popped.id } });
-          }
+          performUndo();
         }
       }
     };
@@ -389,7 +517,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);
     };
-  }, [roomId, userId]);
+  }, [roomId, userId, performUndo, performRedo]);
 
   // 3. Fetch Board Snapshot and Chronological Event History on Mount
   useEffect(() => {
@@ -545,7 +673,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
 
   useEffect(() => {
     if (activeTool === 'select' && selectedIds.length > 0 && drawingLayerRef.current && trRef.current) {
-      const nodes = selectedIds.map(id => drawingLayerRef.current?.findOne(`#${id}`)).filter(Boolean);
+      const nodes = selectedIds.map(id => drawingLayerRef.current?.children.find(child => child.id() === id)).filter(Boolean);
       trRef.current.nodes(nodes as Konva.Node[]);
       trRef.current.getLayer()?.batchDraw();
       requestAnimationFrame(recomputeGroupDragRect);
@@ -643,10 +771,18 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
     // Left click in draw mode → start drawing (allow touch events where button is undefined)
     if (e.evt.button !== undefined && e.evt.button !== 0) return;
 
-    setIsDrawing(true);
-
     // Convert screen position to world coordinates
     const worldPos = screenToWorld(pos.x, pos.y, currentViewport);
+
+    if (activeTool === 'eraser') {
+      setIsDrawing(true);
+      eraserPrevPointRef.current = worldPos;
+      erasedStrokesInCurrentDragRef.current = [];
+      eraseStrokesAt(worldPos, worldPos);
+      return;
+    }
+
+    setIsDrawing(true);
 
     const strokeId = `${userId}-${Date.now()}`;
     currentStrokeIdRef.current = strokeId;
@@ -654,8 +790,8 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
     const newStroke: Stroke = {
       id: strokeId,
       userId,
-      color: activeTool === 'eraser' ? '#ffffff' : color,
-      strokeWidth: activeTool === 'eraser' ? 24 : strokeWidth,
+      color: color,
+      strokeWidth: strokeWidth,
       tool: activeTool,
       points: [worldPos]
     };
@@ -683,7 +819,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
       timestamp: Date.now(),
       payload: { strokeId, point: worldPos }
     });
-  }, [historyLoading, isPanMode, userId, activeTool, color, strokeWidth, roomId, addStroke, setViewport]);
+  }, [historyLoading, isPanMode, userId, activeTool, color, strokeWidth, roomId, addStroke, setViewport, eraseStrokesAt]);
 
   /**
    * Handle mouse move — draw or pan depending on active mode.
@@ -744,10 +880,21 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
       lastCursorSendRef.current = now;
     }
 
+    if (activeTool === 'eraser') {
+      setEraserCursorPos(worldPos);
+      if (isDrawing && eraserPrevPointRef.current) {
+        eraseStrokesAt(eraserPrevPointRef.current, worldPos);
+        eraserPrevPointRef.current = worldPos;
+      }
+      return;
+    } else if (eraserCursorPos !== null) {
+      setEraserCursorPos(null);
+    }
+
     if (!isDrawing || !currentStrokeIdRef.current) return;
 
-    // Distance-based throttle for pen/eraser to avoid excessive points
-    if (activeTool === 'pen' || activeTool === 'eraser') {
+    // Distance-based throttle for pen to avoid excessive points
+    if (activeTool === 'pen') {
       const currentStrokes = useStore.getState().strokes;
       const activeStroke = currentStrokes.find((s) => s.id === currentStrokeIdRef.current);
       if (activeStroke && activeStroke.points.length > 0) {
@@ -769,52 +916,46 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
       timestamp: Date.now(),
       payload: { strokeId: currentStrokeIdRef.current, point: worldPos }
     });
-  }, [isDrawing, isMiddlePanning, isPanMode, userId, roomId, username, activeTool, selectionBox, updateLastStrokePoints, setViewport]);
+  }, [isDrawing, isMiddlePanning, isPanMode, userId, roomId, username, activeTool, selectionBox, updateLastStrokePoints, setViewport, eraseStrokesAt, eraserCursorPos]);
 
   /**
    * Handle mouse up — finish drawing or finish panning.
    */
   const handleMouseUp = useCallback(() => {
+    if (activeTool === 'eraser') {
+      setIsDrawing(false);
+      eraserPrevPointRef.current = null;
+      if (erasedStrokesInCurrentDragRef.current.length > 0) {
+        pushToUndo(erasedStrokesInCurrentDragRef.current);
+      }
+      erasedStrokesInCurrentDragRef.current = [];
+      return;
+    }
+
     if (activeTool === 'select' && selectionBox?.visible) {
       const box = selectionBox;
-      const layer = drawingLayerRef.current;
+      const currentStrokes = useStore.getState().strokes;
+      const selectedIdsArray: string[] = [];
 
-      if (layer) {
-        const selectionBoxNode = layer.children.find(n => n.id() === 'selection-box');
-        if (selectionBoxNode) {
-          const boxRect = selectionBoxNode.getClientRect();
-          const currentStrokes = useStore.getState().strokes;
-          const selectedIdsArray: string[] = [];
+      currentStrokes.forEach(stroke => {
+        if (stroke.tool === 'eraser') return;
+        // Stage 1: Fast AABB rejection in world coordinates
+        const strokeAABB = getStrokeAABB(stroke);
+        const aabbOverlap = !(
+          strokeAABB.x > box.x + box.width ||
+          strokeAABB.x + strokeAABB.width < box.x ||
+          strokeAABB.y > box.y + box.height ||
+          strokeAABB.y + strokeAABB.height < box.y
+        );
+        if (!aabbOverlap) return;
 
-          layer.children.forEach(node => {
-            if (node.id() === 'selection-box' || node.className === 'Transformer') return;
-            if (!node.id()) return;
-
-            // Stage 1: Fast AABB rejection via Konva's getClientRect
-            const rect = node.getClientRect();
-            const aabbOverlap = !(
-              rect.x > boxRect.x + boxRect.width ||
-              rect.x + rect.width < boxRect.x ||
-              rect.y > boxRect.y + boxRect.height ||
-              rect.y + rect.height < boxRect.y
-            );
-            if (!aabbOverlap) return;
-
-            // Stage 2: Precise geometric intersection
-            const stroke = currentStrokes.find(s => s.id === node.id());
-            if (stroke) {
-              if (strokeIntersectsRect(stroke, box)) {
-                selectedIdsArray.push(node.id());
-              }
-            } else {
-              // Fallback: if stroke data not found, trust the AABB
-              selectedIdsArray.push(node.id());
-            }
-          });
-
-          setSelectedIds(selectedIdsArray);
+        // Stage 2: Precise geometric intersection
+        if (strokeIntersectsRect(stroke, box)) {
+          selectedIdsArray.push(stroke.id);
         }
-      }
+      });
+
+      setSelectedIds(selectedIdsArray);
       setSelectionBox(Object.assign({}, box, { visible: false }));
       selectionStartRef.current = null;
       return;
@@ -841,7 +982,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
     const activeStroke = currentStrokes.find((s) => s.id === currentStrokeIdRef.current);
 
     if (activeStroke) {
-      if (activeTool === 'pen' || activeTool === 'eraser') {
+      if (activeTool === 'pen') {
         // Simplify path — tolerance in world pixels
         const simplifiedPoints = simplifyPath(activeStroke.points, 1);
         activeStroke.points = simplifiedPoints;
@@ -852,7 +993,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
 
       pushToUndo(activeStroke);
 
-      if (activeTool !== 'pen' && activeTool !== 'eraser') {
+      if (activeTool !== 'pen') {
         const endPoint = activeStroke.points[1] || activeStroke.points[0];
         wsRef.current?.send({
           eventType: 'DRAW_MOVE',
@@ -953,35 +1094,11 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
   // ===================================================================
 
   const handleUndo = () => {
-    const popped = popFromUndo();
-    if (!popped) return;
-
-    pushToRedo(popped);
-    setStrokes((prev: Stroke[]) => prev.filter((s) => s.id !== popped.id));
-
-    wsRef.current?.send({
-      eventType: 'UNDO',
-      userId,
-      roomId,
-      timestamp: Date.now(),
-      payload: { strokeId: popped.id }
-    });
+    performUndo();
   };
 
   const handleRedo = () => {
-    const popped = popFromRedo();
-    if (!popped) return;
-
-    pushToUndo(popped);
-    addStroke(popped);
-
-    wsRef.current?.send({
-      eventType: 'REDO',
-      userId,
-      roomId,
-      timestamp: Date.now(),
-      payload: { stroke: popped }
-    });
+    performRedo();
   };
 
   const handleClearBoard = () => {
@@ -1180,7 +1297,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
+          onMouseLeave={() => { handleMouseUp(); setEraserCursorPos(null); }}
           onTouchStart={handleMouseDown}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}
@@ -1213,9 +1330,9 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                     scaleX={stroke.scaleX || 1}
                     scaleY={stroke.scaleY || 1}
                     rotation={stroke.rotation || 0}
-                    draggable={activeTool === 'select'}
+                    draggable={activeTool === 'select' && stroke.tool !== 'eraser'}
                     onClick={(e) => {
-                      if (activeTool === 'select') {
+                      if (activeTool === 'select' && stroke.tool !== 'eraser') {
                         if (e.evt.shiftKey) {
                           if (selectedIds.includes(stroke.id)) setSelectedIds(selectedIds.filter(id => id !== stroke.id));
                           else setSelectedIds([...selectedIds, stroke.id]);
@@ -1226,7 +1343,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                       }
                     }}
                     onTap={(e) => {
-                      if (activeTool === 'select') {
+                      if (activeTool === 'select' && stroke.tool !== 'eraser') {
                         setSelectedIds([stroke.id]);
                         e.cancelBubble = true;
                       }
@@ -1418,7 +1535,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                 onTransformEnd={() => {
                   // Sync all selected nodes after resize/rotate
                   selectedIds.forEach(id => {
-                    const node = drawingLayerRef.current?.findOne(`#${id}`);
+                    const node = drawingLayerRef.current?.children.find(child => child.id() === id);
                     if (node) {
                       const transform = { x: node.x(), y: node.y(), scaleX: node.scaleX(), scaleY: node.scaleY(), rotation: node.rotation() };
                       updateStrokeTransform(id, transform);
@@ -1427,6 +1544,17 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                   });
                   requestAnimationFrame(recomputeGroupDragRect);
                 }}
+              />
+            )}
+            {activeTool === 'eraser' && eraserCursorPos && (
+              <KonvaCircle
+                x={eraserCursorPos.x}
+                y={eraserCursorPos.y}
+                radius={12}
+                stroke={isDarkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.3)'}
+                strokeWidth={1.5 / viewport.scale}
+                fill="rgba(0, 0, 0, 0.05)"
+                listening={false}
               />
             )}
           </Layer>

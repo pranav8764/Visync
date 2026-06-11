@@ -19,7 +19,7 @@ interface Rect {
   height: number;
 }
 
-interface Segment {
+export interface Segment {
   x1: number;
   y1: number;
   x2: number;
@@ -127,6 +127,118 @@ function segmentIntersectsOrInsideRect(seg: Segment, rect: Rect): boolean {
   return edges.some(edge => segmentsIntersect(seg, edge));
 }
 
+// ─── Coordinate Space Transformation Helpers ─────────────────────────────────
+
+/**
+ * Transforms a point from local coordinates to world coordinates.
+ */
+function localToWorld(p: Point, stroke: Stroke): Point {
+  const ox = stroke.x ?? 0;
+  const oy = stroke.y ?? 0;
+  const scaleX = stroke.scaleX ?? 1;
+  const scaleY = stroke.scaleY ?? 1;
+  const rotation = stroke.rotation ?? 0;
+
+  // 1. Scale relative to the local origin (0, 0)
+  let lp = { x: p.x * scaleX, y: p.y * scaleY };
+  // 2. Rotate around (0, 0)
+  if (rotation !== 0) {
+    lp = rotatePoint(lp, { x: 0, y: 0 }, rotation);
+  }
+  // 3. Translate
+  return { x: lp.x + ox, y: lp.y + oy };
+}
+
+/**
+ * Returns all vertices/points of a stroke in world coordinates.
+ */
+export function getStrokeWorldPoints(stroke: Stroke): Point[] {
+  if (stroke.tool === 'rect') {
+    const p1 = stroke.points[0];
+    const p2 = stroke.points[1] || stroke.points[0];
+    
+    const w = Math.abs(p1.x - p2.x);
+    const h = Math.abs(p1.y - p2.y);
+    const localCorners = [
+      { x: 0, y: 0 },
+      { x: w, y: 0 },
+      { x: w, y: h },
+      { x: 0, y: h },
+      { x: 0, y: 0 } // close the rectangle path
+    ];
+    
+    const minX = Math.min(p1.x, p2.x);
+    const minY = Math.min(p1.y, p2.y);
+    const rx = stroke.x ?? minX;
+    const ry = stroke.y ?? minY;
+    
+    const scaleX = stroke.scaleX ?? 1;
+    const scaleY = stroke.scaleY ?? 1;
+    const rotation = stroke.rotation ?? 0;
+    
+    return localCorners.map(lc => {
+      let pt = { x: lc.x * scaleX, y: lc.y * scaleY };
+      if (rotation !== 0) {
+        pt = rotatePoint(pt, { x: 0, y: 0 }, rotation);
+      }
+      return { x: pt.x + rx, y: pt.y + ry };
+    });
+  } else if (stroke.tool === 'circle') {
+    return [];
+  } else {
+    // pen, eraser, line
+    return stroke.points.map(p => localToWorld(p, stroke));
+  }
+}
+
+// ─── Distance Helpers ────────────────────────────────────────────────────────
+
+/**
+ * Calculate the minimum perpendicular distance from a point to a segment.
+ */
+function getDistanceToSegment(p: Point, s: Segment): number {
+  const dx = s.x2 - s.x1;
+  const dy = s.y2 - s.y1;
+  const l2 = dx * dx + dy * dy;
+  
+  if (l2 === 0) {
+    const diffX = p.x - s.x1;
+    const diffY = p.y - s.y1;
+    return Math.sqrt(diffX * diffX + diffY * diffY);
+  }
+  
+  let t = ((p.x - s.x1) * dx + (p.y - s.y1) * dy) / l2;
+  t = Math.max(0, Math.min(1, t));
+  
+  const projX = s.x1 + t * dx;
+  const projY = s.y1 + t * dy;
+  const diffX = p.x - projX;
+  const diffY = p.y - projY;
+  
+  return Math.sqrt(diffX * diffX + diffY * diffY);
+}
+
+/**
+ * Calculate the minimum distance between two line segments.
+ */
+function segmentsDistance(s1: Segment, s2: Segment): number {
+  if (segmentsIntersect(s1, s2)) {
+    return 0;
+  }
+  
+  const p1 = { x: s1.x1, y: s1.y1 };
+  const p2 = { x: s1.x2, y: s1.y2 };
+  const q1 = { x: s2.x1, y: s2.y1 };
+  const q2 = { x: s2.x2, y: s2.y2 };
+  
+  return Math.min(
+    getDistanceToSegment(p1, s2),
+    getDistanceToSegment(p2, s2),
+    getDistanceToSegment(q1, s1),
+    getDistanceToSegment(q2, s1)
+  );
+}
+
 // ─── Per-Tool Intersection Tests ─────────────────────────────────────────────
 
 /**
@@ -134,25 +246,15 @@ function segmentIntersectsOrInsideRect(seg: Segment, rect: Rect): boolean {
  * Accounts for the stroke's transform (x, y offset and rotation).
  */
 function lineIntersectsRect(stroke: Stroke, selectionRect: Rect): boolean {
-  if (stroke.points.length < 2) return false;
-
-  const p1 = stroke.points[0];
-  const p2 = stroke.points[1];
-  const ox = stroke.x ?? 0;
-  const oy = stroke.y ?? 0;
-  const rotation = stroke.rotation ?? 0;
-
-  let a: Point = { x: p1.x + ox, y: p1.y + oy };
-  let b: Point = { x: p2.x + ox, y: p2.y + oy };
-
-  // Apply rotation around the shape's offset origin
-  if (rotation !== 0) {
-    const center: Point = { x: ox, y: oy };
-    a = rotatePoint(a, center, rotation);
-    b = rotatePoint(b, center, rotation);
-  }
-
-  const seg: Segment = { x1: a.x, y1: a.y, x2: b.x, y2: b.y };
+  const worldPoints = getStrokeWorldPoints(stroke);
+  if (worldPoints.length < 2) return false;
+  
+  const seg: Segment = {
+    x1: worldPoints[0].x,
+    y1: worldPoints[0].y,
+    x2: worldPoints[1].x,
+    y2: worldPoints[1].y
+  };
   return segmentIntersectsOrInsideRect(seg, selectionRect);
 }
 
@@ -161,21 +263,8 @@ function lineIntersectsRect(stroke: Stroke, selectionRect: Rect): boolean {
  * Checks each consecutive pair of points as a line segment.
  */
 function polylineIntersectsRect(stroke: Stroke, selectionRect: Rect): boolean {
-  if (stroke.points.length === 0) return false;
-
-  const ox = stroke.x ?? 0;
-  const oy = stroke.y ?? 0;
-  const rotation = stroke.rotation ?? 0;
-  const center: Point = { x: ox, y: oy };
-
-  // Transform all points to world space
-  const worldPoints = stroke.points.map(p => {
-    let wp: Point = { x: p.x + ox, y: p.y + oy };
-    if (rotation !== 0) {
-      wp = rotatePoint(wp, center, rotation);
-    }
-    return wp;
-  });
+  const worldPoints = getStrokeWorldPoints(stroke);
+  if (worldPoints.length === 0) return false;
 
   // If only 1 point, check if it's inside the rect
   if (worldPoints.length === 1) {
@@ -199,61 +288,51 @@ function polylineIntersectsRect(stroke: Stroke, selectionRect: Rect): boolean {
 
 /**
  * Test if a rectangle shape intersects a selection rect.
- * Accounts for rotation by rotating the rect's 4 corners and checking
- * each edge against the selection rect.
  */
 function shapeRectIntersectsRect(stroke: Stroke, selectionRect: Rect): boolean {
   if (stroke.points.length < 2) return false;
-
-  const p1 = stroke.points[0];
-  const p2 = stroke.points[1];
-  const sx = stroke.x ?? Math.min(p1.x, p2.x);
-  const sy = stroke.y ?? Math.min(p1.y, p2.y);
-  const w = Math.abs(p1.x - p2.x);
-  const h = Math.abs(p1.y - p2.y);
-  const rotation = stroke.rotation ?? 0;
-
-  // The 4 corners of the shape rect in local space
-  let corners: Point[] = [
-    { x: sx, y: sy },
-    { x: sx + w, y: sy },
-    { x: sx + w, y: sy + h },
-    { x: sx, y: sy + h },
-  ];
-
-  // If rotated, rotate corners around the shape's position
-  if (rotation !== 0) {
-    const center: Point = { x: sx + w / 2, y: sy + h / 2 };
-    corners = corners.map(c => rotatePoint(c, center, rotation));
-  }
+  const worldPoints = getStrokeWorldPoints(stroke);
+  if (worldPoints.length < 4) return false;
 
   // Check if any corner of the shape rect is inside the selection rect
-  if (corners.some(c => pointInRect(c, selectionRect))) {
+  if (worldPoints.some(c => pointInRect(c, selectionRect))) {
     return true;
   }
 
   // Check if any corner of the selection rect is inside the shape rect
-  // (handles case where selection is fully inside the shape)
   const selCorners: Point[] = [
     { x: selectionRect.x, y: selectionRect.y },
     { x: selectionRect.x + selectionRect.width, y: selectionRect.y },
     { x: selectionRect.x + selectionRect.width, y: selectionRect.y + selectionRect.height },
     { x: selectionRect.x, y: selectionRect.y + selectionRect.height },
   ];
-  if (rotation === 0) {
-    const shapeRect: Rect = { x: sx, y: sy, width: w, height: h };
-    if (selCorners.some(c => pointInRect(c, shapeRect))) {
-      return true;
-    }
+  
+  const p1 = stroke.points[0];
+  const p2 = stroke.points[1] || stroke.points[0];
+  const w = Math.abs(p1.x - p2.x);
+  const h = Math.abs(p1.y - p2.y);
+  const minX = Math.min(p1.x, p2.x);
+  const minY = Math.min(p1.y, p2.y);
+  const rx = stroke.x ?? minX;
+  const ry = stroke.y ?? minY;
+  const rotation = stroke.rotation ?? 0;
+  
+  const localRect: Rect = { x: 0, y: 0, width: w * (stroke.scaleX ?? 1), height: h * (stroke.scaleY ?? 1) };
+  
+  if (selCorners.some(c => {
+    const pTranslated = { x: c.x - rx, y: c.y - ry };
+    const pRotated = rotatePoint(pTranslated, { x: 0, y: 0 }, -rotation);
+    return pointInRect(pRotated, localRect);
+  })) {
+    return true;
   }
 
   // Check edge-to-edge intersections
   const shapeEdges: Segment[] = [];
   for (let i = 0; i < 4; i++) {
-    const next = (i + 1) % 4;
     shapeEdges.push({
-      x1: corners[i].x, y1: corners[i].y,
-      x2: corners[next].x, y2: corners[next].y,
+      x1: worldPoints[i].x, y1: worldPoints[i].y,
+      x2: worldPoints[i+1].x, y2: worldPoints[i+1].y,
     });
   }
   const selEdges = rectToSegments(selectionRect);
@@ -271,18 +350,18 @@ function shapeRectIntersectsRect(stroke: Stroke, selectionRect: Rect): boolean {
 
 /**
  * Test if a circle shape intersects a selection rect.
- * Uses the closest-point-on-rect-to-circle-center algorithm.
  */
 function circleIntersectsRect(stroke: Stroke, selectionRect: Rect): boolean {
   if (stroke.points.length < 2) return false;
 
   const p1 = stroke.points[0];
-  const p2 = stroke.points[1];
+  const p2 = stroke.points[1] || stroke.points[0];
+  const scaleX = stroke.scaleX ?? 1;
+  const scaleY = stroke.scaleY ?? 1;
   const cx = stroke.x ?? p1.x;
   const cy = stroke.y ?? p1.y;
-  const radius = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+  const radius = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2)) * Math.max(Math.abs(scaleX), Math.abs(scaleY));
 
-  // Find the closest point on the selection rect to the circle center
   const closestX = Math.max(selectionRect.x, Math.min(cx, selectionRect.x + selectionRect.width));
   const closestY = Math.max(selectionRect.y, Math.min(cy, selectionRect.y + selectionRect.height));
 
@@ -290,9 +369,115 @@ function circleIntersectsRect(stroke: Stroke, selectionRect: Rect): boolean {
   const distY = cy - closestY;
   const distSq = distX * distX + distY * distY;
 
-  // The circle intersects the rect if the closest point is within the radius
-  // (or the center is inside the rect, which distSq=0 handles)
   return distSq <= radius * radius;
+}
+
+/**
+ * Test if a stroke intersects with the eraser path segment within the eraser's radius.
+ */
+export function strokeIntersectsEraser(stroke: Stroke, eraserSeg: Segment, eraserRadius: number): boolean {
+  const strokeAABB = getStrokeAABB(stroke);
+  
+  const eraserMinX = Math.min(eraserSeg.x1, eraserSeg.x2) - eraserRadius;
+  const eraserMaxX = Math.max(eraserSeg.x1, eraserSeg.x2) + eraserRadius;
+  const eraserMinY = Math.min(eraserSeg.y1, eraserSeg.y2) - eraserRadius;
+  const eraserMaxY = Math.max(eraserSeg.y1, eraserSeg.y2) + eraserRadius;
+  
+  const aabbOverlap = !(
+    strokeAABB.x > eraserMaxX ||
+    strokeAABB.x + strokeAABB.width < eraserMinX ||
+    strokeAABB.y > eraserMaxY ||
+    strokeAABB.y + strokeAABB.height < eraserMinY
+  );
+  
+  if (!aabbOverlap) return false;
+  
+  const threshold = (stroke.strokeWidth / 2) + eraserRadius;
+
+  switch (stroke.tool) {
+    case 'pen':
+    case 'eraser': {
+      const worldPoints = getStrokeWorldPoints(stroke);
+      if (worldPoints.length === 0) return false;
+      if (worldPoints.length === 1) {
+        return getDistanceToSegment(worldPoints[0], eraserSeg) <= threshold;
+      }
+      for (let i = 0; i < worldPoints.length - 1; i++) {
+        const seg: Segment = {
+          x1: worldPoints[i].x,
+          y1: worldPoints[i].y,
+          x2: worldPoints[i+1].x,
+          y2: worldPoints[i+1].y
+        };
+        if (segmentsDistance(seg, eraserSeg) <= threshold) {
+          return true;
+        }
+      }
+      return false;
+    }
+    case 'line': {
+      const worldPoints = getStrokeWorldPoints(stroke);
+      if (worldPoints.length < 2) return false;
+      const seg: Segment = {
+        x1: worldPoints[0].x,
+        y1: worldPoints[0].y,
+        x2: worldPoints[1].x,
+        y2: worldPoints[1].y
+      };
+      return segmentsDistance(seg, eraserSeg) <= threshold;
+    }
+    case 'rect': {
+      const worldPoints = getStrokeWorldPoints(stroke);
+      if (worldPoints.length < 4) return false;
+      for (let i = 0; i < worldPoints.length - 1; i++) {
+        const seg: Segment = {
+          x1: worldPoints[i].x,
+          y1: worldPoints[i].y,
+          x2: worldPoints[i+1].x,
+          y2: worldPoints[i+1].y
+        };
+        if (segmentsDistance(seg, eraserSeg) <= threshold) {
+          return true;
+        }
+      }
+      
+      const p1 = stroke.points[0];
+      const p2 = stroke.points[1] || stroke.points[0];
+      const w = Math.abs(p1.x - p2.x);
+      const h = Math.abs(p1.y - p2.y);
+      const minX = Math.min(p1.x, p2.x);
+      const minY = Math.min(p1.y, p2.y);
+      const rx = stroke.x ?? minX;
+      const ry = stroke.y ?? minY;
+      const rotation = stroke.rotation ?? 0;
+      
+      const rect: Rect = { x: 0, y: 0, width: w * (stroke.scaleX ?? 1), height: h * (stroke.scaleY ?? 1) };
+      
+      const testPoint = { x: eraserSeg.x2, y: eraserSeg.y2 };
+      const pTranslated = { x: testPoint.x - rx, y: testPoint.y - ry };
+      const pRotated = rotatePoint(pTranslated, { x: 0, y: 0 }, -rotation);
+      
+      if (pointInRect(pRotated, rect)) {
+        return true;
+      }
+      return false;
+    }
+    case 'circle': {
+      if (stroke.points.length < 2) return false;
+      const p1 = stroke.points[0];
+      const p2 = stroke.points[1] || stroke.points[0];
+      const scaleX = stroke.scaleX ?? 1;
+      const scaleY = stroke.scaleY ?? 1;
+      const cx = stroke.x ?? p1.x;
+      const cy = stroke.y ?? p1.y;
+      const radius = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2)) * Math.max(Math.abs(scaleX), Math.abs(scaleY));
+      
+      const dist = getDistanceToSegment({ x: cx, y: cy }, eraserSeg);
+      return dist <= radius + threshold;
+    }
+    default:
+      return false;
+  }
 }
 
 // ─── Main Entry Point ────────────────────────────────────────────────────────
@@ -300,9 +485,6 @@ function circleIntersectsRect(stroke: Stroke, selectionRect: Rect): boolean {
 /**
  * Precise intersection test between a stroke and a selection rectangle.
  * Dispatches to the appropriate per-tool geometric test.
- *
- * This is Stage 2 of the two-stage selection pipeline.
- * Stage 1 (AABB via Konva's getClientRect) should run first for performance.
  */
 export function strokeIntersectsRect(stroke: Stroke, selectionRect: Rect): boolean {
   switch (stroke.tool) {
@@ -316,7 +498,88 @@ export function strokeIntersectsRect(stroke: Stroke, selectionRect: Rect): boole
     case 'circle':
       return circleIntersectsRect(stroke, selectionRect);
     default:
-      // Unknown tool — fall back to "always select" (AABB already passed)
       return true;
   }
 }
+
+/**
+ * Calculate the bounding box of a stroke in world coordinates.
+ */
+export function getStrokeAABB(stroke: Stroke): Rect {
+  if (stroke.points.length === 0) {
+    return { x: 0, y: 0, width: 0, height: 0 };
+  }
+
+  const ox = stroke.x ?? 0;
+  const oy = stroke.y ?? 0;
+  const rotation = stroke.rotation ?? 0;
+  const scaleX = stroke.scaleX ?? 1;
+  const scaleY = stroke.scaleY ?? 1;
+
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+
+  if (stroke.tool === 'rect') {
+    const p1 = stroke.points[0];
+    const p2 = stroke.points[1] || stroke.points[0];
+    const x = Math.min(p1.x, p2.x);
+    const y = Math.min(p1.y, p2.y);
+    const w = Math.abs(p1.x - p2.x);
+    const h = Math.abs(p1.y - p2.y);
+
+    const corners = [
+      { x: x, y: y },
+      { x: x + w, y: y },
+      { x: x + w, y: y + h },
+      { x: x, y: y + h }
+    ];
+
+    const center = { x: x + w / 2, y: y + h / 2 };
+
+    corners.forEach(c => {
+      let pt = { x: c.x * scaleX + ox, y: c.y * scaleY + oy };
+      if (rotation !== 0) {
+        pt = rotatePoint(pt, center, rotation);
+      }
+      minX = Math.min(minX, pt.x);
+      maxX = Math.max(maxX, pt.x);
+      minY = Math.min(minY, pt.y);
+      maxY = Math.max(maxY, pt.y);
+    });
+  } else if (stroke.tool === 'circle') {
+    const p1 = stroke.points[0];
+    const p2 = stroke.points[1] || stroke.points[0];
+    const cx = stroke.x ?? p1.x;
+    const cy = stroke.y ?? p1.y;
+    const radius = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2)) * Math.max(Math.abs(scaleX), Math.abs(scaleY));
+
+    minX = cx - radius;
+    maxX = cx + radius;
+    minY = cy - radius;
+    maxY = cy + radius;
+  } else {
+    // pen, eraser, line
+    const center = { x: ox, y: oy };
+    stroke.points.forEach(p => {
+      let pt = { x: p.x * scaleX + ox, y: p.y * scaleY + oy };
+      if (rotation !== 0) {
+        pt = rotatePoint(pt, center, rotation);
+      }
+      minX = Math.min(minX, pt.x);
+      maxX = Math.max(maxX, pt.x);
+      minY = Math.min(minY, pt.y);
+      maxY = Math.max(maxY, pt.y);
+    });
+  }
+
+  const padding = (stroke.strokeWidth ?? 3) / 2;
+  return {
+    x: minX - padding,
+    y: minY - padding,
+    width: (maxX - minX) + (stroke.strokeWidth ?? 3),
+    height: (maxY - minY) + (stroke.strokeWidth ?? 3)
+  };
+}
+

@@ -774,7 +774,7 @@
       "source_file": "backend/src/main/java/com/visync/entity/BoardSnapshot.java",
       "source_location": "L33",
       "id": "backend_src_main_java_com_visync_entity_boardsnapshot_java_string",
-      "community": 9,
+      "community": 2,
       "norm_label": "string"
     },
     {
@@ -819,7 +819,7 @@
       "source_file": "backend/src/main/java/com/visync/entity/BoardSnapshot.java",
       "source_location": "L46",
       "id": "entity_boardsnapshot_boardsnapshot_getboardstate",
-      "community": 9,
+      "community": 2,
       "norm_label": ".getboardstate()"
     },
     {
@@ -828,7 +828,7 @@
       "source_file": "backend/src/main/java/com/visync/entity/BoardSnapshot.java",
       "source_location": "L47",
       "id": "entity_boardsnapshot_boardsnapshot_setboardstate",
-      "community": 9,
+      "community": 2,
       "norm_label": ".setboardstate()"
     },
     {
@@ -1746,7 +1746,7 @@
       "source_file": "backend/src/main/java/com/visync/service/BoardService.java",
       "source_location": "L36",
       "id": "service_boardservice_boardservice_undostroke",
-      "community": 9,
+      "community": 2,
       "norm_label": ".undostroke()"
     },
     {
@@ -2383,7 +2383,7 @@
       "label": "CollaborativeCursorsProps",
       "file_type": "code",
       "source_file": "frontend/components/CanvasBoard.tsx",
-      "source_location": "L1738",
+      "source_location": "L1866",
       "id": "components_canvasboard_collaborativecursorsprops",
       "community": 1,
       "norm_label": "collaborativecursorsprops"
@@ -2392,7 +2392,7 @@
       "label": "CollaborativeCursors()",
       "file_type": "code",
       "source_file": "frontend/components/CanvasBoard.tsx",
-      "source_location": "L1748",
+      "source_location": "L1876",
       "id": "components_canvasboard_collaborativecursors",
       "community": 1,
       "norm_label": "collaborativecursors()"
@@ -2401,7 +2401,7 @@
       "label": "AccessorySidebarProps",
       "file_type": "code",
       "source_file": "frontend/components/CanvasBoard.tsx",
-      "source_location": "L1785",
+      "source_location": "L1913",
       "id": "components_canvasboard_accessorysidebarprops",
       "community": 1,
       "norm_label": "accessorysidebarprops"
@@ -2410,7 +2410,7 @@
       "label": "AccessorySidebar()",
       "file_type": "code",
       "source_file": "frontend/components/CanvasBoard.tsx",
-      "source_location": "L1801",
+      "source_location": "L1929",
       "id": "components_canvasboard_accessorysidebar",
       "community": 1,
       "norm_label": "accessorysidebar()"
@@ -2475,7 +2475,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L1",
       "id": "lib_geometry",
-      "community": 28,
+      "community": 1,
       "norm_label": "geometry.ts"
     },
     {
@@ -2484,7 +2484,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L15",
       "id": "lib_geometry_rect",
-      "community": 28,
+      "community": 1,
       "norm_label": "rect"
     },
     {
@@ -2493,7 +2493,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L22",
       "id": "lib_geometry_segment",
-      "community": 28,
+      "community": 1,
       "norm_label": "segment"
     },
     {
@@ -2502,7 +2502,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L36",
       "id": "lib_geometry_rotatepoint",
-      "community": 28,
+      "community": 1,
       "norm_label": "rotatepoint()"
     },
     {
@@ -2511,7 +2511,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L51",
       "id": "lib_geometry_rangesoverlap",
-      "community": 28,
+      "community": 1,
       "norm_label": "rangesoverlap()"
     },
     {
@@ -2520,7 +2520,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L58",
       "id": "lib_geometry_recttosegments",
-      "community": 28,
+      "community": 1,
       "norm_label": "recttosegments()"
     },
     {
@@ -2529,7 +2529,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L73",
       "id": "lib_geometry_segmentsintersect",
-      "community": 28,
+      "community": 1,
       "norm_label": "segmentsintersect()"
     },
     {
@@ -2538,7 +2538,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L92",
       "id": "lib_geometry_direction",
-      "community": 28,
+      "community": 1,
       "norm_label": "direction()"
     },
     {
@@ -2547,7 +2547,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L96",
       "id": "lib_geometry_onsegment",
-      "community": 28,
+      "community": 1,
       "norm_label": "onsegment()"
     },
     {
@@ -2556,7 +2556,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L106",
       "id": "lib_geometry_pointinrect",
-      "community": 28,
+      "community": 1,
       "norm_label": "pointinrect()"
     },
     {
@@ -2565,7 +2565,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L113",
       "id": "lib_geometry_segmentinsiderect",
-      "community": 28,
+      "community": 1,
       "norm_label": "segmentinsiderect()"
     },
     {
@@ -2574,53 +2574,107 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L120",
       "id": "lib_geometry_segmentintersectsorinsiderect",
-      "community": 28,
+      "community": 1,
       "norm_label": "segmentintersectsorinsiderect()"
+    },
+    {
+      "label": "localToWorld()",
+      "file_type": "code",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L135",
+      "id": "lib_geometry_localtoworld",
+      "community": 1,
+      "norm_label": "localtoworld()"
+    },
+    {
+      "label": "getStrokeWorldPoints()",
+      "file_type": "code",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L155",
+      "id": "lib_geometry_getstrokeworldpoints",
+      "community": 1,
+      "norm_label": "getstrokeworldpoints()"
+    },
+    {
+      "label": "getDistanceToSegment()",
+      "file_type": "code",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L199",
+      "id": "lib_geometry_getdistancetosegment",
+      "community": 1,
+      "norm_label": "getdistancetosegment()"
+    },
+    {
+      "label": "segmentsDistance()",
+      "file_type": "code",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L224",
+      "id": "lib_geometry_segmentsdistance",
+      "community": 1,
+      "norm_label": "segmentsdistance()"
     },
     {
       "label": "lineIntersectsRect()",
       "file_type": "code",
       "source_file": "frontend/lib/geometry.ts",
-      "source_location": "L136",
+      "source_location": "L248",
       "id": "lib_geometry_lineintersectsrect",
-      "community": 28,
+      "community": 1,
       "norm_label": "lineintersectsrect()"
     },
     {
       "label": "polylineIntersectsRect()",
       "file_type": "code",
       "source_file": "frontend/lib/geometry.ts",
-      "source_location": "L163",
+      "source_location": "L265",
       "id": "lib_geometry_polylineintersectsrect",
-      "community": 28,
+      "community": 1,
       "norm_label": "polylineintersectsrect()"
     },
     {
       "label": "shapeRectIntersectsRect()",
       "file_type": "code",
       "source_file": "frontend/lib/geometry.ts",
-      "source_location": "L205",
+      "source_location": "L292",
       "id": "lib_geometry_shaperectintersectsrect",
-      "community": 28,
+      "community": 1,
       "norm_label": "shaperectintersectsrect()"
     },
     {
       "label": "circleIntersectsRect()",
       "file_type": "code",
       "source_file": "frontend/lib/geometry.ts",
-      "source_location": "L276",
+      "source_location": "L354",
       "id": "lib_geometry_circleintersectsrect",
-      "community": 28,
+      "community": 1,
       "norm_label": "circleintersectsrect()"
+    },
+    {
+      "label": "strokeIntersectsEraser()",
+      "file_type": "code",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L378",
+      "id": "lib_geometry_strokeintersectseraser",
+      "community": 1,
+      "norm_label": "strokeintersectseraser()"
     },
     {
       "label": "strokeIntersectsRect()",
       "file_type": "code",
       "source_file": "frontend/lib/geometry.ts",
-      "source_location": "L307",
+      "source_location": "L489",
       "id": "lib_geometry_strokeintersectsrect",
-      "community": 28,
+      "community": 1,
       "norm_label": "strokeintersectsrect()"
+    },
+    {
+      "label": "getStrokeAABB()",
+      "file_type": "code",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L508",
+      "id": "lib_geometry_getstrokeaabb",
+      "community": 1,
+      "norm_label": "getstrokeaabb()"
     },
     {
       "label": "useStore.ts",
@@ -2781,7 +2835,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L27",
       "id": "lib_ws_websocketclient",
-      "community": 1,
+      "community": 28,
       "norm_label": "websocketclient"
     },
     {
@@ -2790,7 +2844,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L42",
       "id": "lib_ws_websocketclient_constructor",
-      "community": 1,
+      "community": 28,
       "norm_label": ".constructor()"
     },
     {
@@ -2799,7 +2853,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L48",
       "id": "lib_ws_websocketclient_connect",
-      "community": 1,
+      "community": 28,
       "norm_label": ".connect()"
     },
     {
@@ -2808,7 +2862,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L65",
       "id": "lib_ws_websocketclient_initiatesocket",
-      "community": 1,
+      "community": 28,
       "norm_label": ".initiatesocket()"
     },
     {
@@ -2817,7 +2871,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L131",
       "id": "lib_ws_websocketclient_handleincomingevent",
-      "community": 1,
+      "community": 28,
       "norm_label": ".handleincomingevent()"
     },
     {
@@ -2826,7 +2880,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L281",
       "id": "lib_ws_websocketclient_send",
-      "community": 1,
+      "community": 28,
       "norm_label": ".send()"
     },
     {
@@ -2835,7 +2889,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L289",
       "id": "lib_ws_websocketclient_on",
-      "community": 1,
+      "community": 28,
       "norm_label": ".on()"
     },
     {
@@ -2844,7 +2898,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L296",
       "id": "lib_ws_websocketclient_emit",
-      "community": 1,
+      "community": 28,
       "norm_label": ".emit()"
     },
     {
@@ -2853,7 +2907,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L302",
       "id": "lib_ws_websocketclient_attemptreconnect",
-      "community": 1,
+      "community": 28,
       "norm_label": ".attemptreconnect()"
     },
     {
@@ -2862,7 +2916,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L325",
       "id": "lib_ws_websocketclient_close",
-      "community": 1,
+      "community": 28,
       "norm_label": ".close()"
     },
     {
@@ -3717,7 +3771,7 @@
       "source_file": "requirements.md",
       "source_location": "L3",
       "id": "requirements_1_problem_statement",
-      "community": 49,
+      "community": 33,
       "norm_label": "1. problem statement"
     },
     {
@@ -3726,7 +3780,7 @@
       "source_file": "requirements.md",
       "source_location": "L5",
       "id": "requirements_overview",
-      "community": 49,
+      "community": 33,
       "norm_label": "overview"
     },
     {
@@ -3735,7 +3789,7 @@
       "source_file": "requirements.md",
       "source_location": "L27",
       "id": "requirements_core_problem_being_solved",
-      "community": 49,
+      "community": 33,
       "norm_label": "core problem being solved"
     },
     {
@@ -4617,7 +4671,7 @@
       "source_file": "requirements.md",
       "source_location": "L729",
       "id": "requirements_10_prototype_hard_part",
-      "community": 33,
+      "community": 48,
       "norm_label": "10. prototype hard part"
     },
     {
@@ -4626,7 +4680,7 @@
       "source_file": "requirements.md",
       "source_location": "L731",
       "id": "requirements_first_prototype_goal",
-      "community": 33,
+      "community": 48,
       "norm_label": "first prototype goal"
     },
     {
@@ -4635,7 +4689,7 @@
       "source_file": "requirements.md",
       "source_location": "L742",
       "id": "requirements_prototype_architecture",
-      "community": 33,
+      "community": 48,
       "norm_label": "prototype architecture"
     },
     {
@@ -4644,7 +4698,7 @@
       "source_file": "requirements.md",
       "source_location": "L756",
       "id": "requirements_success_criteria",
-      "community": 33,
+      "community": 48,
       "norm_label": "success criteria"
     },
     {
@@ -5058,7 +5112,7 @@
       "source_file": "requirements.md",
       "source_location": "L1030",
       "id": "requirements_16_deploy_early",
-      "community": 48,
+      "community": 33,
       "norm_label": "16. deploy early"
     },
     {
@@ -5067,7 +5121,7 @@
       "source_file": "requirements.md",
       "source_location": "L1032",
       "id": "requirements_initial_deployment_goal",
-      "community": 48,
+      "community": 33,
       "norm_label": "initial deployment goal"
     },
     {
@@ -5076,7 +5130,7 @@
       "source_file": "requirements.md",
       "source_location": "L1038",
       "id": "requirements_suggested_deployment_flow",
-      "community": 48,
+      "community": 33,
       "norm_label": "suggested deployment flow"
     },
     {
@@ -5290,7 +5344,7 @@
       "label": "Visync README",
       "file_type": "document",
       "source_file": "README.md",
-      "community": 1,
+      "community": 9,
       "norm_label": "visync readme",
       "id": "visync_readme"
     },
@@ -5314,7 +5368,7 @@
       "label": "Realtime Synchronization Model",
       "file_type": "concept",
       "source_file": "README.md",
-      "community": 1,
+      "community": 9,
       "norm_label": "realtime synchronization model",
       "id": "visync_readme_realtime_synchronization"
     },
@@ -5322,7 +5376,7 @@
       "label": "Resolution-Independent Virtual Coordinates",
       "file_type": "concept",
       "source_file": "README.md",
-      "community": 1,
+      "community": 9,
       "norm_label": "resolution-independent virtual coordinates",
       "id": "visync_readme_resolution_independence"
     },
@@ -5338,7 +5392,7 @@
       "label": "Hybrid Snapshot Compaction",
       "file_type": "concept",
       "source_file": "README.md",
-      "community": 1,
+      "community": 9,
       "norm_label": "hybrid snapshot compaction",
       "id": "visync_readme_hybrid_snapshot_compaction"
     },
@@ -5346,7 +5400,7 @@
       "label": "Database Schema Design",
       "file_type": "concept",
       "source_file": "README.md",
-      "community": 6,
+      "community": 9,
       "norm_label": "database schema design",
       "id": "visync_readme_database_schema"
     },
@@ -5491,9 +5545,9 @@
       "source_file": "backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "config_authhandshakeinterceptor",
-      "target": "backend_src_main_java_com_visync_config_authhandshakeinterceptor_java_map",
-      "confidence_score": 1.0
+      "target": "backend_src_main_java_com_visync_config_authhandshakeinterceptor_java_map"
     },
     {
       "relation": "imports",
@@ -5629,9 +5683,9 @@
       "source_location": "L23",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "config_authhandshakeinterceptor_authhandshakeinterceptor_beforehandshake",
-      "target": "backend_src_main_java_com_visync_config_authhandshakeinterceptor_java_map",
-      "confidence_score": 1.0
+      "target": "backend_src_main_java_com_visync_config_authhandshakeinterceptor_java_map"
     },
     {
       "relation": "references",
@@ -9117,9 +9171,9 @@
       "source_file": "backend/src/main/java/com/visync/service/BoardService.java",
       "source_location": "L271",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "service_boardservice_boardservice",
-      "target": "service_boardservice_boardservice_applytransformtostroke",
-      "confidence_score": 1.0
+      "target": "service_boardservice_boardservice_applytransformtostroke"
     },
     {
       "relation": "method",
@@ -9232,9 +9286,9 @@
       "source_location": "L271",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "service_boardservice_boardservice_applytransformtostroke",
-      "target": "backend_src_main_java_com_visync_service_boardservice_java_string",
-      "confidence_score": 1.0
+      "target": "backend_src_main_java_com_visync_service_boardservice_java_string"
     },
     {
       "relation": "references",
@@ -9309,9 +9363,9 @@
       "source_location": "L271",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "service_boardservice_boardservice_applytransformtostroke",
-      "target": "backend_src_main_java_com_visync_service_boardservice_java_jsonnode",
-      "confidence_score": 1.0
+      "target": "backend_src_main_java_com_visync_service_boardservice_java_jsonnode"
     },
     {
       "relation": "calls",
@@ -9320,9 +9374,9 @@
       "source_file": "backend/src/main/java/com/visync/service/BoardService.java",
       "source_location": "L224",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "service_boardservice_boardservice_compactsnapshot",
-      "target": "service_boardservice_boardservice_applytransformtostroke",
-      "confidence_score": 1.0
+      "target": "service_boardservice_boardservice_applytransformtostroke"
     },
     {
       "relation": "calls",
@@ -9372,9 +9426,9 @@
       "source_location": "L271",
       "weight": 1.0,
       "context": "generic_arg",
+      "confidence_score": 1.0,
       "source": "service_boardservice_boardservice_applytransformtostroke",
-      "target": "backend_src_main_java_com_visync_service_boardservice_java_map",
-      "confidence_score": 1.0
+      "target": "backend_src_main_java_com_visync_service_boardservice_java_map"
     },
     {
       "relation": "references",
@@ -9383,9 +9437,9 @@
       "source_location": "L271",
       "weight": 1.0,
       "context": "generic_arg",
+      "confidence_score": 1.0,
       "source": "service_boardservice_boardservice_applytransformtostroke",
-      "target": "backend_src_main_java_com_visync_service_boardservice_java_object",
-      "confidence_score": 1.0
+      "target": "backend_src_main_java_com_visync_service_boardservice_java_object"
     },
     {
       "relation": "references",
@@ -10365,9 +10419,9 @@
       "source_file": "frontend/app/page.tsx",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "app_page",
-      "target": "components_herographic",
-      "confidence_score": 1.0
+      "target": "components_herographic"
     },
     {
       "relation": "imports_from",
@@ -10376,9 +10430,9 @@
       "source_file": "frontend/app/page.tsx",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "app_page",
-      "target": "components_interactivegrid",
-      "confidence_score": 1.0
+      "target": "components_interactivegrid"
     },
     {
       "relation": "imports_from",
@@ -10512,9 +10566,9 @@
       "source_file": "frontend/components/CanvasBoard.tsx",
       "source_location": "L114",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_canvasboard",
-      "target": "components_canvasboard_getadaptivegridspacing",
-      "confidence_score": 1.0
+      "target": "components_canvasboard_getadaptivegridspacing"
     },
     {
       "relation": "contains",
@@ -10532,9 +10586,9 @@
       "source_file": "frontend/components/CanvasBoard.tsx",
       "source_location": "L87",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_canvasboard",
-      "target": "components_canvasboard_migratestrokesiflegacy",
-      "confidence_score": 1.0
+      "target": "components_canvasboard_migratestrokesiflegacy"
     },
     {
       "relation": "contains",
@@ -10562,9 +10616,9 @@
       "source_file": "frontend/components/CanvasBoard.tsx",
       "source_location": "L139",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_canvasboard",
-      "target": "components_canvasboard_toolbutton",
-      "confidence_score": 1.0
+      "target": "components_canvasboard_toolbutton"
     },
     {
       "relation": "imports_from",
@@ -10573,8 +10627,30 @@
       "source_file": "frontend/components/CanvasBoard.tsx",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_canvasboard",
-      "target": "lib_geometry",
+      "target": "lib_geometry"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/CanvasBoard.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_canvasboard",
+      "target": "lib_geometry_getstrokeaabb"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/CanvasBoard.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "components_canvasboard",
+      "target": "lib_geometry_segment",
       "confidence_score": 1.0
     },
     {
@@ -10585,8 +10661,19 @@
       "source_location": "L9",
       "weight": 1.0,
       "source": "components_canvasboard",
-      "target": "lib_geometry_strokeintersectsrect",
+      "target": "lib_geometry_strokeintersectseraser",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/CanvasBoard.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_canvasboard",
+      "target": "lib_geometry_strokeintersectsrect"
     },
     {
       "relation": "imports_from",
@@ -10639,9 +10726,9 @@
       "source_file": "frontend/components/CanvasBoard.tsx",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_canvasboard",
-      "target": "lib_viewport",
-      "confidence_score": 1.0
+      "target": "lib_viewport"
     },
     {
       "relation": "imports",
@@ -10650,9 +10737,9 @@
       "source_file": "frontend/components/CanvasBoard.tsx",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_canvasboard",
-      "target": "lib_viewport_createdefaultviewport",
-      "confidence_score": 1.0
+      "target": "lib_viewport_createdefaultviewport"
     },
     {
       "relation": "imports",
@@ -10661,9 +10748,9 @@
       "source_file": "frontend/components/CanvasBoard.tsx",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_canvasboard",
-      "target": "lib_viewport_getvisibleworldrect",
-      "confidence_score": 1.0
+      "target": "lib_viewport_getvisibleworldrect"
     },
     {
       "relation": "imports",
@@ -10672,9 +10759,9 @@
       "source_file": "frontend/components/CanvasBoard.tsx",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_canvasboard",
-      "target": "lib_viewport_screentoworld",
-      "confidence_score": 1.0
+      "target": "lib_viewport_screentoworld"
     },
     {
       "relation": "imports",
@@ -10683,9 +10770,9 @@
       "source_file": "frontend/components/CanvasBoard.tsx",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_canvasboard",
-      "target": "lib_viewport_viewport",
-      "confidence_score": 1.0
+      "target": "lib_viewport_viewport"
     },
     {
       "relation": "imports",
@@ -10694,9 +10781,9 @@
       "source_file": "frontend/components/CanvasBoard.tsx",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_canvasboard",
-      "target": "lib_viewport_worldtoscreen",
-      "confidence_score": 1.0
+      "target": "lib_viewport_worldtoscreen"
     },
     {
       "relation": "imports",
@@ -10705,9 +10792,9 @@
       "source_file": "frontend/components/CanvasBoard.tsx",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_canvasboard",
-      "target": "lib_viewport_zoomatpoint",
-      "confidence_score": 1.0
+      "target": "lib_viewport_zoomatpoint"
     },
     {
       "relation": "imports_from",
@@ -10808,9 +10895,9 @@
       "source_file": "frontend/components/HeroGraphic.tsx",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_herographic",
-      "target": "components_herographic_herographic",
-      "confidence_score": 1.0
+      "target": "components_herographic_herographic"
     },
     {
       "relation": "contains",
@@ -10818,9 +10905,9 @@
       "source_file": "frontend/components/InteractiveGrid.tsx",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_interactivegrid",
-      "target": "components_interactivegrid_interactivegrid",
-      "confidence_score": 1.0
+      "target": "components_interactivegrid_interactivegrid"
     },
     {
       "relation": "contains",
@@ -10838,9 +10925,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L276",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_circleintersectsrect",
-      "confidence_score": 1.0
+      "target": "lib_geometry_circleintersectsrect"
     },
     {
       "relation": "contains",
@@ -10848,8 +10935,38 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L92",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_direction",
+      "target": "lib_geometry_direction"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L199",
+      "weight": 1.0,
+      "source": "lib_geometry",
+      "target": "lib_geometry_getdistancetosegment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L327",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "lib_geometry",
+      "target": "lib_geometry_getstrokeaabb"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L155",
+      "weight": 1.0,
+      "source": "lib_geometry",
+      "target": "lib_geometry_getstrokeworldpoints",
       "confidence_score": 1.0
     },
     {
@@ -10858,8 +10975,18 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L136",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_lineintersectsrect",
+      "target": "lib_geometry_lineintersectsrect"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L135",
+      "weight": 1.0,
+      "source": "lib_geometry",
+      "target": "lib_geometry_localtoworld",
       "confidence_score": 1.0
     },
     {
@@ -10868,9 +10995,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L96",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_onsegment",
-      "confidence_score": 1.0
+      "target": "lib_geometry_onsegment"
     },
     {
       "relation": "contains",
@@ -10878,9 +11005,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L106",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_pointinrect",
-      "confidence_score": 1.0
+      "target": "lib_geometry_pointinrect"
     },
     {
       "relation": "contains",
@@ -10888,9 +11015,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L163",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_polylineintersectsrect",
-      "confidence_score": 1.0
+      "target": "lib_geometry_polylineintersectsrect"
     },
     {
       "relation": "contains",
@@ -10898,9 +11025,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_rangesoverlap",
-      "confidence_score": 1.0
+      "target": "lib_geometry_rangesoverlap"
     },
     {
       "relation": "contains",
@@ -10908,9 +11035,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_rect",
-      "confidence_score": 1.0
+      "target": "lib_geometry_rect"
     },
     {
       "relation": "contains",
@@ -10918,9 +11045,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L58",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_recttosegments",
-      "confidence_score": 1.0
+      "target": "lib_geometry_recttosegments"
     },
     {
       "relation": "contains",
@@ -10928,9 +11055,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L36",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_rotatepoint",
-      "confidence_score": 1.0
+      "target": "lib_geometry_rotatepoint"
     },
     {
       "relation": "contains",
@@ -10938,9 +11065,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_segment",
-      "confidence_score": 1.0
+      "target": "lib_geometry_segment"
     },
     {
       "relation": "contains",
@@ -10948,9 +11075,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L113",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_segmentinsiderect",
-      "confidence_score": 1.0
+      "target": "lib_geometry_segmentinsiderect"
     },
     {
       "relation": "contains",
@@ -10958,8 +11085,18 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L120",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_segmentintersectsorinsiderect",
+      "target": "lib_geometry_segmentintersectsorinsiderect"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L224",
+      "weight": 1.0,
+      "source": "lib_geometry",
+      "target": "lib_geometry_segmentsdistance",
       "confidence_score": 1.0
     },
     {
@@ -10968,9 +11105,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L73",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_segmentsintersect",
-      "confidence_score": 1.0
+      "target": "lib_geometry_segmentsintersect"
     },
     {
       "relation": "contains",
@@ -10978,8 +11115,18 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L205",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_shaperectintersectsrect",
+      "target": "lib_geometry_shaperectintersectsrect"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L378",
+      "weight": 1.0,
+      "source": "lib_geometry",
+      "target": "lib_geometry_strokeintersectseraser",
       "confidence_score": 1.0
     },
     {
@@ -10988,9 +11135,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L307",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_strokeintersectsrect",
-      "confidence_score": 1.0
+      "target": "lib_geometry_strokeintersectsrect"
     },
     {
       "relation": "imports_from",
@@ -10999,9 +11146,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_usestore",
-      "confidence_score": 1.0
+      "target": "lib_usestore"
     },
     {
       "relation": "imports",
@@ -11010,9 +11157,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_usestore_point",
-      "confidence_score": 1.0
+      "target": "lib_usestore_point"
     },
     {
       "relation": "imports",
@@ -11021,9 +11168,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_usestore_stroke",
-      "confidence_score": 1.0
+      "target": "lib_usestore_stroke"
     },
     {
       "relation": "calls",
@@ -11032,7 +11179,29 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L151",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry_lineintersectsrect",
+      "target": "lib_geometry_rotatepoint"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L146",
+      "weight": 1.0,
+      "source": "lib_geometry_localtoworld",
+      "target": "lib_geometry_rotatepoint",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L458",
+      "weight": 1.0,
+      "source": "lib_geometry_strokeintersectseraser",
       "target": "lib_geometry_rotatepoint",
       "confidence_score": 1.0
     },
@@ -11043,9 +11212,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L126",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry_segmentintersectsorinsiderect",
-      "target": "lib_geometry_recttosegments",
-      "confidence_score": 1.0
+      "target": "lib_geometry_recttosegments"
     },
     {
       "relation": "calls",
@@ -11054,8 +11223,19 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L259",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry_shaperectintersectsrect",
-      "target": "lib_geometry_recttosegments",
+      "target": "lib_geometry_recttosegments"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L225",
+      "weight": 1.0,
+      "source": "lib_geometry_segmentsdistance",
+      "target": "lib_geometry_segmentsintersect",
       "confidence_score": 1.0
     },
     {
@@ -11065,9 +11245,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L74",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry_segmentsintersect",
-      "target": "lib_geometry_direction",
-      "confidence_score": 1.0
+      "target": "lib_geometry_direction"
     },
     {
       "relation": "calls",
@@ -11076,9 +11256,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L84",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry_segmentsintersect",
-      "target": "lib_geometry_onsegment",
-      "confidence_score": 1.0
+      "target": "lib_geometry_onsegment"
     },
     {
       "relation": "calls",
@@ -11087,9 +11267,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L263",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry_shaperectintersectsrect",
-      "target": "lib_geometry_segmentsintersect",
-      "confidence_score": 1.0
+      "target": "lib_geometry_segmentsintersect"
     },
     {
       "relation": "calls",
@@ -11098,9 +11278,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L182",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry_polylineintersectsrect",
-      "target": "lib_geometry_pointinrect",
-      "confidence_score": 1.0
+      "target": "lib_geometry_pointinrect"
     },
     {
       "relation": "calls",
@@ -11109,9 +11289,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L114",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry_segmentinsiderect",
-      "target": "lib_geometry_pointinrect",
-      "confidence_score": 1.0
+      "target": "lib_geometry_pointinrect"
     },
     {
       "relation": "calls",
@@ -11120,7 +11300,18 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L122",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry_segmentintersectsorinsiderect",
+      "target": "lib_geometry_pointinrect"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L460",
+      "weight": 1.0,
+      "source": "lib_geometry_strokeintersectseraser",
       "target": "lib_geometry_pointinrect",
       "confidence_score": 1.0
     },
@@ -11131,9 +11322,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L156",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry_lineintersectsrect",
-      "target": "lib_geometry_segmentintersectsorinsiderect",
-      "confidence_score": 1.0
+      "target": "lib_geometry_segmentintersectsorinsiderect"
     },
     {
       "relation": "calls",
@@ -11142,8 +11333,85 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L193",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry_polylineintersectsrect",
-      "target": "lib_geometry_segmentintersectsorinsiderect",
+      "target": "lib_geometry_segmentintersectsorinsiderect"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L249",
+      "weight": 1.0,
+      "source": "lib_geometry_lineintersectsrect",
+      "target": "lib_geometry_getstrokeworldpoints",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L266",
+      "weight": 1.0,
+      "source": "lib_geometry_polylineintersectsrect",
+      "target": "lib_geometry_getstrokeworldpoints",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L294",
+      "weight": 1.0,
+      "source": "lib_geometry_shaperectintersectsrect",
+      "target": "lib_geometry_getstrokeworldpoints",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L400",
+      "weight": 1.0,
+      "source": "lib_geometry_strokeintersectseraser",
+      "target": "lib_geometry_getstrokeworldpoints",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L235",
+      "weight": 1.0,
+      "source": "lib_geometry_segmentsdistance",
+      "target": "lib_geometry_getdistancetosegment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L403",
+      "weight": 1.0,
+      "source": "lib_geometry_strokeintersectseraser",
+      "target": "lib_geometry_getdistancetosegment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L412",
+      "weight": 1.0,
+      "source": "lib_geometry_strokeintersectseraser",
+      "target": "lib_geometry_segmentsdistance",
       "confidence_score": 1.0
     },
     {
@@ -11153,9 +11421,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L313",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry_strokeintersectsrect",
-      "target": "lib_geometry_lineintersectsrect",
-      "confidence_score": 1.0
+      "target": "lib_geometry_lineintersectsrect"
     },
     {
       "relation": "calls",
@@ -11164,9 +11432,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L311",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry_strokeintersectsrect",
-      "target": "lib_geometry_polylineintersectsrect",
-      "confidence_score": 1.0
+      "target": "lib_geometry_polylineintersectsrect"
     },
     {
       "relation": "calls",
@@ -11175,9 +11443,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L315",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry_strokeintersectsrect",
-      "target": "lib_geometry_shaperectintersectsrect",
-      "confidence_score": 1.0
+      "target": "lib_geometry_shaperectintersectsrect"
     },
     {
       "relation": "calls",
@@ -11186,8 +11454,19 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L317",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_geometry_strokeintersectsrect",
-      "target": "lib_geometry_circleintersectsrect",
+      "target": "lib_geometry_circleintersectsrect"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/geometry.ts",
+      "source_location": "L379",
+      "weight": 1.0,
+      "source": "lib_geometry_strokeintersectseraser",
+      "target": "lib_geometry_getstrokeaabb",
       "confidence_score": 1.0
     },
     {
@@ -11267,9 +11546,9 @@
       "source_file": "frontend/lib/useStore.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_usestore",
-      "target": "lib_viewport",
-      "confidence_score": 1.0
+      "target": "lib_viewport"
     },
     {
       "relation": "imports",
@@ -11278,9 +11557,9 @@
       "source_file": "frontend/lib/useStore.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_usestore",
-      "target": "lib_viewport_createdefaultviewport",
-      "confidence_score": 1.0
+      "target": "lib_viewport_createdefaultviewport"
     },
     {
       "relation": "imports",
@@ -11289,9 +11568,9 @@
       "source_file": "frontend/lib/useStore.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_usestore",
-      "target": "lib_viewport_viewport",
-      "confidence_score": 1.0
+      "target": "lib_viewport_viewport"
     },
     {
       "relation": "imports_from",
@@ -11333,9 +11612,9 @@
       "source_file": "frontend/lib/useStore.ts",
       "source_location": "L66",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_usestore_visyncstate",
-      "target": "lib_viewport_viewport",
-      "confidence_score": 1.0
+      "target": "lib_viewport_viewport"
     },
     {
       "relation": "imports",
@@ -11354,9 +11633,9 @@
       "source_file": "frontend/lib/viewport.ts",
       "source_location": "L167",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_viewport",
-      "target": "lib_viewport_createdefaultviewport",
-      "confidence_score": 1.0
+      "target": "lib_viewport_createdefaultviewport"
     },
     {
       "relation": "contains",
@@ -11364,9 +11643,9 @@
       "source_file": "frontend/lib/viewport.ts",
       "source_location": "L145",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_viewport",
-      "target": "lib_viewport_getvisibleworldrect",
-      "confidence_score": 1.0
+      "target": "lib_viewport_getvisibleworldrect"
     },
     {
       "relation": "contains",
@@ -11374,9 +11653,9 @@
       "source_file": "frontend/lib/viewport.ts",
       "source_location": "L83",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_viewport",
-      "target": "lib_viewport_screentoworld",
-      "confidence_score": 1.0
+      "target": "lib_viewport_screentoworld"
     },
     {
       "relation": "contains",
@@ -11384,9 +11663,9 @@
       "source_file": "frontend/lib/viewport.ts",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_viewport",
-      "target": "lib_viewport_viewport",
-      "confidence_score": 1.0
+      "target": "lib_viewport_viewport"
     },
     {
       "relation": "contains",
@@ -11394,9 +11673,9 @@
       "source_file": "frontend/lib/viewport.ts",
       "source_location": "L64",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_viewport",
-      "target": "lib_viewport_worldtoscreen",
-      "confidence_score": 1.0
+      "target": "lib_viewport_worldtoscreen"
     },
     {
       "relation": "contains",
@@ -11404,9 +11683,9 @@
       "source_file": "frontend/lib/viewport.ts",
       "source_location": "L109",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_viewport",
-      "target": "lib_viewport_zoomatpoint",
-      "confidence_score": 1.0
+      "target": "lib_viewport_zoomatpoint"
     },
     {
       "relation": "calls",
@@ -11415,9 +11694,9 @@
       "source_file": "frontend/lib/viewport.ts",
       "source_location": "L150",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "lib_viewport_getvisibleworldrect",
-      "target": "lib_viewport_screentoworld",
-      "confidence_score": 1.0
+      "target": "lib_viewport_screentoworld"
     },
     {
       "relation": "contains",
@@ -11676,9 +11955,9 @@
       "source_file": "frontend/package.json",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_package_dependencies",
-      "target": "frontend_package_dependencies_framer_motion",
-      "confidence_score": 1.0
+      "target": "frontend_package_dependencies_framer_motion"
     },
     {
       "relation": "contains",
@@ -12056,9 +12335,9 @@
       "source_file": "README.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme",
-      "target": "readme_visync_realtime_collaborative_whiteboard_platform",
-      "confidence_score": 1.0
+      "target": "readme_visync_realtime_collaborative_whiteboard_platform"
     },
     {
       "relation": "contains",
@@ -12066,9 +12345,9 @@
       "source_file": "README.md",
       "source_location": "L349",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_visync_realtime_collaborative_whiteboard_platform",
-      "target": "readme_architectural_best_practices",
-      "confidence_score": 1.0
+      "target": "readme_architectural_best_practices"
     },
     {
       "relation": "contains",
@@ -12076,9 +12355,9 @@
       "source_file": "README.md",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_visync_realtime_collaborative_whiteboard_platform",
-      "target": "readme_core_system_features",
-      "confidence_score": 1.0
+      "target": "readme_core_system_features"
     },
     {
       "relation": "contains",
@@ -12086,9 +12365,9 @@
       "source_file": "README.md",
       "source_location": "L186",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_visync_realtime_collaborative_whiteboard_platform",
-      "target": "readme_database_schema",
-      "confidence_score": 1.0
+      "target": "readme_database_schema"
     },
     {
       "relation": "contains",
@@ -12096,9 +12375,9 @@
       "source_file": "README.md",
       "source_location": "L172",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_visync_realtime_collaborative_whiteboard_platform",
-      "target": "readme_latency_network_optimization_metrics",
-      "confidence_score": 1.0
+      "target": "readme_latency_network_optimization_metrics"
     },
     {
       "relation": "contains",
@@ -12106,9 +12385,9 @@
       "source_file": "README.md",
       "source_location": "L241",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_visync_realtime_collaborative_whiteboard_platform",
-      "target": "readme_local_setup_configuration",
-      "confidence_score": 1.0
+      "target": "readme_local_setup_configuration"
     },
     {
       "relation": "contains",
@@ -12116,9 +12395,9 @@
       "source_file": "README.md",
       "source_location": "L92",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_visync_realtime_collaborative_whiteboard_platform",
-      "target": "readme_sequence_flows",
-      "confidence_score": 1.0
+      "target": "readme_sequence_flows"
     },
     {
       "relation": "contains",
@@ -12126,9 +12405,9 @@
       "source_file": "README.md",
       "source_location": "L44",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_visync_realtime_collaborative_whiteboard_platform",
-      "target": "readme_technical_architecture_design",
-      "confidence_score": 1.0
+      "target": "readme_technical_architecture_design"
     },
     {
       "relation": "contains",
@@ -12136,9 +12415,9 @@
       "source_file": "README.md",
       "source_location": "L318",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_visync_realtime_collaborative_whiteboard_platform",
-      "target": "readme_verification_testing_api_docs",
-      "confidence_score": 1.0
+      "target": "readme_verification_testing_api_docs"
     },
     {
       "relation": "contains",
@@ -12146,9 +12425,9 @@
       "source_file": "README.md",
       "source_location": "L158",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_visync_realtime_collaborative_whiteboard_platform",
-      "target": "readme_virtual_coordinate_system_resolution_independence",
-      "confidence_score": 1.0
+      "target": "readme_virtual_coordinate_system_resolution_independence"
     },
     {
       "relation": "contains",
@@ -12156,9 +12435,9 @@
       "source_file": "README.md",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_core_system_features",
-      "target": "readme_interactive_whiteboard_canvas",
-      "confidence_score": 1.0
+      "target": "readme_interactive_whiteboard_canvas"
     },
     {
       "relation": "contains",
@@ -12166,9 +12445,9 @@
       "source_file": "README.md",
       "source_location": "L35",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_core_system_features",
-      "target": "readme_performance_data_optimization",
-      "confidence_score": 1.0
+      "target": "readme_performance_data_optimization"
     },
     {
       "relation": "contains",
@@ -12176,9 +12455,9 @@
       "source_file": "README.md",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_core_system_features",
-      "target": "readme_realtime_collaboration_presence",
-      "confidence_score": 1.0
+      "target": "readme_realtime_collaboration_presence"
     },
     {
       "relation": "contains",
@@ -12186,9 +12465,9 @@
       "source_file": "README.md",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_technical_architecture_design",
-      "target": "readme_high_level_system_architecture",
-      "confidence_score": 1.0
+      "target": "readme_high_level_system_architecture"
     },
     {
       "relation": "contains",
@@ -12196,9 +12475,9 @@
       "source_file": "README.md",
       "source_location": "L94",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_sequence_flows",
-      "target": "readme_1_drawing_synchronization_sequence",
-      "confidence_score": 1.0
+      "target": "readme_1_drawing_synchronization_sequence"
     },
     {
       "relation": "contains",
@@ -12206,9 +12485,9 @@
       "source_file": "README.md",
       "source_location": "L128",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_sequence_flows",
-      "target": "readme_2_hybrid_state_compaction_mechanism",
-      "confidence_score": 1.0
+      "target": "readme_2_hybrid_state_compaction_mechanism"
     },
     {
       "relation": "contains",
@@ -12216,9 +12495,9 @@
       "source_file": "README.md",
       "source_location": "L190",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_database_schema",
-      "target": "readme_1_room_table",
-      "confidence_score": 1.0
+      "target": "readme_1_room_table"
     },
     {
       "relation": "contains",
@@ -12226,9 +12505,9 @@
       "source_file": "README.md",
       "source_location": "L202",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_database_schema",
-      "target": "readme_2_drawingevent_table",
-      "confidence_score": 1.0
+      "target": "readme_2_drawingevent_table"
     },
     {
       "relation": "contains",
@@ -12236,9 +12515,9 @@
       "source_file": "README.md",
       "source_location": "L215",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_database_schema",
-      "target": "readme_3_boardsnapshot_table",
-      "confidence_score": 1.0
+      "target": "readme_3_boardsnapshot_table"
     },
     {
       "relation": "contains",
@@ -12246,9 +12525,9 @@
       "source_file": "README.md",
       "source_location": "L226",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_database_schema",
-      "target": "readme_4_chatmessage_table",
-      "confidence_score": 1.0
+      "target": "readme_4_chatmessage_table"
     },
     {
       "relation": "contains",
@@ -12256,9 +12535,9 @@
       "source_file": "README.md",
       "source_location": "L253",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_local_setup_configuration",
-      "target": "readme_1_backend_setup_spring_boot",
-      "confidence_score": 1.0
+      "target": "readme_1_backend_setup_spring_boot"
     },
     {
       "relation": "contains",
@@ -12266,9 +12545,9 @@
       "source_file": "README.md",
       "source_location": "L291",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_local_setup_configuration",
-      "target": "readme_2_frontend_setup_next_js_react",
-      "confidence_score": 1.0
+      "target": "readme_2_frontend_setup_next_js_react"
     },
     {
       "relation": "contains",
@@ -12276,9 +12555,9 @@
       "source_file": "README.md",
       "source_location": "L245",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_local_setup_configuration",
-      "target": "readme_prerequisites",
-      "confidence_score": 1.0
+      "target": "readme_prerequisites"
     },
     {
       "relation": "contains",
@@ -12286,9 +12565,9 @@
       "source_file": "README.md",
       "source_location": "L322",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_verification_testing_api_docs",
-      "target": "readme_rest_endpoints",
-      "confidence_score": 1.0
+      "target": "readme_rest_endpoints"
     },
     {
       "relation": "contains",
@@ -12296,9 +12575,9 @@
       "source_file": "README.md",
       "source_location": "L329",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_verification_testing_api_docs",
-      "target": "readme_websocket_events_protocol",
-      "confidence_score": 1.0
+      "target": "readme_websocket_events_protocol"
     },
     {
       "relation": "contains",
@@ -12306,9 +12585,9 @@
       "source_file": "TASKS.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tasks",
-      "target": "tasks_visync_task_list",
-      "confidence_score": 1.0
+      "target": "tasks_visync_task_list"
     },
     {
       "relation": "contains",
@@ -12316,9 +12595,9 @@
       "source_file": "TASKS.md",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tasks_visync_task_list",
-      "target": "tasks_next_run_these_first",
-      "confidence_score": 1.0
+      "target": "tasks_next_run_these_first"
     },
     {
       "relation": "contains",
@@ -12326,9 +12605,9 @@
       "source_file": "TASKS.md",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tasks_visync_task_list",
-      "target": "tasks_tasks",
-      "confidence_score": 1.0
+      "target": "tasks_tasks"
     },
     {
       "relation": "contains",
@@ -12336,9 +12615,9 @@
       "source_file": "frontend/README.md",
       "source_location": "L32",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_readme",
-      "target": "frontend_readme_deploy_on_vercel",
-      "confidence_score": 1.0
+      "target": "frontend_readme_deploy_on_vercel"
     },
     {
       "relation": "contains",
@@ -12346,9 +12625,9 @@
       "source_file": "frontend/README.md",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_readme",
-      "target": "frontend_readme_getting_started",
-      "confidence_score": 1.0
+      "target": "frontend_readme_getting_started"
     },
     {
       "relation": "contains",
@@ -12356,9 +12635,9 @@
       "source_file": "frontend/README.md",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_readme",
-      "target": "frontend_readme_learn_more",
-      "confidence_score": 1.0
+      "target": "frontend_readme_learn_more"
     },
     {
       "relation": "contains",
@@ -12366,9 +12645,9 @@
       "source_file": "requirements.md",
       "source_location": "L729",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_10_prototype_hard_part",
-      "confidence_score": 1.0
+      "target": "requirements_10_prototype_hard_part"
     },
     {
       "relation": "contains",
@@ -12376,9 +12655,9 @@
       "source_file": "requirements.md",
       "source_location": "L764",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_11_low_level_design_lld",
-      "confidence_score": 1.0
+      "target": "requirements_11_low_level_design_lld"
     },
     {
       "relation": "contains",
@@ -12386,9 +12665,9 @@
       "source_file": "requirements.md",
       "source_location": "L843",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_12_task_breakdown",
-      "confidence_score": 1.0
+      "target": "requirements_12_task_breakdown"
     },
     {
       "relation": "contains",
@@ -12396,9 +12675,9 @@
       "source_file": "requirements.md",
       "source_location": "L899",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_13_setup_project",
-      "confidence_score": 1.0
+      "target": "requirements_13_setup_project"
     },
     {
       "relation": "contains",
@@ -12406,9 +12685,9 @@
       "source_file": "requirements.md",
       "source_location": "L960",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_14_implement_incrementally",
-      "confidence_score": 1.0
+      "target": "requirements_14_implement_incrementally"
     },
     {
       "relation": "contains",
@@ -12416,9 +12695,9 @@
       "source_file": "requirements.md",
       "source_location": "L1002",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_15_test_continuously",
-      "confidence_score": 1.0
+      "target": "requirements_15_test_continuously"
     },
     {
       "relation": "contains",
@@ -12426,9 +12705,9 @@
       "source_file": "requirements.md",
       "source_location": "L1030",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_16_deploy_early",
-      "confidence_score": 1.0
+      "target": "requirements_16_deploy_early"
     },
     {
       "relation": "contains",
@@ -12436,9 +12715,9 @@
       "source_file": "requirements.md",
       "source_location": "L1058",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_17_optimize",
-      "confidence_score": 1.0
+      "target": "requirements_17_optimize"
     },
     {
       "relation": "contains",
@@ -12446,9 +12725,9 @@
       "source_file": "requirements.md",
       "source_location": "L1084",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_18_refactor_maintain",
-      "confidence_score": 1.0
+      "target": "requirements_18_refactor_maintain"
     },
     {
       "relation": "contains",
@@ -12456,9 +12735,9 @@
       "source_file": "requirements.md",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_1_problem_statement",
-      "confidence_score": 1.0
+      "target": "requirements_1_problem_statement"
     },
     {
       "relation": "contains",
@@ -12466,9 +12745,9 @@
       "source_file": "requirements.md",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_2_define_mvp",
-      "confidence_score": 1.0
+      "target": "requirements_2_define_mvp"
     },
     {
       "relation": "contains",
@@ -12476,9 +12755,9 @@
       "source_file": "requirements.md",
       "source_location": "L132",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_3_identify_hardest_problems",
-      "confidence_score": 1.0
+      "target": "requirements_3_identify_hardest_problems"
     },
     {
       "relation": "contains",
@@ -12486,9 +12765,9 @@
       "source_file": "requirements.md",
       "source_location": "L213",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_4_user_flow",
-      "confidence_score": 1.0
+      "target": "requirements_4_user_flow"
     },
     {
       "relation": "contains",
@@ -12496,9 +12775,9 @@
       "source_file": "requirements.md",
       "source_location": "L267",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_5_high_level_design_hld",
-      "confidence_score": 1.0
+      "target": "requirements_5_high_level_design_hld"
     },
     {
       "relation": "contains",
@@ -12506,9 +12785,9 @@
       "source_file": "requirements.md",
       "source_location": "L379",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_6_tech_stack",
-      "confidence_score": 1.0
+      "target": "requirements_6_tech_stack"
     },
     {
       "relation": "contains",
@@ -12516,9 +12795,9 @@
       "source_file": "requirements.md",
       "source_location": "L481",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_7_data_models",
-      "confidence_score": 1.0
+      "target": "requirements_7_data_models"
     },
     {
       "relation": "contains",
@@ -12526,9 +12805,9 @@
       "source_file": "requirements.md",
       "source_location": "L566",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_8_api_design",
-      "confidence_score": 1.0
+      "target": "requirements_8_api_design"
     },
     {
       "relation": "contains",
@@ -12536,9 +12815,9 @@
       "source_file": "requirements.md",
       "source_location": "L656",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_9_edge_cases",
-      "confidence_score": 1.0
+      "target": "requirements_9_edge_cases"
     },
     {
       "relation": "contains",
@@ -12546,9 +12825,9 @@
       "source_file": "requirements.md",
       "source_location": "L801",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_backend_lld",
-      "confidence_score": 1.0
+      "target": "requirements_backend_lld"
     },
     {
       "relation": "contains",
@@ -12556,9 +12835,9 @@
       "source_file": "requirements.md",
       "source_location": "L766",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_frontend_lld",
-      "confidence_score": 1.0
+      "target": "requirements_frontend_lld"
     },
     {
       "relation": "contains",
@@ -12566,9 +12845,9 @@
       "source_file": "requirements.md",
       "source_location": "L1113",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_future_scaling_architecture",
-      "confidence_score": 1.0
+      "target": "requirements_future_scaling_architecture"
     },
     {
       "relation": "contains",
@@ -12576,9 +12855,9 @@
       "source_file": "requirements.md",
       "source_location": "L1130",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_important_architectural_decisions",
-      "confidence_score": 1.0
+      "target": "requirements_important_architectural_decisions"
     },
     {
       "relation": "contains",
@@ -12586,9 +12865,9 @@
       "source_file": "requirements.md",
       "source_location": "L1182",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_open_questions_decisions_required",
-      "confidence_score": 1.0
+      "target": "requirements_open_questions_decisions_required"
     },
     {
       "relation": "contains",
@@ -12596,9 +12875,9 @@
       "source_file": "requirements.md",
       "source_location": "L1254",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_recommended_immediate_next_step",
-      "confidence_score": 1.0
+      "target": "requirements_recommended_immediate_next_step"
     },
     {
       "relation": "contains",
@@ -12606,9 +12885,9 @@
       "source_file": "requirements.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements",
-      "target": "requirements_visync_realtime_collaborative_whiteboard",
-      "confidence_score": 1.0
+      "target": "requirements_visync_realtime_collaborative_whiteboard"
     },
     {
       "relation": "contains",
@@ -12616,9 +12895,9 @@
       "source_file": "requirements.md",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_1_problem_statement",
-      "target": "requirements_core_problem_being_solved",
-      "confidence_score": 1.0
+      "target": "requirements_core_problem_being_solved"
     },
     {
       "relation": "contains",
@@ -12626,9 +12905,9 @@
       "source_file": "requirements.md",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_1_problem_statement",
-      "target": "requirements_overview",
-      "confidence_score": 1.0
+      "target": "requirements_overview"
     },
     {
       "relation": "contains",
@@ -12636,9 +12915,9 @@
       "source_file": "requirements.md",
       "source_location": "L56",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_2_define_mvp",
-      "target": "requirements_mvp_features",
-      "confidence_score": 1.0
+      "target": "requirements_mvp_features"
     },
     {
       "relation": "contains",
@@ -12646,9 +12925,9 @@
       "source_file": "requirements.md",
       "source_location": "L50",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_2_define_mvp",
-      "target": "requirements_mvp_goal",
-      "confidence_score": 1.0
+      "target": "requirements_mvp_goal"
     },
     {
       "relation": "contains",
@@ -12656,9 +12935,9 @@
       "source_file": "requirements.md",
       "source_location": "L102",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_2_define_mvp",
-      "target": "requirements_post_mvp_features",
-      "confidence_score": 1.0
+      "target": "requirements_post_mvp_features"
     },
     {
       "relation": "contains",
@@ -12666,9 +12945,9 @@
       "source_file": "requirements.md",
       "source_location": "L58",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_mvp_features",
-      "target": "requirements_authentication",
-      "confidence_score": 1.0
+      "target": "requirements_authentication"
     },
     {
       "relation": "contains",
@@ -12676,9 +12955,9 @@
       "source_file": "requirements.md",
       "source_location": "L91",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_mvp_features",
-      "target": "requirements_chat",
-      "confidence_score": 1.0
+      "target": "requirements_chat"
     },
     {
       "relation": "contains",
@@ -12686,9 +12965,9 @@
       "source_file": "requirements.md",
       "source_location": "L95",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_mvp_features",
-      "target": "requirements_persistence",
-      "confidence_score": 1.0
+      "target": "requirements_persistence"
     },
     {
       "relation": "contains",
@@ -12696,9 +12975,9 @@
       "source_file": "requirements.md",
       "source_location": "L85",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_mvp_features",
-      "target": "requirements_realtime_collaboration",
-      "confidence_score": 1.0
+      "target": "requirements_realtime_collaboration"
     },
     {
       "relation": "contains",
@@ -12706,9 +12985,9 @@
       "source_file": "requirements.md",
       "source_location": "L64",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_mvp_features",
-      "target": "requirements_room_management",
-      "confidence_score": 1.0
+      "target": "requirements_room_management"
     },
     {
       "relation": "contains",
@@ -12716,9 +12995,9 @@
       "source_file": "requirements.md",
       "source_location": "L73",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_mvp_features",
-      "target": "requirements_whiteboard",
-      "confidence_score": 1.0
+      "target": "requirements_whiteboard"
     },
     {
       "relation": "contains",
@@ -12726,9 +13005,9 @@
       "source_file": "requirements.md",
       "source_location": "L104",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_post_mvp_features",
-      "target": "requirements_advanced_collaboration",
-      "confidence_score": 1.0
+      "target": "requirements_advanced_collaboration"
     },
     {
       "relation": "contains",
@@ -12736,9 +13015,9 @@
       "source_file": "requirements.md",
       "source_location": "L112",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_post_mvp_features",
-      "target": "requirements_ai_features",
-      "confidence_score": 1.0
+      "target": "requirements_ai_features"
     },
     {
       "relation": "contains",
@@ -12746,9 +13025,9 @@
       "source_file": "requirements.md",
       "source_location": "L118",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_post_mvp_features",
-      "target": "requirements_media_features",
-      "confidence_score": 1.0
+      "target": "requirements_media_features"
     },
     {
       "relation": "contains",
@@ -12756,9 +13035,9 @@
       "source_file": "requirements.md",
       "source_location": "L124",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_post_mvp_features",
-      "target": "requirements_productivity",
-      "confidence_score": 1.0
+      "target": "requirements_productivity"
     },
     {
       "relation": "contains",
@@ -12766,9 +13045,9 @@
       "source_file": "requirements.md",
       "source_location": "L134",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_3_identify_hardest_problems",
-      "target": "requirements_primary_technical_challenges",
-      "confidence_score": 1.0
+      "target": "requirements_primary_technical_challenges"
     },
     {
       "relation": "contains",
@@ -12776,9 +13055,9 @@
       "source_file": "requirements.md",
       "source_location": "L136",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_primary_technical_challenges",
-      "target": "requirements_1_realtime_synchronization",
-      "confidence_score": 1.0
+      "target": "requirements_1_realtime_synchronization"
     },
     {
       "relation": "contains",
@@ -12786,9 +13065,9 @@
       "source_file": "requirements.md",
       "source_location": "L152",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_primary_technical_challenges",
-      "target": "requirements_2_coordinate_system_management",
-      "confidence_score": 1.0
+      "target": "requirements_2_coordinate_system_management"
     },
     {
       "relation": "contains",
@@ -12796,9 +13075,9 @@
       "source_file": "requirements.md",
       "source_location": "L167",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_primary_technical_challenges",
-      "target": "requirements_3_high_frequency_event_handling",
-      "confidence_score": 1.0
+      "target": "requirements_3_high_frequency_event_handling"
     },
     {
       "relation": "contains",
@@ -12806,9 +13085,9 @@
       "source_file": "requirements.md",
       "source_location": "L183",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_primary_technical_challenges",
-      "target": "requirements_4_persistence_strategy",
-      "confidence_score": 1.0
+      "target": "requirements_4_persistence_strategy"
     },
     {
       "relation": "contains",
@@ -12816,9 +13095,9 @@
       "source_file": "requirements.md",
       "source_location": "L198",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_primary_technical_challenges",
-      "target": "requirements_5_concurrent_user_actions",
-      "confidence_score": 1.0
+      "target": "requirements_5_concurrent_user_actions"
     },
     {
       "relation": "contains",
@@ -12826,9 +13105,9 @@
       "source_file": "requirements.md",
       "source_location": "L215",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_4_user_flow",
-      "target": "requirements_user_journey",
-      "confidence_score": 1.0
+      "target": "requirements_user_journey"
     },
     {
       "relation": "contains",
@@ -12836,9 +13115,9 @@
       "source_file": "requirements.md",
       "source_location": "L217",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_user_journey",
-      "target": "requirements_authentication_flow",
-      "confidence_score": 1.0
+      "target": "requirements_authentication_flow"
     },
     {
       "relation": "contains",
@@ -12846,9 +13125,9 @@
       "source_file": "requirements.md",
       "source_location": "L246",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_user_journey",
-      "target": "requirements_drawing_flow",
-      "confidence_score": 1.0
+      "target": "requirements_drawing_flow"
     },
     {
       "relation": "contains",
@@ -12856,9 +13135,9 @@
       "source_file": "requirements.md",
       "source_location": "L258",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_user_journey",
-      "target": "requirements_persistence_flow",
-      "confidence_score": 1.0
+      "target": "requirements_persistence_flow"
     },
     {
       "relation": "contains",
@@ -12866,9 +13145,9 @@
       "source_file": "requirements.md",
       "source_location": "L225",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_user_journey",
-      "target": "requirements_room_creation_flow",
-      "confidence_score": 1.0
+      "target": "requirements_room_creation_flow"
     },
     {
       "relation": "contains",
@@ -12876,9 +13155,9 @@
       "source_file": "requirements.md",
       "source_location": "L235",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_user_journey",
-      "target": "requirements_room_joining_flow",
-      "confidence_score": 1.0
+      "target": "requirements_room_joining_flow"
     },
     {
       "relation": "contains",
@@ -12886,9 +13165,9 @@
       "source_file": "requirements.md",
       "source_location": "L269",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_5_high_level_design_hld",
-      "target": "requirements_architecture_style",
-      "confidence_score": 1.0
+      "target": "requirements_architecture_style"
     },
     {
       "relation": "contains",
@@ -12896,9 +13175,9 @@
       "source_file": "requirements.md",
       "source_location": "L275",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_5_high_level_design_hld",
-      "target": "requirements_high_level_architecture_diagram",
-      "confidence_score": 1.0
+      "target": "requirements_high_level_architecture_diagram"
     },
     {
       "relation": "contains",
@@ -12906,9 +13185,9 @@
       "source_file": "requirements.md",
       "source_location": "L301",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_5_high_level_design_hld",
-      "target": "requirements_major_components",
-      "confidence_score": 1.0
+      "target": "requirements_major_components"
     },
     {
       "relation": "contains",
@@ -12916,9 +13195,9 @@
       "source_file": "requirements.md",
       "source_location": "L315",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_major_components",
-      "target": "requirements_backend_gateway",
-      "confidence_score": 1.0
+      "target": "requirements_backend_gateway"
     },
     {
       "relation": "contains",
@@ -12926,9 +13205,9 @@
       "source_file": "requirements.md",
       "source_location": "L347",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_major_components",
-      "target": "requirements_chat_service",
-      "confidence_score": 1.0
+      "target": "requirements_chat_service"
     },
     {
       "relation": "contains",
@@ -12936,9 +13215,9 @@
       "source_file": "requirements.md",
       "source_location": "L303",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_major_components",
-      "target": "requirements_frontend",
-      "confidence_score": 1.0
+      "target": "requirements_frontend"
     },
     {
       "relation": "contains",
@@ -12946,9 +13225,9 @@
       "source_file": "requirements.md",
       "source_location": "L357",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_major_components",
-      "target": "requirements_persistence_layer",
-      "confidence_score": 1.0
+      "target": "requirements_persistence_layer"
     },
     {
       "relation": "contains",
@@ -12956,9 +13235,9 @@
       "source_file": "requirements.md",
       "source_location": "L326",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_major_components",
-      "target": "requirements_realtime_engine",
-      "confidence_score": 1.0
+      "target": "requirements_realtime_engine"
     },
     {
       "relation": "contains",
@@ -12966,9 +13245,9 @@
       "source_file": "requirements.md",
       "source_location": "L368",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_major_components",
-      "target": "requirements_redis_layer",
-      "confidence_score": 1.0
+      "target": "requirements_redis_layer"
     },
     {
       "relation": "contains",
@@ -12976,9 +13255,9 @@
       "source_file": "requirements.md",
       "source_location": "L337",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_major_components",
-      "target": "requirements_room_service",
-      "confidence_score": 1.0
+      "target": "requirements_room_service"
     },
     {
       "relation": "contains",
@@ -12986,9 +13265,9 @@
       "source_file": "requirements.md",
       "source_location": "L415",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_6_tech_stack",
-      "target": "requirements_backend",
-      "confidence_score": 1.0
+      "target": "requirements_backend"
     },
     {
       "relation": "contains",
@@ -12996,9 +13275,9 @@
       "source_file": "requirements.md",
       "source_location": "L451",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_6_tech_stack",
-      "target": "requirements_cache_pub_sub",
-      "confidence_score": 1.0
+      "target": "requirements_cache_pub_sub"
     },
     {
       "relation": "contains",
@@ -13006,9 +13285,9 @@
       "source_file": "requirements.md",
       "source_location": "L437",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_6_tech_stack",
-      "target": "requirements_database",
-      "confidence_score": 1.0
+      "target": "requirements_database"
     },
     {
       "relation": "contains",
@@ -13016,9 +13295,9 @@
       "source_file": "requirements.md",
       "source_location": "L457",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_6_tech_stack",
-      "target": "requirements_deployment",
-      "confidence_score": 1.0
+      "target": "requirements_deployment"
     },
     {
       "relation": "contains",
@@ -13026,9 +13305,9 @@
       "source_file": "requirements.md",
       "source_location": "L381",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_6_tech_stack",
-      "target": "requirements_frontend_381",
-      "confidence_score": 1.0
+      "target": "requirements_frontend_381"
     },
     {
       "relation": "contains",
@@ -13036,9 +13315,9 @@
       "source_file": "requirements.md",
       "source_location": "L389",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_frontend_381",
-      "target": "requirements_canvas_rendering",
-      "confidence_score": 1.0
+      "target": "requirements_canvas_rendering"
     },
     {
       "relation": "contains",
@@ -13046,9 +13325,9 @@
       "source_file": "requirements.md",
       "source_location": "L383",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_frontend_381",
-      "target": "requirements_core",
-      "confidence_score": 1.0
+      "target": "requirements_core"
     },
     {
       "relation": "contains",
@@ -13056,9 +13335,9 @@
       "source_file": "requirements.md",
       "source_location": "L407",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_frontend_381",
-      "target": "requirements_realtime",
-      "confidence_score": 1.0
+      "target": "requirements_realtime"
     },
     {
       "relation": "contains",
@@ -13066,9 +13345,9 @@
       "source_file": "requirements.md",
       "source_location": "L399",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_frontend_381",
-      "target": "requirements_state_management",
-      "confidence_score": 1.0
+      "target": "requirements_state_management"
     },
     {
       "relation": "contains",
@@ -13076,9 +13355,9 @@
       "source_file": "requirements.md",
       "source_location": "L403",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_frontend_381",
-      "target": "requirements_styling",
-      "confidence_score": 1.0
+      "target": "requirements_styling"
     },
     {
       "relation": "contains",
@@ -13086,9 +13365,9 @@
       "source_file": "requirements.md",
       "source_location": "L431",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_backend",
-      "target": "requirements_build_tool",
-      "confidence_score": 1.0
+      "target": "requirements_build_tool"
     },
     {
       "relation": "contains",
@@ -13096,9 +13375,9 @@
       "source_file": "requirements.md",
       "source_location": "L417",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_backend",
-      "target": "requirements_core_417",
-      "confidence_score": 1.0
+      "target": "requirements_core_417"
     },
     {
       "relation": "contains",
@@ -13106,9 +13385,9 @@
       "source_file": "requirements.md",
       "source_location": "L421",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_backend",
-      "target": "requirements_realtime_communication",
-      "confidence_score": 1.0
+      "target": "requirements_realtime_communication"
     },
     {
       "relation": "contains",
@@ -13116,9 +13395,9 @@
       "source_file": "requirements.md",
       "source_location": "L426",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_backend",
-      "target": "requirements_security",
-      "confidence_score": 1.0
+      "target": "requirements_security"
     },
     {
       "relation": "contains",
@@ -13126,9 +13405,9 @@
       "source_file": "requirements.md",
       "source_location": "L439",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_database",
-      "target": "requirements_primary_recommendation",
-      "confidence_score": 1.0
+      "target": "requirements_primary_recommendation"
     },
     {
       "relation": "contains",
@@ -13136,9 +13415,9 @@
       "source_file": "requirements.md",
       "source_location": "L463",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_deployment",
-      "target": "requirements_backend_463",
-      "confidence_score": 1.0
+      "target": "requirements_backend_463"
     },
     {
       "relation": "contains",
@@ -13146,9 +13425,9 @@
       "source_file": "requirements.md",
       "source_location": "L475",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_deployment",
-      "target": "requirements_containerization",
-      "confidence_score": 1.0
+      "target": "requirements_containerization"
     },
     {
       "relation": "contains",
@@ -13156,9 +13435,9 @@
       "source_file": "requirements.md",
       "source_location": "L467",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_deployment",
-      "target": "requirements_database_467",
-      "confidence_score": 1.0
+      "target": "requirements_database_467"
     },
     {
       "relation": "contains",
@@ -13166,9 +13445,9 @@
       "source_file": "requirements.md",
       "source_location": "L459",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_deployment",
-      "target": "requirements_frontend_459",
-      "confidence_score": 1.0
+      "target": "requirements_frontend_459"
     },
     {
       "relation": "contains",
@@ -13176,9 +13455,9 @@
       "source_file": "requirements.md",
       "source_location": "L471",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_deployment",
-      "target": "requirements_reverse_proxy",
-      "confidence_score": 1.0
+      "target": "requirements_reverse_proxy"
     },
     {
       "relation": "contains",
@@ -13186,9 +13465,9 @@
       "source_file": "requirements.md",
       "source_location": "L539",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_7_data_models",
-      "target": "requirements_board_snapshot",
-      "confidence_score": 1.0
+      "target": "requirements_board_snapshot"
     },
     {
       "relation": "contains",
@@ -13196,9 +13475,9 @@
       "source_file": "requirements.md",
       "source_location": "L552",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_7_data_models",
-      "target": "requirements_chat_message",
-      "confidence_score": 1.0
+      "target": "requirements_chat_message"
     },
     {
       "relation": "contains",
@@ -13206,9 +13485,9 @@
       "source_file": "requirements.md",
       "source_location": "L524",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_7_data_models",
-      "target": "requirements_drawing_event",
-      "confidence_score": 1.0
+      "target": "requirements_drawing_event"
     },
     {
       "relation": "contains",
@@ -13216,9 +13495,9 @@
       "source_file": "requirements.md",
       "source_location": "L497",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_7_data_models",
-      "target": "requirements_room",
-      "confidence_score": 1.0
+      "target": "requirements_room"
     },
     {
       "relation": "contains",
@@ -13226,9 +13505,9 @@
       "source_file": "requirements.md",
       "source_location": "L511",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_7_data_models",
-      "target": "requirements_roommember",
-      "confidence_score": 1.0
+      "target": "requirements_roommember"
     },
     {
       "relation": "contains",
@@ -13236,9 +13515,9 @@
       "source_file": "requirements.md",
       "source_location": "L483",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_7_data_models",
-      "target": "requirements_user",
-      "confidence_score": 1.0
+      "target": "requirements_user"
     },
     {
       "relation": "contains",
@@ -13246,9 +13525,9 @@
       "source_file": "requirements.md",
       "source_location": "L572",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_8_api_design",
-      "target": "requirements_authentication_apis",
-      "confidence_score": 1.0
+      "target": "requirements_authentication_apis"
     },
     {
       "relation": "contains",
@@ -13256,9 +13535,9 @@
       "source_file": "requirements.md",
       "source_location": "L568",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_8_api_design",
-      "target": "requirements_rest_apis",
-      "confidence_score": 1.0
+      "target": "requirements_rest_apis"
     },
     {
       "relation": "contains",
@@ -13266,9 +13545,9 @@
       "source_file": "requirements.md",
       "source_location": "L588",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_8_api_design",
-      "target": "requirements_room_apis",
-      "confidence_score": 1.0
+      "target": "requirements_room_apis"
     },
     {
       "relation": "contains",
@@ -13276,9 +13555,9 @@
       "source_file": "requirements.md",
       "source_location": "L616",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_8_api_design",
-      "target": "requirements_websocket_apis",
-      "confidence_score": 1.0
+      "target": "requirements_websocket_apis"
     },
     {
       "relation": "contains",
@@ -13286,9 +13565,9 @@
       "source_file": "requirements.md",
       "source_location": "L626",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_8_api_design",
-      "target": "requirements_websocket_event_types",
-      "confidence_score": 1.0
+      "target": "requirements_websocket_event_types"
     },
     {
       "relation": "contains",
@@ -13296,9 +13575,9 @@
       "source_file": "requirements.md",
       "source_location": "L580",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_authentication_apis",
-      "target": "requirements_login",
-      "confidence_score": 1.0
+      "target": "requirements_login"
     },
     {
       "relation": "contains",
@@ -13306,9 +13585,9 @@
       "source_file": "requirements.md",
       "source_location": "L574",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_authentication_apis",
-      "target": "requirements_register",
-      "confidence_score": 1.0
+      "target": "requirements_register"
     },
     {
       "relation": "contains",
@@ -13316,9 +13595,9 @@
       "source_file": "requirements.md",
       "source_location": "L590",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_room_apis",
-      "target": "requirements_create_room",
-      "confidence_score": 1.0
+      "target": "requirements_create_room"
     },
     {
       "relation": "contains",
@@ -13326,9 +13605,9 @@
       "source_file": "requirements.md",
       "source_location": "L608",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_room_apis",
-      "target": "requirements_get_board_snapshot",
-      "confidence_score": 1.0
+      "target": "requirements_get_board_snapshot"
     },
     {
       "relation": "contains",
@@ -13336,9 +13615,9 @@
       "source_file": "requirements.md",
       "source_location": "L602",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_room_apis",
-      "target": "requirements_get_room_details",
-      "confidence_score": 1.0
+      "target": "requirements_get_room_details"
     },
     {
       "relation": "contains",
@@ -13346,9 +13625,9 @@
       "source_file": "requirements.md",
       "source_location": "L596",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_room_apis",
-      "target": "requirements_join_room",
-      "confidence_score": 1.0
+      "target": "requirements_join_room"
     },
     {
       "relation": "contains",
@@ -13356,9 +13635,9 @@
       "source_file": "requirements.md",
       "source_location": "L618",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_websocket_apis",
-      "target": "requirements_connection",
-      "confidence_score": 1.0
+      "target": "requirements_connection"
     },
     {
       "relation": "contains",
@@ -13366,9 +13645,9 @@
       "source_file": "requirements.md",
       "source_location": "L649",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_websocket_event_types",
-      "target": "requirements_board_events",
-      "confidence_score": 1.0
+      "target": "requirements_board_events"
     },
     {
       "relation": "contains",
@@ -13376,9 +13655,9 @@
       "source_file": "requirements.md",
       "source_location": "L645",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_websocket_event_types",
-      "target": "requirements_chat_events",
-      "confidence_score": 1.0
+      "target": "requirements_chat_events"
     },
     {
       "relation": "contains",
@@ -13386,9 +13665,9 @@
       "source_file": "requirements.md",
       "source_location": "L628",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_websocket_event_types",
-      "target": "requirements_drawing_events",
-      "confidence_score": 1.0
+      "target": "requirements_drawing_events"
     },
     {
       "relation": "contains",
@@ -13396,9 +13675,9 @@
       "source_file": "requirements.md",
       "source_location": "L634",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_websocket_event_types",
-      "target": "requirements_shape_events",
-      "confidence_score": 1.0
+      "target": "requirements_shape_events"
     },
     {
       "relation": "contains",
@@ -13406,9 +13685,9 @@
       "source_file": "requirements.md",
       "source_location": "L640",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_websocket_event_types",
-      "target": "requirements_user_events",
-      "confidence_score": 1.0
+      "target": "requirements_user_events"
     },
     {
       "relation": "contains",
@@ -13416,9 +13695,9 @@
       "source_file": "requirements.md",
       "source_location": "L687",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_9_edge_cases",
-      "target": "requirements_concurrent_actions",
-      "confidence_score": 1.0
+      "target": "requirements_concurrent_actions"
     },
     {
       "relation": "contains",
@@ -13426,9 +13705,9 @@
       "source_file": "requirements.md",
       "source_location": "L658",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_9_edge_cases",
-      "target": "requirements_network_issues",
-      "confidence_score": 1.0
+      "target": "requirements_network_issues"
     },
     {
       "relation": "contains",
@@ -13436,9 +13715,9 @@
       "source_file": "requirements.md",
       "source_location": "L707",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_9_edge_cases",
-      "target": "requirements_persistence_issues",
-      "confidence_score": 1.0
+      "target": "requirements_persistence_issues"
     },
     {
       "relation": "contains",
@@ -13446,9 +13725,9 @@
       "source_file": "requirements.md",
       "source_location": "L718",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_9_edge_cases",
-      "target": "requirements_scalability_issues",
-      "confidence_score": 1.0
+      "target": "requirements_scalability_issues"
     },
     {
       "relation": "contains",
@@ -13456,9 +13735,9 @@
       "source_file": "requirements.md",
       "source_location": "L678",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_network_issues",
-      "target": "requirements_reconnection",
-      "confidence_score": 1.0
+      "target": "requirements_reconnection"
     },
     {
       "relation": "contains",
@@ -13466,9 +13745,9 @@
       "source_file": "requirements.md",
       "source_location": "L669",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_network_issues",
-      "target": "requirements_slow_network",
-      "confidence_score": 1.0
+      "target": "requirements_slow_network"
     },
     {
       "relation": "contains",
@@ -13476,9 +13755,9 @@
       "source_file": "requirements.md",
       "source_location": "L660",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_network_issues",
-      "target": "requirements_user_disconnects_mid_drawing",
-      "confidence_score": 1.0
+      "target": "requirements_user_disconnects_mid_drawing"
     },
     {
       "relation": "contains",
@@ -13486,9 +13765,9 @@
       "source_file": "requirements.md",
       "source_location": "L698",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_concurrent_actions",
-      "target": "requirements_simultaneous_board_clear",
-      "confidence_score": 1.0
+      "target": "requirements_simultaneous_board_clear"
     },
     {
       "relation": "contains",
@@ -13496,9 +13775,9 @@
       "source_file": "requirements.md",
       "source_location": "L689",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_concurrent_actions",
-      "target": "requirements_two_users_drawing_simultaneously",
-      "confidence_score": 1.0
+      "target": "requirements_two_users_drawing_simultaneously"
     },
     {
       "relation": "contains",
@@ -13506,9 +13785,9 @@
       "source_file": "requirements.md",
       "source_location": "L709",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_persistence_issues",
-      "target": "requirements_server_crash",
-      "confidence_score": 1.0
+      "target": "requirements_server_crash"
     },
     {
       "relation": "contains",
@@ -13516,9 +13795,9 @@
       "source_file": "requirements.md",
       "source_location": "L720",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_scalability_issues",
-      "target": "requirements_large_rooms",
-      "confidence_score": 1.0
+      "target": "requirements_large_rooms"
     },
     {
       "relation": "contains",
@@ -13526,9 +13805,9 @@
       "source_file": "requirements.md",
       "source_location": "L731",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_10_prototype_hard_part",
-      "target": "requirements_first_prototype_goal",
-      "confidence_score": 1.0
+      "target": "requirements_first_prototype_goal"
     },
     {
       "relation": "contains",
@@ -13536,9 +13815,9 @@
       "source_file": "requirements.md",
       "source_location": "L742",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_10_prototype_hard_part",
-      "target": "requirements_prototype_architecture",
-      "confidence_score": 1.0
+      "target": "requirements_prototype_architecture"
     },
     {
       "relation": "contains",
@@ -13546,9 +13825,9 @@
       "source_file": "requirements.md",
       "source_location": "L756",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_10_prototype_hard_part",
-      "target": "requirements_success_criteria",
-      "confidence_score": 1.0
+      "target": "requirements_success_criteria"
     },
     {
       "relation": "contains",
@@ -13556,9 +13835,9 @@
       "source_file": "requirements.md",
       "source_location": "L768",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_frontend_lld",
-      "target": "requirements_modules",
-      "confidence_score": 1.0
+      "target": "requirements_modules"
     },
     {
       "relation": "contains",
@@ -13566,9 +13845,9 @@
       "source_file": "requirements.md",
       "source_location": "L770",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_modules",
-      "target": "requirements_canvas_module",
-      "confidence_score": 1.0
+      "target": "requirements_canvas_module"
     },
     {
       "relation": "contains",
@@ -13576,9 +13855,9 @@
       "source_file": "requirements.md",
       "source_location": "L791",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_modules",
-      "target": "requirements_room_state_manager",
-      "confidence_score": 1.0
+      "target": "requirements_room_state_manager"
     },
     {
       "relation": "contains",
@@ -13586,9 +13865,9 @@
       "source_file": "requirements.md",
       "source_location": "L780",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_modules",
-      "target": "requirements_websocket_manager",
-      "confidence_score": 1.0
+      "target": "requirements_websocket_manager"
     },
     {
       "relation": "contains",
@@ -13596,9 +13875,9 @@
       "source_file": "requirements.md",
       "source_location": "L803",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_backend_lld",
-      "target": "requirements_modules_803",
-      "confidence_score": 1.0
+      "target": "requirements_modules_803"
     },
     {
       "relation": "contains",
@@ -13606,9 +13885,9 @@
       "source_file": "requirements.md",
       "source_location": "L815",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_modules_803",
-      "target": "requirements_event_processor",
-      "confidence_score": 1.0
+      "target": "requirements_event_processor"
     },
     {
       "relation": "contains",
@@ -13616,9 +13895,9 @@
       "source_file": "requirements.md",
       "source_location": "L834",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_modules_803",
-      "target": "requirements_redis_synchronizer",
-      "confidence_score": 1.0
+      "target": "requirements_redis_synchronizer"
     },
     {
       "relation": "contains",
@@ -13626,9 +13905,9 @@
       "source_file": "requirements.md",
       "source_location": "L825",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_modules_803",
-      "target": "requirements_snapshot_worker",
-      "confidence_score": 1.0
+      "target": "requirements_snapshot_worker"
     },
     {
       "relation": "contains",
@@ -13636,9 +13915,9 @@
       "source_file": "requirements.md",
       "source_location": "L805",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_modules_803",
-      "target": "requirements_websocket_handler",
-      "confidence_score": 1.0
+      "target": "requirements_websocket_handler"
     },
     {
       "relation": "contains",
@@ -13646,9 +13925,9 @@
       "source_file": "requirements.md",
       "source_location": "L845",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_12_task_breakdown",
-      "target": "requirements_phase_1_foundation",
-      "confidence_score": 1.0
+      "target": "requirements_phase_1_foundation"
     },
     {
       "relation": "contains",
@@ -13656,9 +13935,9 @@
       "source_file": "requirements.md",
       "source_location": "L862",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_12_task_breakdown",
-      "target": "requirements_phase_2_realtime_mvp",
-      "confidence_score": 1.0
+      "target": "requirements_phase_2_realtime_mvp"
     },
     {
       "relation": "contains",
@@ -13666,9 +13945,9 @@
       "source_file": "requirements.md",
       "source_location": "L873",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_12_task_breakdown",
-      "target": "requirements_phase_3_whiteboard_features",
-      "confidence_score": 1.0
+      "target": "requirements_phase_3_whiteboard_features"
     },
     {
       "relation": "contains",
@@ -13676,9 +13955,9 @@
       "source_file": "requirements.md",
       "source_location": "L883",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_12_task_breakdown",
-      "target": "requirements_phase_4_persistence",
-      "confidence_score": 1.0
+      "target": "requirements_phase_4_persistence"
     },
     {
       "relation": "contains",
@@ -13686,9 +13965,9 @@
       "source_file": "requirements.md",
       "source_location": "L891",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_12_task_breakdown",
-      "target": "requirements_phase_5_scaling",
-      "confidence_score": 1.0
+      "target": "requirements_phase_5_scaling"
     },
     {
       "relation": "contains",
@@ -13696,9 +13975,9 @@
       "source_file": "requirements.md",
       "source_location": "L847",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_phase_1_foundation",
-      "target": "requirements_backend_847",
-      "confidence_score": 1.0
+      "target": "requirements_backend_847"
     },
     {
       "relation": "contains",
@@ -13706,9 +13985,9 @@
       "source_file": "requirements.md",
       "source_location": "L854",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_phase_1_foundation",
-      "target": "requirements_frontend_854",
-      "confidence_score": 1.0
+      "target": "requirements_frontend_854"
     },
     {
       "relation": "contains",
@@ -13716,9 +13995,9 @@
       "source_file": "requirements.md",
       "source_location": "L914",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_13_setup_project",
-      "target": "requirements_backend_setup",
-      "confidence_score": 1.0
+      "target": "requirements_backend_setup"
     },
     {
       "relation": "contains",
@@ -13726,9 +14005,9 @@
       "source_file": "requirements.md",
       "source_location": "L937",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_13_setup_project",
-      "target": "requirements_environment_variables",
-      "confidence_score": 1.0
+      "target": "requirements_environment_variables"
     },
     {
       "relation": "contains",
@@ -13736,9 +14015,9 @@
       "source_file": "requirements.md",
       "source_location": "L926",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_13_setup_project",
-      "target": "requirements_frontend_setup",
-      "confidence_score": 1.0
+      "target": "requirements_frontend_setup"
     },
     {
       "relation": "contains",
@@ -13746,9 +14025,9 @@
       "source_file": "requirements.md",
       "source_location": "L901",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_13_setup_project",
-      "target": "requirements_repository_structure",
-      "confidence_score": 1.0
+      "target": "requirements_repository_structure"
     },
     {
       "relation": "contains",
@@ -13756,9 +14035,9 @@
       "source_file": "requirements.md",
       "source_location": "L916",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_backend_setup",
-      "target": "requirements_dependencies",
-      "confidence_score": 1.0
+      "target": "requirements_dependencies"
     },
     {
       "relation": "contains",
@@ -13766,9 +14045,9 @@
       "source_file": "requirements.md",
       "source_location": "L928",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_frontend_setup",
-      "target": "requirements_dependencies_928",
-      "confidence_score": 1.0
+      "target": "requirements_dependencies_928"
     },
     {
       "relation": "contains",
@@ -13776,9 +14055,9 @@
       "source_file": "requirements.md",
       "source_location": "L939",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_environment_variables",
-      "target": "requirements_backend_939",
-      "confidence_score": 1.0
+      "target": "requirements_backend_939"
     },
     {
       "relation": "contains",
@@ -13786,9 +14065,9 @@
       "source_file": "requirements.md",
       "source_location": "L951",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_environment_variables",
-      "target": "requirements_frontend_951",
-      "confidence_score": 1.0
+      "target": "requirements_frontend_951"
     },
     {
       "relation": "contains",
@@ -13796,9 +14075,9 @@
       "source_file": "requirements.md",
       "source_location": "L962",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_14_implement_incrementally",
-      "target": "requirements_correct_development_order",
-      "confidence_score": 1.0
+      "target": "requirements_correct_development_order"
     },
     {
       "relation": "contains",
@@ -13806,9 +14085,9 @@
       "source_file": "requirements.md",
       "source_location": "L964",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_correct_development_order",
-      "target": "requirements_step_1",
-      "confidence_score": 1.0
+      "target": "requirements_step_1"
     },
     {
       "relation": "contains",
@@ -13816,9 +14095,9 @@
       "source_file": "requirements.md",
       "source_location": "L968",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_correct_development_order",
-      "target": "requirements_step_2",
-      "confidence_score": 1.0
+      "target": "requirements_step_2"
     },
     {
       "relation": "contains",
@@ -13826,9 +14105,9 @@
       "source_file": "requirements.md",
       "source_location": "L972",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_correct_development_order",
-      "target": "requirements_step_3",
-      "confidence_score": 1.0
+      "target": "requirements_step_3"
     },
     {
       "relation": "contains",
@@ -13836,9 +14115,9 @@
       "source_file": "requirements.md",
       "source_location": "L976",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_correct_development_order",
-      "target": "requirements_step_4",
-      "confidence_score": 1.0
+      "target": "requirements_step_4"
     },
     {
       "relation": "contains",
@@ -13846,9 +14125,9 @@
       "source_file": "requirements.md",
       "source_location": "L980",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_correct_development_order",
-      "target": "requirements_step_5",
-      "confidence_score": 1.0
+      "target": "requirements_step_5"
     },
     {
       "relation": "contains",
@@ -13856,9 +14135,9 @@
       "source_file": "requirements.md",
       "source_location": "L984",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_correct_development_order",
-      "target": "requirements_step_6",
-      "confidence_score": 1.0
+      "target": "requirements_step_6"
     },
     {
       "relation": "contains",
@@ -13866,9 +14145,9 @@
       "source_file": "requirements.md",
       "source_location": "L988",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_correct_development_order",
-      "target": "requirements_step_7",
-      "confidence_score": 1.0
+      "target": "requirements_step_7"
     },
     {
       "relation": "contains",
@@ -13876,9 +14155,9 @@
       "source_file": "requirements.md",
       "source_location": "L992",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_correct_development_order",
-      "target": "requirements_step_8",
-      "confidence_score": 1.0
+      "target": "requirements_step_8"
     },
     {
       "relation": "contains",
@@ -13886,9 +14165,9 @@
       "source_file": "requirements.md",
       "source_location": "L996",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_correct_development_order",
-      "target": "requirements_step_9",
-      "confidence_score": 1.0
+      "target": "requirements_step_9"
     },
     {
       "relation": "contains",
@@ -13896,9 +14175,9 @@
       "source_file": "requirements.md",
       "source_location": "L1019",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_15_test_continuously",
-      "target": "requirements_manual_testing",
-      "confidence_score": 1.0
+      "target": "requirements_manual_testing"
     },
     {
       "relation": "contains",
@@ -13906,9 +14185,9 @@
       "source_file": "requirements.md",
       "source_location": "L1004",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_15_test_continuously",
-      "target": "requirements_testing_strategy",
-      "confidence_score": 1.0
+      "target": "requirements_testing_strategy"
     },
     {
       "relation": "contains",
@@ -13916,9 +14195,9 @@
       "source_file": "requirements.md",
       "source_location": "L1011",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_testing_strategy",
-      "target": "requirements_backend_1011",
-      "confidence_score": 1.0
+      "target": "requirements_backend_1011"
     },
     {
       "relation": "contains",
@@ -13926,9 +14205,9 @@
       "source_file": "requirements.md",
       "source_location": "L1006",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_testing_strategy",
-      "target": "requirements_frontend_1006",
-      "confidence_score": 1.0
+      "target": "requirements_frontend_1006"
     },
     {
       "relation": "contains",
@@ -13936,9 +14215,9 @@
       "source_file": "requirements.md",
       "source_location": "L1032",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_16_deploy_early",
-      "target": "requirements_initial_deployment_goal",
-      "confidence_score": 1.0
+      "target": "requirements_initial_deployment_goal"
     },
     {
       "relation": "contains",
@@ -13946,9 +14225,9 @@
       "source_file": "requirements.md",
       "source_location": "L1038",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_16_deploy_early",
-      "target": "requirements_suggested_deployment_flow",
-      "confidence_score": 1.0
+      "target": "requirements_suggested_deployment_flow"
     },
     {
       "relation": "contains",
@@ -13956,9 +14235,9 @@
       "source_file": "requirements.md",
       "source_location": "L1060",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_17_optimize",
-      "target": "requirements_performance_optimization_areas",
-      "confidence_score": 1.0
+      "target": "requirements_performance_optimization_areas"
     },
     {
       "relation": "contains",
@@ -13966,9 +14245,9 @@
       "source_file": "requirements.md",
       "source_location": "L1070",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_performance_optimization_areas",
-      "target": "requirements_database_optimization",
-      "confidence_score": 1.0
+      "target": "requirements_database_optimization"
     },
     {
       "relation": "contains",
@@ -13976,9 +14255,9 @@
       "source_file": "requirements.md",
       "source_location": "L1077",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_performance_optimization_areas",
-      "target": "requirements_frontend_optimization",
-      "confidence_score": 1.0
+      "target": "requirements_frontend_optimization"
     },
     {
       "relation": "contains",
@@ -13986,9 +14265,9 @@
       "source_file": "requirements.md",
       "source_location": "L1062",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_performance_optimization_areas",
-      "target": "requirements_realtime_optimization",
-      "confidence_score": 1.0
+      "target": "requirements_realtime_optimization"
     },
     {
       "relation": "contains",
@@ -13996,9 +14275,9 @@
       "source_file": "requirements.md",
       "source_location": "L1086",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_18_refactor_maintain",
-      "target": "requirements_maintainability_goals",
-      "confidence_score": 1.0
+      "target": "requirements_maintainability_goals"
     },
     {
       "relation": "contains",
@@ -14006,9 +14285,9 @@
       "source_file": "requirements.md",
       "source_location": "L1088",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_maintainability_goals",
-      "target": "requirements_clean_architecture",
-      "confidence_score": 1.0
+      "target": "requirements_clean_architecture"
     },
     {
       "relation": "contains",
@@ -14016,9 +14295,9 @@
       "source_file": "requirements.md",
       "source_location": "L1096",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_maintainability_goals",
-      "target": "requirements_code_standards",
-      "confidence_score": 1.0
+      "target": "requirements_code_standards"
     },
     {
       "relation": "contains",
@@ -14026,9 +14305,9 @@
       "source_file": "requirements.md",
       "source_location": "L1105",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_maintainability_goals",
-      "target": "requirements_monitoring",
-      "confidence_score": 1.0
+      "target": "requirements_monitoring"
     },
     {
       "relation": "contains",
@@ -14036,9 +14315,9 @@
       "source_file": "requirements.md",
       "source_location": "L1115",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_future_scaling_architecture",
-      "target": "requirements_horizontal_scaling_design",
-      "confidence_score": 1.0
+      "target": "requirements_horizontal_scaling_design"
     },
     {
       "relation": "contains",
@@ -14046,9 +14325,9 @@
       "source_file": "requirements.md",
       "source_location": "L1132",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_important_architectural_decisions",
-      "target": "requirements_1_server_authoritative_model",
-      "confidence_score": 1.0
+      "target": "requirements_1_server_authoritative_model"
     },
     {
       "relation": "contains",
@@ -14056,9 +14335,9 @@
       "source_file": "requirements.md",
       "source_location": "L1144",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_important_architectural_decisions",
-      "target": "requirements_2_event_based_synchronization",
-      "confidence_score": 1.0
+      "target": "requirements_2_event_based_synchronization"
     },
     {
       "relation": "contains",
@@ -14066,9 +14345,9 @@
       "source_file": "requirements.md",
       "source_location": "L1156",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_important_architectural_decisions",
-      "target": "requirements_3_snapshot_event_hybrid_persistence",
-      "confidence_score": 1.0
+      "target": "requirements_3_snapshot_event_hybrid_persistence"
     },
     {
       "relation": "contains",
@@ -14076,9 +14355,9 @@
       "source_file": "requirements.md",
       "source_location": "L1171",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_important_architectural_decisions",
-      "target": "requirements_4_normalized_coordinate_system",
-      "confidence_score": 1.0
+      "target": "requirements_4_normalized_coordinate_system"
     },
     {
       "relation": "contains",
@@ -14086,9 +14365,9 @@
       "source_file": "requirements.md",
       "source_location": "L1184",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_open_questions_decisions_required",
-      "target": "requirements_product_decisions",
-      "confidence_score": 1.0
+      "target": "requirements_product_decisions"
     },
     {
       "relation": "contains",
@@ -14096,9 +14375,9 @@
       "source_file": "requirements.md",
       "source_location": "L1206",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_open_questions_decisions_required",
-      "target": "requirements_technical_decisions",
-      "confidence_score": 1.0
+      "target": "requirements_technical_decisions"
     },
     {
       "relation": "contains",
@@ -14106,9 +14385,9 @@
       "source_file": "requirements.md",
       "source_location": "L1239",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "requirements_open_questions_decisions_required",
-      "target": "requirements_ui_ux_decisions",
-      "confidence_score": 1.0
+      "target": "requirements_ui_ux_decisions"
     },
     {
       "relation": "references",
@@ -14152,5 +14431,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "8f7d12450be8ecff03a618a4e261d9cd2b7bb066"
+  "built_at_commit": "a609c2ffcb50aab209a48cc8cb2449b590869d82"
 }

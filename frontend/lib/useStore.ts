@@ -86,8 +86,8 @@ interface VisyncState {
 
   // Strokes / Drawings (points stored in world coordinates)
   strokes: Stroke[];
-  undoStack: Stroke[];
-  redoStack: Stroke[];
+  undoStack: Stroke[][];
+  redoStack: Stroke[][];
   selectedIds: string[];
   
   setStrokes: (strokes: Stroke[] | ((prev: Stroke[]) => Stroke[])) => void;
@@ -98,10 +98,10 @@ interface VisyncState {
   clearStrokes: () => void;
   
   // Undo/Redo operations
-  pushToUndo: (stroke: Stroke) => void;
-  popFromUndo: () => Stroke | undefined;
-  pushToRedo: (stroke: Stroke) => void;
-  popFromRedo: () => Stroke | undefined;
+  pushToUndo: (strokes: Stroke | Stroke[]) => void;
+  popFromUndo: () => Stroke[] | undefined;
+  pushToRedo: (strokes: Stroke | Stroke[]) => void;
+  popFromRedo: () => Stroke[] | undefined;
   clearUndoRedo: () => void;
 
   // Cursors (positions stored in world coordinates)
@@ -218,7 +218,9 @@ export const useStore = create<VisyncState>((set, get) => ({
   clearStrokes: () => set({ strokes: [], undoStack: [], redoStack: [], selectedIds: [] }),
 
   // Undo/Redo stacks
-  pushToUndo: (stroke) => set((state) => ({ undoStack: [...state.undoStack, stroke] })),
+  pushToUndo: (strokes) => set((state) => ({
+    undoStack: [...state.undoStack, Array.isArray(strokes) ? strokes : [strokes]]
+  })),
   
   popFromUndo: () => {
     const { undoStack } = get();
@@ -228,7 +230,9 @@ export const useStore = create<VisyncState>((set, get) => ({
     return last;
   },
 
-  pushToRedo: (stroke) => set((state) => ({ redoStack: [...state.redoStack, stroke] })),
+  pushToRedo: (strokes) => set((state) => ({
+    redoStack: [...state.redoStack, Array.isArray(strokes) ? strokes : [strokes]]
+  })),
   
   popFromRedo: () => {
     const { redoStack } = get();

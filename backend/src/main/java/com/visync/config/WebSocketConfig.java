@@ -16,7 +16,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
     private final RoomWebSocketHandler handler;
     private final TokenService tokenService;
 
-    @Value("${visync.cors.allowed-origins:http://localhost:3000}")
+    @Value("${visync.cors.allowed-origins:http://localhost:3000,http://localhost:3001,http://10.191.177.243:3000,http://10.191.177.243:3001}")
     private String allowedOrigins;
     
     public WebSocketConfig(RoomWebSocketHandler handler, TokenService tokenService) { 
