@@ -19,8 +19,8 @@ By leveraging a server-authoritative, event-driven architecture, Visync achieves
 
 ### 🖌️ Interactive Whiteboard Canvas
 * **Vector Drawing Tools**: Includes a freehand `Pen` tool and precise shape renderers for `Lines`, `Rectangles`, and `Circles`.
-* **Adaptive Eraser**: Smart chalk-background erase strokes designed to cleanly remove overlapping shapes.
-* **Canvas Settings**: Instant configuration dock containing a sleek, curated premium HSL color palette and adjustable stroke widths (`2px`, `4px`, `8px`, `12px`, `20px`).
+* **Object-Based Eraser**: Precise, real-time object eraser that deletes entire strokes or shapes upon intersection. It uses segment-to-segment distance formulas and auto-adjusts its radius according to the zoom factor (keeping a constant screen-pixel size) for reliable erasing at any zoom level.
+* **Canvas Settings**: Instant configuration dock containing a sleek, curated premium HSL color palette (hidden when using the eraser) and adjustable stroke widths (`2px`, `4px`, `8px`, `12px`, `20px`).
 * **Zoom & Pan Controls**: Infinite-style viewport manipulation. Zoom in/out via dynamic mouse wheel scroll centering on the mouse pointer (from `10%` to `1000%`) or use the grab/pan hand tool to drag the whiteboard board.
 * **Grid Layout Background**: Built-in micro-grid background pattern to assist in visual alignment and precise diagram structure.
 * **Export Canvas**: Instantly export the fully rendered workspace as a premium white-background high-definition PNG image directly to your local system.
@@ -157,15 +157,15 @@ graph LR
 
 ## 📐 Virtual Coordinate System (Resolution Independence)
 
-To ensure that drawings align perfectly regardless of whether a user is working on an ultra-wide desktop monitor, a tablet, or a laptop screen, Visync implements a **Resolution-Independent Virtual Coordinate System**:
+To ensure that drawings align perfectly regardless of whether a user is working on an ultra-wide desktop monitor, a tablet, or a laptop screen, Visync implements an **Infinite Virtual Coordinate System** in absolute world coordinates:
 
-1. **Virtual Resolution Layer**: The canvas is mapped internally to a logical scale of **`1920 x 1080` pixels**.
-2. **Client-Side Coordinate Normalization**:
-   When drawing, mouse coordinates `(x, y)` captured from the browser viewport are mapped through the Konva stage transform inversion and normalized to a relative `0.0 to 1.0` scale:
-   $$\text{Normalized } X = \frac{\text{Virtual } X}{1920}$$
-   $$\text{Normalized } Y = \frac{\text{Virtual } Y}{1080}$$
-3. **Broadcasting**: Only these normalized decimals (`x`, `y`) are transmitted over WebSockets.
-4. **Target Rendering**: Receiving clients scale these relative decimals back to their viewport screen dimensions by multiplying them by `1920` and `1080` within their scaled stage ref, maintaining exact proportions.
+1. **Absolute World Coordinates**: All drawing coordinates `(x, y)` are captured and stored in absolute world pixels. This allows the whiteboard canvas to be infinite in all directions.
+2. **Viewport Projection & Inversion**:
+   When drawing or moving, client-side mouse/touch coordinates `(screenX, screenY)` captured from the browser viewport are mapped to world coordinates using the inverse transform of the Konva stage (applying the zoom `scale` and pan `offsetX/offsetY` offsets):
+   $$\text{World } X = \frac{\text{Screen } X + \text{offsetX} \times \text{scale}}{\text{scale}}$$
+   $$\text{World } Y = \frac{\text{Screen } Y + \text{offsetY} \times \text{scale}}{\text{scale}}$$
+3. **Real-time Synchronization**: Only these resolution-independent absolute world coordinates are transmitted over WebSockets, guaranteeing that zoom levels and window size differences do not affect diagram alignment.
+4. **Legacy Data Migration Heuristic**: To preserve compatibility with older rooms that stored normalized `0.0 to 1.0` coordinates, the frontend automatically detects legacy strokes on load and upscales them using a reference `1920 x 1080` bounding box.
 
 ---
 
@@ -206,6 +206,7 @@ CREATE TABLE drawing_event (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     room_id UUID REFERENCES room(id) ON DELETE CASCADE,
     user_id VARCHAR(255) NOT NULL,
+    stroke_id VARCHAR(255),          -- Links events belonging to the same stroke
     event_type VARCHAR(50) NOT NULL, -- DRAW_START, DRAW_MOVE, DRAW_END
     payload TEXT NOT NULL,           -- Stringified JSON containing coordinates & tool config
     timestamp BIGINT NOT NULL
