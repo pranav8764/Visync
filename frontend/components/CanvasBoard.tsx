@@ -6,6 +6,7 @@ import Konva from 'konva';
 import axios from 'axios';
 import { useStore, Stroke, Point } from '@/lib/useStore';
 import { WebSocketClient } from '@/lib/ws';
+import { strokeIntersectsRect } from '@/lib/geometry';
 import {
   Viewport,
   worldToScreen,
@@ -219,10 +220,11 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
 
   // Selection Box State
   const [selectionBox, setSelectionBox] = useState<{ x: number, y: number, width: number, height: number, visible: boolean } | null>(null);
+  const [groupDragRect, setGroupDragRect] = useState<{ x: number, y: number, width: number, height: number } | null>(null);
   const selectionStartRef = useRef<Point | null>(null);
   const trRef = useRef<Konva.Transformer>(null);
   const drawingLayerRef = useRef<Konva.Layer>(null);
-
+  const dragStartOffsetRef = useRef<{ [id: string]: { x: number, y: number } }>({});
   // Pan state tracking
   const [isPanMode, setIsPanMode] = useState(false);       // Explicit pan tool selected
   const [isSpacePanning, setIsSpacePanning] = useState(false); // Space key held
@@ -521,16 +523,43 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
   }, [historyLoading]);
 
 
+  const recomputeGroupDragRect = useCallback(() => {
+    if (trRef.current && selectedIds.length > 0) {
+      const clientRect = trRef.current.getClientRect();
+      if (clientRect.width === 0 && clientRect.height === 0) {
+        setGroupDragRect(null);
+        return;
+      }
+      const currentViewport = useStore.getState().viewport;
+      const topLeft = screenToWorld(clientRect.x, clientRect.y, currentViewport);
+      const bottomRight = screenToWorld(clientRect.x + clientRect.width, clientRect.y + clientRect.height, currentViewport);
+      setGroupDragRect({
+        x: topLeft.x,
+        y: topLeft.y,
+        width: bottomRight.x - topLeft.x,
+        height: bottomRight.y - topLeft.y
+      });
+    } else {
+      setGroupDragRect(null);
+    }
+  }, [selectedIds]);
+
   useEffect(() => {
     if (activeTool === 'select' && selectedIds.length > 0 && drawingLayerRef.current && trRef.current) {
       const nodes = selectedIds.map(id => drawingLayerRef.current?.findOne(`#${id}`)).filter(Boolean);
       trRef.current.nodes(nodes as Konva.Node[]);
       trRef.current.getLayer()?.batchDraw();
+      requestAnimationFrame(recomputeGroupDragRect);
+      trRef.current.on('transform', recomputeGroupDragRect);
+      return () => {
+        if (trRef.current) trRef.current.off('transform', recomputeGroupDragRect);
+      };
     } else if (trRef.current) {
       trRef.current.nodes([]);
       trRef.current.getLayer()?.batchDraw();
+      setGroupDragRect(null);
     }
-  }, [selectedIds, activeTool, strokes]);
+  }, [selectedIds, activeTool, strokes, viewport, recomputeGroupDragRect]);
 
 
   // 6. Trigger scroll checks whenever tools render, window resizes, or history finishes loading
@@ -585,17 +614,6 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
 
     const currentViewport = useStore.getState().viewport;
 
-    if (activeTool === 'select') {
-      const target = e.target;
-      if (target === stage) {
-        setSelectedIds([]);
-        const worldPos = screenToWorld(pos.x, pos.y, currentViewport);
-        selectionStartRef.current = worldPos;
-        setSelectionBox({ x: worldPos.x, y: worldPos.y, width: 0, height: 0, visible: true });
-      }
-      return;
-    }
-
     // Middle mouse button → always pan
     if (e.evt.button === 1) {
       e.evt.preventDefault();
@@ -609,6 +627,17 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
     if (isPanMode || isSpacePanningRef.current) {
       panStartRef.current = { x: pos.x, y: pos.y };
       viewportAtPanStartRef.current = { ...currentViewport };
+      return;
+    }
+
+    if (activeTool === 'select') {
+      const target = e.target;
+      if (target === stage) {
+        setSelectedIds([]);
+        const worldPos = screenToWorld(pos.x, pos.y, currentViewport);
+        selectionStartRef.current = worldPos;
+        setSelectionBox({ x: worldPos.x, y: worldPos.y, width: 0, height: 0, visible: true });
+      }
       return;
     }
 
@@ -741,7 +770,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
       timestamp: Date.now(),
       payload: { strokeId: currentStrokeIdRef.current, point: worldPos }
     });
-  }, [isDrawing, isMiddlePanning, isPanMode, userId, roomId, username, activeTool, updateLastStrokePoints, setViewport]);
+  }, [isDrawing, isMiddlePanning, isPanMode, userId, roomId, username, activeTool, selectionBox, updateLastStrokePoints, setViewport]);
 
   /**
    * Handle mouse up — finish drawing or finish panning.
@@ -749,18 +778,44 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
   const handleMouseUp = useCallback(() => {
     if (activeTool === 'select' && selectionBox?.visible) {
       const box = selectionBox;
-      const currentStrokes = useStore.getState().strokes;
-      const selected = currentStrokes.filter(s => {
-        if (s.points.length === 0) return false;
-        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-        s.points.forEach(p => {
-          minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
-          maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
-        });
-        if (s.x !== undefined && s.y !== undefined) { minX += s.x; maxX += s.x; minY += s.y; maxY += s.y; }
-        return !(minX > box.x + box.width || maxX < box.x || minY > box.y + box.height || maxY < box.y);
-      });
-      setSelectedIds(selected.map(s => s.id));
+      const layer = drawingLayerRef.current;
+      
+      if (layer) {
+        const selectionBoxNode = layer.children.find(n => n.id() === 'selection-box');
+        if (selectionBoxNode) {
+          const boxRect = selectionBoxNode.getClientRect();
+          const currentStrokes = useStore.getState().strokes;
+          const selectedIdsArray: string[] = [];
+          
+          layer.children.forEach(node => {
+            if (node.id() === 'selection-box' || node.className === 'Transformer') return;
+            if (!node.id()) return;
+            
+            // Stage 1: Fast AABB rejection via Konva's getClientRect
+            const rect = node.getClientRect();
+            const aabbOverlap = !(
+              rect.x > boxRect.x + boxRect.width ||
+              rect.x + rect.width < boxRect.x ||
+              rect.y > boxRect.y + boxRect.height ||
+              rect.y + rect.height < boxRect.y
+            );
+            if (!aabbOverlap) return;
+            
+            // Stage 2: Precise geometric intersection
+            const stroke = currentStrokes.find(s => s.id === node.id());
+            if (stroke) {
+              if (strokeIntersectsRect(stroke, box)) {
+                selectedIdsArray.push(node.id());
+              }
+            } else {
+              // Fallback: if stroke data not found, trust the AABB
+              selectedIdsArray.push(node.id());
+            }
+          });
+          
+          setSelectedIds(selectedIdsArray);
+        }
+      }
       setSelectionBox(Object.assign({}, box, { visible: false }));
       selectionStartRef.current = null;
       return;
@@ -819,7 +874,80 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
     }
 
     currentStrokeIdRef.current = null;
-  }, [isDrawing, isMiddlePanning, isPanMode, activeTool, userId, roomId, setStrokes, pushToUndo]);
+  }, [isDrawing, isMiddlePanning, isPanMode, activeTool, selectionBox, userId, roomId, setStrokes, pushToUndo]);
+
+  const handleNodeDragStart = useCallback((e: any, strokeId: string) => {
+    if (activeTool !== 'select' || (!selectedIds.includes(strokeId) && strokeId !== 'group-rect')) return;
+    const layer = drawingLayerRef.current;
+    if (layer) {
+      if (strokeId === 'group-rect') {
+        dragStartOffsetRef.current['group-rect'] = { x: e.target.x(), y: e.target.y() };
+      }
+      layer.children.forEach(n => {
+        if (selectedIds.includes(n.id())) {
+          dragStartOffsetRef.current[n.id()] = { x: n.x(), y: n.y() };
+        }
+      });
+    }
+  }, [activeTool, selectedIds]);
+
+  const handleNodeDragMove = useCallback((e: any, strokeId: string) => {
+    if (activeTool !== 'select' || (!selectedIds.includes(strokeId) && strokeId !== 'group-rect') || selectedIds.length === 0) return;
+    const node = e.target;
+    const startPos = dragStartOffsetRef.current[strokeId];
+    if (!startPos) return;
+    
+    const dx = node.x() - startPos.x;
+    const dy = node.y() - startPos.y;
+    
+    const layer = drawingLayerRef.current;
+    if (layer) {
+      layer.children.forEach(n => {
+        if (n.id() !== strokeId && selectedIds.includes(n.id())) {
+          const otherStart = dragStartOffsetRef.current[n.id()];
+          if (otherStart) {
+            n.x(otherStart.x + dx);
+            n.y(otherStart.y + dy);
+          }
+        }
+      });
+    }
+  }, [activeTool, selectedIds]);
+
+  const handleNodeDragEnd = useCallback((e: any) => {
+    if (activeTool !== 'select') return;
+    
+    const transforms: any[] = [];
+    selectedIds.forEach(id => {
+      const n = drawingLayerRef.current?.children.find(child => child.id() === id);
+      if (n) {
+        const transform = { x: n.x(), y: n.y(), scaleX: n.scaleX(), scaleY: n.scaleY(), rotation: n.rotation() };
+        updateStrokeTransform(id, transform);
+        transforms.push({ strokeId: id, transform });
+      }
+    });
+
+    if (transforms.length > 0) {
+      wsRef.current?.send({
+        eventType: 'OBJECT_TRANSFORM',
+        userId,
+        roomId,
+        timestamp: Date.now(),
+        payload: { transforms }
+      });
+    }
+
+    // Recompute the invisible drag rect so it stays in sync
+    requestAnimationFrame(recomputeGroupDragRect);
+  }, [activeTool, selectedIds, roomId, userId, updateStrokeTransform, recomputeGroupDragRect]);
+
+  const handleNodeTransformEnd = useCallback((e: any, strokeId: string) => {
+    if (activeTool !== 'select') return;
+    const node = e.target;
+    const transform = { x: node.x(), y: node.y(), scaleX: node.scaleX(), scaleY: node.scaleY(), rotation: node.rotation() };
+    updateStrokeTransform(strokeId, transform);
+    wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId, transform } });
+  }, [activeTool, roomId, userId, updateStrokeTransform]);
 
   // ===================================================================
   // Undo / Redo / Clear / Export / Chat Actions
@@ -1104,21 +1232,10 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                         e.cancelBubble = true;
                       }
                     }}
-                    onDragEnd={(e) => {
-                      if (activeTool === 'select') {
-                        const transform = { x: e.target.x(), y: e.target.y() };
-                        updateStrokeTransform(stroke.id, transform);
-                        wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId: stroke.id, transform } });
-                      }
-                    }}
-                    onTransformEnd={(e) => {
-                      if (activeTool === 'select') {
-                        const node = e.target;
-                        const transform = { x: node.x(), y: node.y(), scaleX: node.scaleX(), scaleY: node.scaleY(), rotation: node.rotation() };
-                        updateStrokeTransform(stroke.id, transform);
-                        wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId: stroke.id, transform } });
-                      }
-                    }}
+                    onDragStart={(e) => handleNodeDragStart(e, stroke.id)}
+                    onDragMove={(e) => handleNodeDragMove(e, stroke.id)}
+                    onDragEnd={(e) => handleNodeDragEnd(e)}
+                    onTransformEnd={(e) => handleNodeTransformEnd(e, stroke.id)}
                     points={pointsArr}
                     stroke={stroke.color}
                     strokeWidth={stroke.strokeWidth}
@@ -1156,21 +1273,10 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                         e.cancelBubble = true;
                       }
                     }}
-                    onDragEnd={(e) => {
-                      if (activeTool === 'select') {
-                        const transform = { x: e.target.x(), y: e.target.y() };
-                        updateStrokeTransform(stroke.id, transform);
-                        wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId: stroke.id, transform } });
-                      }
-                    }}
-                    onTransformEnd={(e) => {
-                      if (activeTool === 'select') {
-                        const node = e.target;
-                        const transform = { x: node.x(), y: node.y(), scaleX: node.scaleX(), scaleY: node.scaleY(), rotation: node.rotation() };
-                        updateStrokeTransform(stroke.id, transform);
-                        wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId: stroke.id, transform } });
-                      }
-                    }}
+                    onDragStart={(e) => handleNodeDragStart(e, stroke.id)}
+                    onDragMove={(e) => handleNodeDragMove(e, stroke.id)}
+                    onDragEnd={(e) => handleNodeDragEnd(e)}
+                    onTransformEnd={(e) => handleNodeTransformEnd(e, stroke.id)}
                     points={[
                       stroke.points[0].x,
                       stroke.points[0].y,
@@ -1215,21 +1321,10 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                         e.cancelBubble = true;
                       }
                     }}
-                    onDragEnd={(e) => {
-                      if (activeTool === 'select') {
-                        const transform = { x: e.target.x(), y: e.target.y() };
-                        updateStrokeTransform(stroke.id, transform);
-                        wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId: stroke.id, transform } });
-                      }
-                    }}
-                    onTransformEnd={(e) => {
-                      if (activeTool === 'select') {
-                        const node = e.target;
-                        const transform = { x: node.x(), y: node.y(), scaleX: node.scaleX(), scaleY: node.scaleY(), rotation: node.rotation() };
-                        updateStrokeTransform(stroke.id, transform);
-                        wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId: stroke.id, transform } });
-                      }
-                    }}
+                    onDragStart={(e) => handleNodeDragStart(e, stroke.id)}
+                    onDragMove={(e) => handleNodeDragMove(e, stroke.id)}
+                    onDragEnd={(e) => handleNodeDragEnd(e)}
+                    onTransformEnd={(e) => handleNodeTransformEnd(e, stroke.id)}
                     x={stroke.x ?? x}
                     y={stroke.y ?? y}
                     width={width}
@@ -1272,21 +1367,10 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                         e.cancelBubble = true;
                       }
                     }}
-                    onDragEnd={(e) => {
-                      if (activeTool === 'select') {
-                        const transform = { x: e.target.x(), y: e.target.y() };
-                        updateStrokeTransform(stroke.id, transform);
-                        wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId: stroke.id, transform } });
-                      }
-                    }}
-                    onTransformEnd={(e) => {
-                      if (activeTool === 'select') {
-                        const node = e.target;
-                        const transform = { x: node.x(), y: node.y(), scaleX: node.scaleX(), scaleY: node.scaleY(), rotation: node.rotation() };
-                        updateStrokeTransform(stroke.id, transform);
-                        wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId: stroke.id, transform } });
-                      }
-                    }}
+                    onDragStart={(e) => handleNodeDragStart(e, stroke.id)}
+                    onDragMove={(e) => handleNodeDragMove(e, stroke.id)}
+                    onDragEnd={(e) => handleNodeDragEnd(e)}
+                    onTransformEnd={(e) => handleNodeTransformEnd(e, stroke.id)}
                     x={stroke.x ?? p1.x}
                     y={stroke.y ?? p1.y}
                     radius={r}
@@ -1297,11 +1381,53 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
               }
               return null;
             })}
-            {activeTool === 'select' && <Transformer ref={trRef} boundBoxFunc={(oldBox, newBox) => { if (newBox.width < 5 || newBox.height < 5) return oldBox; return newBox; }} />}
             {selectionBox?.visible && (
               <KonvaRect
+                id="selection-box"
                 x={selectionBox.x} y={selectionBox.y} width={selectionBox.width} height={selectionBox.height}
                 fill="rgba(37, 99, 235, 0.1)" stroke="#2563eb" strokeWidth={1 / viewport.scale} listening={false}
+              />
+            )}
+            {activeTool === 'select' && groupDragRect && selectedIds.length > 0 && (
+              <KonvaRect
+                x={groupDragRect.x}
+                y={groupDragRect.y}
+                width={groupDragRect.width}
+                height={groupDragRect.height}
+                fill="transparent"
+                draggable
+                onDragStart={(e) => handleNodeDragStart(e, 'group-rect')}
+                onDragMove={(e) => handleNodeDragMove(e, 'group-rect')}
+                onDragEnd={(e) => handleNodeDragEnd(e)}
+                onClick={(e) => { e.cancelBubble = true; }}
+                onTap={(e) => { e.cancelBubble = true; }}
+              />
+            )}
+            {activeTool === 'select' && (
+              <Transformer
+                ref={trRef}
+                anchorSize={8}
+                anchorCornerRadius={2}
+                anchorStroke="#2563eb"
+                anchorFill="#fff"
+                borderStroke="#2563eb"
+                borderStrokeWidth={1.5}
+                rotateEnabled={true}
+                rotateAnchorOffset={20}
+                enabledAnchors={['top-left', 'top-right', 'bottom-left', 'bottom-right', 'top-center', 'bottom-center', 'middle-left', 'middle-right']}
+                boundBoxFunc={(oldBox, newBox) => { if (newBox.width < 5 || newBox.height < 5) return oldBox; return newBox; }}
+                onTransformEnd={() => {
+                  // Sync all selected nodes after resize/rotate
+                  selectedIds.forEach(id => {
+                    const node = drawingLayerRef.current?.findOne(`#${id}`);
+                    if (node) {
+                      const transform = { x: node.x(), y: node.y(), scaleX: node.scaleX(), scaleY: node.scaleY(), rotation: node.rotation() };
+                      updateStrokeTransform(id, transform);
+                      wsRef.current?.send({ eventType: 'OBJECT_TRANSFORM', userId, roomId, timestamp: Date.now(), payload: { strokeId: id, transform } });
+                    }
+                  });
+                  requestAnimationFrame(recomputeGroupDragRect);
+                }}
               />
             )}
           </Layer>

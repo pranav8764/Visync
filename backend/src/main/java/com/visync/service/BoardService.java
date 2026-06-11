@@ -219,14 +219,12 @@ public class BoardService {
                             }
                             break;
                         case "OBJECT_TRANSFORM":
-                            Map<String, Object> strokeToTransform = strokes.get(sId);
-                            if (strokeToTransform != null && plNode.has("transform")) {
-                                JsonNode transform = plNode.get("transform");
-                                if (transform.has("x")) strokeToTransform.put("x", transform.get("x").asDouble());
-                                if (transform.has("y")) strokeToTransform.put("y", transform.get("y").asDouble());
-                                if (transform.has("scaleX")) strokeToTransform.put("scaleX", transform.get("scaleX").asDouble());
-                                if (transform.has("scaleY")) strokeToTransform.put("scaleY", transform.get("scaleY").asDouble());
-                                if (transform.has("rotation")) strokeToTransform.put("rotation", transform.get("rotation").asDouble());
+                            if (plNode.has("transforms") && plNode.get("transforms").isArray()) {
+                                for (JsonNode tNode : plNode.get("transforms")) {
+                                    applyTransformToStroke(strokes, tNode.get("strokeId").asText(), tNode.get("transform"));
+                                }
+                            } else {
+                                applyTransformToStroke(strokes, sId, plNode.get("transform"));
                             }
                             break;
                         case "OBJECT_DUPLICATE":
@@ -267,6 +265,18 @@ public class BoardService {
             } catch (Exception ex) {
                 System.err.println("Failed to save snapshot or delete events: " + ex.getMessage());
             }
+        }
+    }
+
+    private void applyTransformToStroke(Map<String, Map<String, Object>> strokes, String strokeId, JsonNode transform) {
+        if (strokeId == null || transform == null) return;
+        Map<String, Object> strokeToTransform = strokes.get(strokeId);
+        if (strokeToTransform != null) {
+            if (transform.has("x")) strokeToTransform.put("x", transform.get("x").asDouble());
+            if (transform.has("y")) strokeToTransform.put("y", transform.get("y").asDouble());
+            if (transform.has("scaleX")) strokeToTransform.put("scaleX", transform.get("scaleX").asDouble());
+            if (transform.has("scaleY")) strokeToTransform.put("scaleY", transform.get("scaleY").asDouble());
+            if (transform.has("rotation")) strokeToTransform.put("rotation", transform.get("rotation").asDouble());
         }
     }
 

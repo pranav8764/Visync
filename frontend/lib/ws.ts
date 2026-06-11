@@ -203,8 +203,14 @@ export class WebSocketClient {
         // Optional tracking logs
         break;
       case 'OBJECT_TRANSFORM': {
-        const { strokeId, transform } = payload;
-        store.updateStrokeTransform(strokeId, transform);
+        if (payload.transforms && Array.isArray(payload.transforms)) {
+          payload.transforms.forEach((t: any) => {
+            store.updateStrokeTransform(t.strokeId, t.transform);
+          });
+        } else {
+          const { strokeId, transform } = payload;
+          store.updateStrokeTransform(strokeId, transform);
+        }
         break;
       }
       case 'OBJECT_DUPLICATE': {
