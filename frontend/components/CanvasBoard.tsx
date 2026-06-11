@@ -150,11 +150,10 @@ const ToolButton = ({
   <button
     onClick={onClick}
     title={title}
-    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${
-      isActive
+    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${isActive
         ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 scale-105'
         : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-800'
-    }`}
+      }`}
   >
     {children}
   </button>
@@ -338,7 +337,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
             if (state.selectedIds.length > 0) {
               const remaining = state.strokes.filter(s => !state.selectedIds.includes(s.id));
               state.setStrokes(remaining);
-              
+
               if (wsRef.current) {
                 wsRef.current.send({
                   eventType: 'OBJECT_DELETE',
@@ -376,14 +375,14 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
         }
       }
     };
-    
+
     const handleKeyUp = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
         setIsSpacePanning(false);
         isSpacePanningRef.current = false;
       }
     };
-    
+
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('keyup', handleKeyUp);
     return () => {
@@ -779,18 +778,18 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
     if (activeTool === 'select' && selectionBox?.visible) {
       const box = selectionBox;
       const layer = drawingLayerRef.current;
-      
+
       if (layer) {
         const selectionBoxNode = layer.children.find(n => n.id() === 'selection-box');
         if (selectionBoxNode) {
           const boxRect = selectionBoxNode.getClientRect();
           const currentStrokes = useStore.getState().strokes;
           const selectedIdsArray: string[] = [];
-          
+
           layer.children.forEach(node => {
             if (node.id() === 'selection-box' || node.className === 'Transformer') return;
             if (!node.id()) return;
-            
+
             // Stage 1: Fast AABB rejection via Konva's getClientRect
             const rect = node.getClientRect();
             const aabbOverlap = !(
@@ -800,7 +799,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
               rect.y + rect.height < boxRect.y
             );
             if (!aabbOverlap) return;
-            
+
             // Stage 2: Precise geometric intersection
             const stroke = currentStrokes.find(s => s.id === node.id());
             if (stroke) {
@@ -812,7 +811,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
               selectedIdsArray.push(node.id());
             }
           });
-          
+
           setSelectedIds(selectedIdsArray);
         }
       }
@@ -896,10 +895,10 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
     const node = e.target;
     const startPos = dragStartOffsetRef.current[strokeId];
     if (!startPos) return;
-    
+
     const dx = node.x() - startPos.x;
     const dy = node.y() - startPos.y;
-    
+
     const layer = drawingLayerRef.current;
     if (layer) {
       layer.children.forEach(n => {
@@ -916,7 +915,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
 
   const handleNodeDragEnd = useCallback((e: any) => {
     if (activeTool !== 'select') return;
-    
+
     const transforms: any[] = [];
     selectedIds.forEach(id => {
       const n = drawingLayerRef.current?.children.find(child => child.id() === id);
@@ -1437,7 +1436,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
         <CollaborativeCursors userId={userId} viewport={viewport} />
 
         {/* 3. Top Center Toolbar (Tools) */}
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center z-40 select-none shadow-2xl rounded-2xl glass-panel-light p-1 border border-zinc-200/80 backdrop-blur-lg">
+        <div className="absolute top-24 md:top-20 left-1/2 -translate-x-1/2 flex items-center z-40 select-none shadow-2xl rounded-2xl glass-panel-light p-1 border border-zinc-200/80 backdrop-blur-lg">
           <div className="flex items-center gap-1">
             {/* Select Tool */}
             <ToolButton isActive={activeTool === 'select' && !isPanMode} onClick={() => { setActiveTool('select'); setIsPanMode(false); }} title="Select & Move (V)">
@@ -1500,7 +1499,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
         </div>
 
         {/* 4. Left-Side Property & Action Panel */}
-        <div className={`absolute left-4 top-1/2 -translate-y-1/2 flex items-center z-40 select-none transition-transform duration-300 ease-in-out ${isToolbarOpen ? 'translate-x-0' : '-translate-x-[calc(100%+40px)]'}`}>
+        <div className={`absolute left-4 top-1/2 -translate-y-1/2 flex items-center z-40 select-none transition-transform duration-300 ease-in-out ${isToolbarOpen ? 'translate-x-0' : '-translate-x-[calc(100%-36px)]'}`}>
           <div className="glass-panel-light p-2.5 rounded-2xl flex flex-col items-center gap-3 shadow-2xl border border-zinc-200/80 backdrop-blur-lg">
             {/* Color Properties */}
             {activeTool !== 'eraser' && (
@@ -1554,7 +1553,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
               </button>
             </div>
           </div>
-          
+
           <button
             onClick={() => setIsToolbarOpen(!isToolbarOpen)}
             className="ml-2 glass-panel-light p-1.5 rounded-xl shadow-lg border border-zinc-200 text-zinc-500 hover:text-zinc-800 transition-all hover:bg-zinc-50 active:scale-95"
@@ -1604,16 +1603,16 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
       <div className="absolute top-6 md:top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-50 pt-[env(safe-area-inset-top)]">
 
         {/* Room Title & User Identity Docks */}
-        <div className="glass-panel-light py-2 px-4 rounded-xl flex items-center gap-4 shadow-lg pointer-events-auto border border-zinc-200/80">
-          <div className="flex items-center gap-3 pr-4 border-r border-zinc-200/60">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 pulsing-dot"></div>
+        <div className="glass-panel-light py-1.5 px-3 rounded-xl flex items-center gap-3 shadow-lg pointer-events-auto border border-zinc-200/80">
+          <div className="flex items-center gap-2 pr-3 border-r border-zinc-200/60">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 pulsing-dot"></div>
             <div className="flex flex-col">
-              <span className="text-xs font-bold text-zinc-900 leading-tight">{roomName || 'Collaboration Board'}</span>
-              <span className="text-[10px] text-zinc-500 tracking-wide uppercase font-semibold">Active Workspace</span>
+              <span className="text-xs font-bold text-zinc-900 leading-tight max-w-[100px] sm:max-w-[150px] truncate">{roomName || 'Collaboration Board'}</span>
+              <span className="text-[9px] text-zinc-500 tracking-wide uppercase font-semibold">Workspace</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-[10px] flex items-center justify-center shadow-sm">
+            <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-[10px] flex items-center justify-center shadow-sm shrink-0">
               {username ? username.charAt(0).toUpperCase() : '?'}
             </div>
             {isEditingName ? (
@@ -1665,19 +1664,19 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2 group cursor-pointer" onClick={() => {
+              <div className="flex items-center gap-1.5 group cursor-pointer" onClick={() => {
                 setTempName(username || '');
                 setIsEditingName(true);
               }}>
-                <span className="text-xs font-bold text-zinc-700">{username}</span>
-                <svg className="w-3.5 h-3.5 text-zinc-400 group-hover:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <span className="text-xs font-bold text-zinc-700 max-w-[80px] truncate">{username}</span>
+                <svg className="w-3.5 h-3.5 shrink-0 text-zinc-400 group-hover:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
               </div>
             )}
-            
+
             <div className="w-px h-5 bg-zinc-200 mx-1" />
-            
+
             {/* Dark Mode Toggle */}
             <button
               onClick={toggleDarkMode}
@@ -1694,7 +1693,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                 </svg>
               )}
             </button>
-            
+
           </div>
         </div>
 
@@ -1908,8 +1907,8 @@ function AccessorySidebar({
                 <span className="text-[10px] font-semibold text-zinc-500 mb-1 px-1">{msg.senderName}</span>
                 <div
                   className={`p-3 rounded-2xl text-xs leading-relaxed ${isSelf
-                      ? 'bg-blue-600 text-white rounded-tr-none shadow-md shadow-blue-500/10'
-                      : 'bg-white text-zinc-800 border border-zinc-200 rounded-tl-none shadow-sm'
+                    ? 'bg-blue-600 text-white rounded-tr-none shadow-md shadow-blue-500/10'
+                    : 'bg-white text-zinc-800 border border-zinc-200 rounded-tl-none shadow-sm'
                     }`}
                 >
                   {msg.message}
