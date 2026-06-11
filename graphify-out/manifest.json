@@ -10,9 +10,9 @@
     "semantic_hash": "0a438f119e1c445d97f8c304612e9f65"
   },
   "/Users/pranavsinghrajoria/Documents/Visync/backend/src/main/java/com/visync/backend/config/CorsConfig.java": {
-    "mtime": 1780482333.8377616,
-    "ast_hash": "a1cac6718444b8228c2120d44baf9d56",
-    "semantic_hash": "a1cac6718444b8228c2120d44baf9d56"
+    "mtime": 1780908113.850509,
+    "ast_hash": "b419b4ccceb19b1c150ddd28f8e731a1",
+    "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java": {
     "mtime": 1780480153.106965,
@@ -25,9 +25,9 @@
     "semantic_hash": "2ed6675add3dd8e9b86c341978283611"
   },
   "/Users/pranavsinghrajoria/Documents/Visync/backend/src/main/java/com/visync/config/WebSocketConfig.java": {
-    "mtime": 1780482341.7778635,
-    "ast_hash": "bd6966abb3f57628054b4521e44621de",
-    "semantic_hash": "bd6966abb3f57628054b4521e44621de"
+    "mtime": 1780908113.8503618,
+    "ast_hash": "e7dd9de10e112c9b98500b135f67c95b",
+    "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/backend/src/main/java/com/visync/controller/RoomController.java": {
     "mtime": 1780482495.2565286,
@@ -75,19 +75,19 @@
     "semantic_hash": "3f046745d4b3076459534c3992662f62"
   },
   "/Users/pranavsinghrajoria/Documents/Visync/backend/src/main/java/com/visync/service/BoardService.java": {
-    "mtime": 1780482000.4543903,
-    "ast_hash": "b1b5b97d067cf93f457565bb5b37433a",
-    "semantic_hash": "b1b5b97d067cf93f457565bb5b37433a"
+    "mtime": 1781038751.7129366,
+    "ast_hash": "8f3637da222ab692796f95eb75505aaf",
+    "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/backend/src/main/java/com/visync/service/TokenService.java": {
-    "mtime": 1780480146.1609993,
-    "ast_hash": "76355377dff5db9b288841992da30be3",
-    "semantic_hash": "76355377dff5db9b288841992da30be3"
+    "mtime": 1780860589.62608,
+    "ast_hash": "d1bacf00beb9b3c9811fc594ba395292",
+    "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java": {
-    "mtime": 1780482615.0293732,
-    "ast_hash": "2237c7f5a783011963b1845132f460ea",
-    "semantic_hash": "2237c7f5a783011963b1845132f460ea"
+    "mtime": 1781034440.8847017,
+    "ast_hash": "5b56ec2b66bb2e9a269ad7d86c6a5d4b",
+    "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/backend/src/test/java/com/visync/backend/BackendApplicationTests.java": {
     "mtime": 1779647144.1319838,
@@ -95,24 +95,24 @@
     "semantic_hash": "60cd9ff8171bc79e94e9ba61bd6559a7"
   },
   "/Users/pranavsinghrajoria/Documents/Visync/frontend/app/layout.tsx": {
-    "mtime": 1780481691.3244762,
-    "ast_hash": "8ec1b94830703e0a44e4d5c93d7e2f59",
-    "semantic_hash": "8ec1b94830703e0a44e4d5c93d7e2f59"
+    "mtime": 1780860607.032592,
+    "ast_hash": "996fd62d60255334d5c3a42e23495c3e",
+    "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/frontend/app/page.tsx": {
-    "mtime": 1780483574.386704,
-    "ast_hash": "ba22c4c64b7e9b6ba8f8ffec4a04494c",
-    "semantic_hash": "ba22c4c64b7e9b6ba8f8ffec4a04494c"
+    "mtime": 1781173676.409916,
+    "ast_hash": "74b8d921939c8ed8f9bfa4c263f395e8",
+    "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/frontend/app/room/[roomId]/page.tsx": {
-    "mtime": 1780484164.595924,
-    "ast_hash": "be3cefc38461fba52c3e5a8809d1835b",
-    "semantic_hash": "be3cefc38461fba52c3e5a8809d1835b"
+    "mtime": 1781033732.902208,
+    "ast_hash": "9b31c93391ca528651337ff10f63b084",
+    "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/frontend/components/CanvasBoard.tsx": {
-    "mtime": 1780485096.9196725,
-    "ast_hash": "6e1735478ff1ef43e6af6a6089901d67",
-    "semantic_hash": "6e1735478ff1ef43e6af6a6089901d67"
+    "mtime": 1781172037.4515202,
+    "ast_hash": "3a3f6967443c490c80b99afb1ce53237",
+    "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/frontend/eslint.config.mjs": {
     "mtime": 1779468308.604193,
@@ -120,29 +120,29 @@
     "semantic_hash": "dfa1f5f6a7037bf39dc510f30b180002"
   },
   "/Users/pranavsinghrajoria/Documents/Visync/frontend/lib/useStore.ts": {
-    "mtime": 1779648501.0597503,
-    "ast_hash": "ef19a7a09188d84d050d53082ce6cf51",
-    "semantic_hash": "ef19a7a09188d84d050d53082ce6cf51"
+    "mtime": 1781034400.6482942,
+    "ast_hash": "f29f229cd3561dc1d18824dfda36bda6",
+    "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/frontend/lib/ws.ts": {
-    "mtime": 1780480291.6093314,
-    "ast_hash": "997c0a8879b213087c6313783248aa4a",
-    "semantic_hash": "997c0a8879b213087c6313783248aa4a"
+    "mtime": 1781038724.0157604,
+    "ast_hash": "7e0e96a7187e8f6e82d5b55b2f248969",
+    "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/frontend/next-env.d.ts": {
-    "mtime": 1780481550.9710755,
+    "mtime": 1781169014.2964797,
     "ast_hash": "2a74d3909800ca5467fa83b0ab4a4890",
     "semantic_hash": "2a74d3909800ca5467fa83b0ab4a4890"
   },
   "/Users/pranavsinghrajoria/Documents/Visync/frontend/next.config.ts": {
-    "mtime": 1779645566.996753,
-    "ast_hash": "a5c452c7f1e280b6bcff97f5861709c9",
-    "semantic_hash": "a5c452c7f1e280b6bcff97f5861709c9"
+    "mtime": 1780908729.6499612,
+    "ast_hash": "7f42a049cebc91ba886726878889d387",
+    "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/frontend/package.json": {
-    "mtime": 1779530822.5398982,
-    "ast_hash": "468f5e602d6523be803d556f38190b6b",
-    "semantic_hash": "468f5e602d6523be803d556f38190b6b"
+    "mtime": 1781172690.1383407,
+    "ast_hash": "20ef6eeb6f7944fd7d3c8818f5986a5d",
+    "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/frontend/postcss.config.js": {
     "mtime": 1779469085.7262163,
@@ -208,5 +208,25 @@
     "mtime": 1779468308.605778,
     "ast_hash": "a2760511c65806022ad20adf74370ff3",
     "semantic_hash": "a2760511c65806022ad20adf74370ff3"
+  },
+  "/Users/pranavsinghrajoria/Documents/Visync/frontend/components/HeroGraphic.tsx": {
+    "mtime": 1781173661.1004155,
+    "ast_hash": "540b666100773459f12ed9a6383c2a0d",
+    "semantic_hash": ""
+  },
+  "/Users/pranavsinghrajoria/Documents/Visync/frontend/components/InteractiveGrid.tsx": {
+    "mtime": 1781173389.3861618,
+    "ast_hash": "23c605399fac93cf89cbdc49f5aabd7b",
+    "semantic_hash": ""
+  },
+  "/Users/pranavsinghrajoria/Documents/Visync/frontend/lib/geometry.ts": {
+    "mtime": 1781168220.992717,
+    "ast_hash": "61ddc0b0f481602782dd810776e356ad",
+    "semantic_hash": ""
+  },
+  "/Users/pranavsinghrajoria/Documents/Visync/frontend/lib/viewport.ts": {
+    "mtime": 1780559010.0002825,
+    "ast_hash": "cbf34e01c0b877aa1ce05837890b9e8e",
+    "semantic_hash": ""
   }
 }
