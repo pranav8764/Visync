@@ -1,5 +1,7 @@
 package com.visync.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.visync.entity.BoardSnapshot;
 import com.visync.entity.DrawingEvent;
 import com.visync.repository.BoardSnapshotRepository;
@@ -17,6 +19,8 @@ import java.util.stream.Collectors;
 @Transactional
 public class BoardService {
 
+    private static final Logger logger = LoggerFactory.getLogger(BoardService.class);
+
     private final DrawingEventRepository drawingEventRepository;
     private final BoardSnapshotRepository boardSnapshotRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -28,12 +32,15 @@ public class BoardService {
     }
 
     public void clearBoard(String roomId) {
+        logger.info("Clearing board drawing events and snapshots for roomId={}", roomId);
         UUID rId = UUID.fromString(roomId);
         drawingEventRepository.deleteByRoomId(rId);
         boardSnapshotRepository.deleteByRoomId(rId);
+        logger.info("Cleared board successfully for roomId={}", roomId);
     }
 
     public void undoStroke(String roomId, String strokeId) {
+        logger.info("Undoing strokeId={} for roomId={}", strokeId, roomId);
         UUID rId = UUID.fromString(roomId);
         drawingEventRepository.deleteByRoomIdAndStrokeId(rId, strokeId);
 
@@ -50,10 +57,15 @@ public class BoardService {
                     String updatedState = objectMapper.writeValueAsString(strokesList);
                     snapshot.setBoardState(updatedState);
                     boardSnapshotRepository.save(snapshot);
+                    logger.debug("Successfully updated snapshot to remove strokeId={} for roomId={}", strokeId, roomId);
+                } else {
+                    logger.debug("StrokeId={} was not found in the latest snapshot for roomId={}", strokeId, roomId);
                 }
             } catch (Exception ex) {
-                System.err.println("Failed to update snapshot during undo: " + ex.getMessage());
+                logger.error("Failed to update snapshot during undo for roomId={}, strokeId={}: ", roomId, strokeId, ex);
             }
+        } else {
+            logger.debug("No snapshot found to update during undo for roomId={}", roomId);
         }
     }
 
@@ -62,6 +74,8 @@ public class BoardService {
         UUID rId = UUID.fromString(roomId);
         String strokeId = strokeNode.has("id") ? strokeNode.get("id").asText() : "";
         if (strokeId.isEmpty()) return;
+
+        logger.info("Redoing strokeId={} for roomId={} by userId={}", strokeId, roomId, userId);
 
         String color = strokeNode.has("color") ? strokeNode.get("color").asText() : "#000000";
         int strokeWidth = strokeNode.has("strokeWidth") ? strokeNode.get("strokeWidth").asInt() : 2;
@@ -121,9 +135,10 @@ public class BoardService {
             );
             endEvent.setStrokeId(strokeId);
             drawingEventRepository.save(endEvent);
+            logger.debug("Successfully saved redone drawing events for strokeId={} in roomId={}", strokeId, roomId);
 
         } catch (Exception e) {
-            System.err.println("Failed to save drawing events during redo: " + e.getMessage());
+            logger.error("Failed to save drawing events during redo for roomId={}, strokeId={}: ", roomId, strokeId, e);
         }
     }
 
@@ -136,10 +151,14 @@ public class BoardService {
         List<DrawingEvent> allEvents = drawingEventRepository.findByRoomIdOrderByTimestampAsc(rId);
 
         if (allEvents.isEmpty()) {
+            logger.debug("No drawing events to compact for roomId={}", roomId);
             return;
         }
 
+        logger.info("Evaluating compaction for roomId={}: eventsCount={}, force={}", roomId, allEvents.size(), force);
+
         if (force || allEvents.size() > 100) {
+            logger.info("Executing snapshot compaction for roomId={} with {} events", roomId, allEvents.size());
             Optional<BoardSnapshot> latestSnapshotOpt = boardSnapshotRepository
                     .findFirstByRoomIdOrderByCreatedAtDesc(rId);
             Map<String, Map<String, Object>> strokes = new LinkedHashMap<>();
@@ -155,7 +174,7 @@ public class BoardService {
                         }
                     }
                 } catch (Exception ex) {
-                    System.err.println("Failed to parse existing board snapshot state: " + ex.getMessage());
+                    logger.error("Failed to parse existing board snapshot state for roomId={}: ", roomId, ex);
                 }
             }
 
@@ -246,7 +265,7 @@ public class BoardService {
                             break;
                     }
                 } catch (Exception ex) {
-                    System.err.println("Error parsing event payload during compaction: " + ex.getMessage());
+                    logger.error("Error parsing event payload during compaction for roomId={}, eventId={}: ", roomId, event.getId(), ex);
                 }
             }
 
@@ -260,10 +279,12 @@ public class BoardService {
                 // Delete ONLY the compiled events
                 drawingEventRepository.deleteAllByIds(compiledIds);
 
+                logger.info("Successfully compacted {} events into a new snapshot for roomId={}", compiledIds.size(), roomId);
+
                 // Cleanup older snapshots, keep only the latest one
                 cleanOldSnapshots(rId);
             } catch (Exception ex) {
-                System.err.println("Failed to save snapshot or delete events: " + ex.getMessage());
+                logger.error("Failed to save snapshot or delete events during compaction for roomId={}: ", roomId, ex);
             }
         }
     }
@@ -277,6 +298,7 @@ public class BoardService {
             if (transform.has("scaleX")) strokeToTransform.put("scaleX", transform.get("scaleX").asDouble());
             if (transform.has("scaleY")) strokeToTransform.put("scaleY", transform.get("scaleY").asDouble());
             if (transform.has("rotation")) strokeToTransform.put("rotation", transform.get("rotation").asDouble());
+            logger.debug("Applied transform to strokeId={}", strokeId);
         }
     }
 
@@ -286,9 +308,11 @@ public class BoardService {
             if (snapshots.size() > 1) {
                 List<BoardSnapshot> toDelete = snapshots.subList(1, snapshots.size());
                 boardSnapshotRepository.deleteAll(toDelete);
+                logger.info("Successfully deleted {} old snapshots for roomId={}", toDelete.size(), roomId);
             }
         } catch (Exception ex) {
-            System.err.println("Failed to clean up old board snapshots: " + ex.getMessage());
+            logger.error("Failed to clean up old board snapshots for roomId={}: ", roomId, ex);
         }
     }
 }
+

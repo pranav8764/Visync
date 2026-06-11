@@ -1,5 +1,7 @@
 package com.visync.ws;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -24,6 +26,8 @@ import java.util.concurrent.*;
 
 @Component
 public class RoomWebSocketHandler extends TextWebSocketHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(RoomWebSocketHandler.class);
 
     private final RoomRepository roomRepository;
     private final DrawingEventRepository drawingEventRepository;
@@ -58,10 +62,13 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
 
         // Schedule periodic database outage fallback queue flushing
         this.fallbackScheduler.scheduleAtFixedRate(this::retryFailedPersists, 5, 5, TimeUnit.SECONDS);
+        logger.info("RoomWebSocketHandler initialized with fallback scheduler running every 5 seconds.");
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
+        logger.info("WebSocket connection established. SessionId={}, RemoteAddress={}, URI={}", 
+                session.getId(), session.getRemoteAddress(), session.getUri());
         // Connection established, waiting for USER_JOIN event to assign room
     }
 
@@ -72,6 +79,9 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         String username = sessionUsernames.remove(session.getId());
         sessionRateLimiters.remove(session.getId());
 
+        logger.info("WebSocket connection closed. SessionId={}, Status={}, RoomId={}, UserId={}, Username={}", 
+                session.getId(), status, roomId, userId, username);
+
         if (roomId != null) {
             Set<WebSocketSession> set = rooms.get(roomId);
             if (set != null) {
@@ -79,6 +89,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                 if (set.isEmpty()) {
                     rooms.remove(roomId);
                     final String emptyRoomId = roomId;
+                    logger.info("Room {} is now empty. Starting async snapshot compaction and setting room inactive.", emptyRoomId);
                     CompletableFuture.runAsync(() -> {
                         try {
                             boardService.compactSnapshot(emptyRoomId, true);
@@ -86,9 +97,10 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                             roomRepository.findById(rId).ifPresent(room -> {
                                 room.setActive(false);
                                 roomRepository.save(room);
+                                logger.info("Room {} successfully set to inactive.", emptyRoomId);
                             });
                         } catch (Exception e) {
-                            System.err.println("Failed to set room inactive/compact on close: " + e.getMessage());
+                            logger.error("Failed to set room inactive/compact on close for RoomId {}: ", emptyRoomId, e);
                         }
                     }, dbExecutor);
                 }
@@ -106,6 +118,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                 payload.put("username", username);
                 leaveEvent.put("payload", payload);
 
+                logger.info("Broadcasting USER_LEAVE event for userId={} in roomId={}", userId, roomId);
                 broadcastToRoom(roomId, session.getId(), leaveEvent);
             }
         }
@@ -116,6 +129,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         // Apply rate limits per session (Capacity: 1000, Refill: 500 per sec -> 0.5 tokens/ms)
         TokenBucket bucket = sessionRateLimiters.computeIfAbsent(session.getId(), k -> new TokenBucket(1000.0, 0.5));
         if (!bucket.tryConsume()) {
+            logger.warn("Rate limit exceeded for sessionId={}. Dropping incoming message.", session.getId());
             // Silently drop messages exceeding the rate limit to avoid connection drops
             return;
         }
@@ -125,7 +139,8 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         try {
             rootNode = objectMapper.readTree(payload);
         } catch (Exception e) {
-            System.err.println("Invalid JSON message: " + e.getMessage());
+            logger.warn("Invalid JSON message received from sessionId={}: {}. Payload length={}", 
+                    session.getId(), e.getMessage(), payload != null ? payload.length() : 0);
             return;
         }
 
@@ -137,8 +152,11 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         long timestamp = System.currentTimeMillis(); // Override with server time
 
         if (roomId == null || userId == null || eventType.isEmpty()) {
+            logger.warn("Received message with missing attributes. RoomId={}, UserId={}, EventType={}", roomId, userId, eventType);
             return;
         }
+
+        logger.trace("Received WebSocket eventType={} for roomId={}, userId={}", eventType, roomId, userId);
 
         // Overwrite client payload parameters to prevent impersonation/timestamp spoofing
         if (rootNode instanceof ObjectNode) {
@@ -215,7 +233,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                         try {
                             boardService.undoStroke(rId, sId);
                         } catch (Exception e) {
-                            System.err.println("Failed to run undo in background: " + e.getMessage());
+                            logger.error("Failed to run undo in background for roomId={}, strokeId={}: ", rId, sId, e);
                         }
                     }, dbExecutor);
                 }
@@ -231,7 +249,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                         try {
                             boardService.redoStroke(rId, uId, sNode);
                         } catch (Exception e) {
-                            System.err.println("Failed to run redo in background: " + e.getMessage());
+                            logger.error("Failed to run redo in background for roomId={}, userId={}: ", rId, uId, e);
                         }
                     }, dbExecutor);
                 }
@@ -239,11 +257,13 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
             case "USER_NAME_CHANGE":
                 if (payloadNode != null && payloadNode.has("username")) {
                     String newName = payloadNode.get("username").asText();
+                    logger.info("SessionId={} changed username to '{}'", session.getId(), newName);
                     sessionUsernames.put(session.getId(), newName);
                 }
                 broadcastToRoom(roomId, session.getId(), rootNode);
                 break;
             default:
+                logger.warn("Received unknown eventType '{}' from sessionId={}", eventType, session.getId());
                 broadcastToRoom(roomId, session.getId(), rootNode);
                 break;
         }
@@ -260,6 +280,9 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         sessionUserIds.put(session.getId(), userId);
         sessionUsernames.put(session.getId(), username);
 
+        logger.info("User joined room: SessionId={}, RoomId={}, UserId={}, Username={}", 
+                session.getId(), roomId, userId, username);
+
         final String joinedRoomId = roomId;
         CompletableFuture.runAsync(() -> {
             try {
@@ -268,10 +291,11 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                     if (!room.isActive()) {
                         room.setActive(true);
                         roomRepository.save(room);
+                        logger.info("Room {} activated on user join.", joinedRoomId);
                     }
                 });
             } catch (Exception e) {
-                System.err.println("Failed to reactivate room on join: " + e.getMessage());
+                logger.error("Failed to reactivate room {} on user join: ", joinedRoomId, e);
             }
         }, dbExecutor);
 
@@ -318,8 +342,9 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
 
         try {
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(presenceEvent)));
+            logger.trace("Successfully sent PRESENCE_LIST to sessionId={} in roomId={}", session.getId(), roomId);
         } catch (IOException e) {
-            System.err.println("Failed to send presence list: " + e.getMessage());
+            logger.error("Failed to send presence list to sessionId={} in roomId={}: ", session.getId(), roomId, e);
         }
     }
 
@@ -334,8 +359,9 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
             DrawingEvent event = new DrawingEvent(rId, userId, eventType, payloadStr, timestamp);
             event.setStrokeId(strokeId);
             drawingEventRepository.save(event);
+            logger.trace("Successfully persisted DrawingEvent eventType={} for roomId={}", eventType, roomId);
         } catch (Exception e) {
-            System.err.println("Failed to save drawing event, enqueuing to fallback: " + e.getMessage());
+            logger.warn("Failed to save drawing event, enqueuing to fallback queue for roomId={}: {}", roomId, e.getMessage());
             try {
                 UUID rId = UUID.fromString(roomId);
                 String payloadStr = objectMapper.writeValueAsString(payloadNode);
@@ -345,28 +371,34 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                 DrawingEvent event = new DrawingEvent(rId, userId, eventType, payloadStr, timestamp);
                 event.setStrokeId(strokeId);
                 fallbackQueue.add(event);
+                logger.info("Successfully enqueued event to fallback queue. Current queue size={}", fallbackQueue.size());
             } catch (Exception ex) {
-                System.err.println("Fatal: failed to enqueue fallback event: " + ex.getMessage());
+                logger.error("Fatal: failed to enqueue fallback event for roomId={}: ", roomId, ex);
             }
         }
     }
 
     private void retryFailedPersists() {
         if (fallbackQueue.isEmpty()) return;
-        System.out.println("Database fallback queue has " + fallbackQueue.size() + " pending drawing events. Retrying...");
+        logger.info("Database fallback queue has {} pending drawing events. Retrying...", fallbackQueue.size());
         List<DrawingEvent> toRetry = new ArrayList<>();
         DrawingEvent ev;
         while ((ev = fallbackQueue.poll()) != null) {
             toRetry.add(ev);
         }
 
+        int successCount = 0;
         for (DrawingEvent event : toRetry) {
             try {
                 drawingEventRepository.save(event);
+                successCount++;
             } catch (Exception e) {
                 fallbackQueue.add(event);
-                System.err.println("Database still unreachable. Re-enqueued event: " + event.getId());
+                logger.warn("Database still unreachable. Re-enqueued event: {}, reason: {}", event.getId(), e.getMessage());
             }
+        }
+        if (successCount > 0) {
+            logger.info("Successfully flushed {} events from fallback queue.", successCount);
         }
     }
 
@@ -384,20 +416,22 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
             CompletableFuture.runAsync(() -> {
                 try {
                     chatMessageRepository.save(chatMsg);
+                    logger.trace("Successfully saved chat message in DB for roomId={}", roomId);
                 } catch (Exception e) {
-                    System.err.println("Failed to save chat message: " + e.getMessage());
+                    logger.error("Failed to save chat message in DB for roomId={}: ", roomId, e);
                 }
             }, dbExecutor);
         } catch (Exception e) {
-            System.err.println("Failed to process chat message: " + e.getMessage());
+            logger.error("Failed to process chat message for roomId={}: ", roomId, e);
         }
     }
 
     private void clearBoardData(String roomId) {
         try {
             boardService.clearBoard(roomId);
+            logger.info("Successfully cleared board data for roomId={}", roomId);
         } catch (Exception e) {
-            System.err.println("Failed to clear board data: " + e.getMessage());
+            logger.error("Failed to clear board data for roomId={}: ", roomId, e);
         }
     }
 
@@ -406,7 +440,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
             try {
                 boardService.compactSnapshot(roomId);
             } catch (Exception e) {
-                System.err.println("Failed to run snapshot compaction: " + e.getMessage());
+                logger.error("Failed to run snapshot compaction for roomId={}: ", roomId, e);
             }
         }, dbExecutor);
     }
@@ -426,21 +460,25 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                 textMessageStr = objectMapper.writeValueAsString(messageObj);
             }
         } catch (Exception e) {
-            System.err.println("Failed to serialize message: " + e.getMessage());
+            logger.error("Failed to serialize message for broadcast in roomId={}: ", roomId, e);
             return;
         }
 
         TextMessage message = new TextMessage(textMessageStr);
+        int broadcastCount = 0;
         for (WebSocketSession s : set) {
             if (s.isOpen() && !s.getId().equals(senderSessionId)) {
                 try {
                     s.sendMessage(message);
+                    broadcastCount++;
                 } catch (IOException e) {
-                    System.err.println("Failed to broadcast message: " + e.getMessage());
+                    logger.warn("Failed to send broadcast message to sessionId={} in roomId={}: {}", s.getId(), roomId, e.getMessage());
                 }
             }
         }
+        logger.trace("Broadcasted message to {} sessions in roomId={}", broadcastCount, roomId);
     }
+
 
     private String extractRoomId(URI uri) {
         if (uri == null)

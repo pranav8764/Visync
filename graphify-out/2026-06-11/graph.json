@@ -106,7 +106,7 @@
       "label": "AuthHandshakeInterceptor",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java",
-      "source_location": "L17",
+      "source_location": "L15",
       "id": "config_authhandshakeinterceptor_authhandshakeinterceptor",
       "community": 4,
       "norm_label": "authhandshakeinterceptor"
@@ -124,7 +124,7 @@
       "label": ".AuthHandshakeInterceptor()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java",
-      "source_location": "L22",
+      "source_location": "L19",
       "id": "config_authhandshakeinterceptor_authhandshakeinterceptor_authhandshakeinterceptor",
       "community": 4,
       "norm_label": ".authhandshakeinterceptor()"
@@ -133,7 +133,7 @@
       "label": "TokenService",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java",
-      "source_location": "L22",
+      "source_location": "L19",
       "id": "backend_src_main_java_com_visync_config_authhandshakeinterceptor_java_tokenservice",
       "community": 4,
       "norm_label": "tokenservice"
@@ -142,7 +142,7 @@
       "label": ".beforeHandshake()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java",
-      "source_location": "L26",
+      "source_location": "L23",
       "id": "config_authhandshakeinterceptor_authhandshakeinterceptor_beforehandshake",
       "community": 4,
       "norm_label": ".beforehandshake()"
@@ -151,7 +151,7 @@
       "label": "ServerHttpRequest",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java",
-      "source_location": "L26",
+      "source_location": "L23",
       "id": "serverhttprequest",
       "community": 4,
       "norm_label": "serverhttprequest"
@@ -160,7 +160,7 @@
       "label": "ServerHttpResponse",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java",
-      "source_location": "L26",
+      "source_location": "L23",
       "id": "serverhttpresponse",
       "community": 4,
       "norm_label": "serverhttpresponse"
@@ -169,7 +169,7 @@
       "label": "WebSocketHandler",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java",
-      "source_location": "L26",
+      "source_location": "L23",
       "id": "websockethandler",
       "community": 4,
       "norm_label": "websockethandler"
@@ -178,7 +178,7 @@
       "label": "Map",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java",
-      "source_location": "L26",
+      "source_location": "L23",
       "id": "backend_src_main_java_com_visync_config_authhandshakeinterceptor_java_map",
       "community": 4,
       "norm_label": "map"
@@ -187,7 +187,7 @@
       "label": "String",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java",
-      "source_location": "L26",
+      "source_location": "L23",
       "id": "backend_src_main_java_com_visync_config_authhandshakeinterceptor_java_string",
       "community": 4,
       "norm_label": "string"
@@ -196,7 +196,7 @@
       "label": "Object",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java",
-      "source_location": "L26",
+      "source_location": "L23",
       "id": "backend_src_main_java_com_visync_config_authhandshakeinterceptor_java_object",
       "community": 4,
       "norm_label": "object"
@@ -205,7 +205,7 @@
       "label": "Override",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java",
-      "source_location": "L26",
+      "source_location": "L23",
       "id": "backend_src_main_java_com_visync_config_authhandshakeinterceptor_java_override",
       "community": 4,
       "norm_label": "override"
@@ -214,7 +214,7 @@
       "label": ".afterHandshake()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java",
-      "source_location": "L73",
+      "source_location": "L59",
       "id": "config_authhandshakeinterceptor_authhandshakeinterceptor_afterhandshake",
       "community": 4,
       "norm_label": ".afterhandshake()"
@@ -223,145 +223,10 @@
       "label": "Exception",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java",
-      "source_location": "L73",
-      "id": "backend_src_main_java_com_visync_config_authhandshakeinterceptor_java_exception",
+      "source_location": "L59",
+      "id": "exception",
       "community": 4,
       "norm_label": "exception"
-    },
-    {
-      "label": "GlobalExceptionHandler.java",
-      "file_type": "code",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L1",
-      "id": "config_globalexceptionhandler",
-      "community": 4,
-      "norm_label": "globalexceptionhandler.java"
-    },
-    {
-      "label": "GlobalExceptionHandler",
-      "file_type": "code",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L13",
-      "id": "config_globalexceptionhandler_globalexceptionhandler",
-      "community": 4,
-      "norm_label": "globalexceptionhandler"
-    },
-    {
-      "label": ".handleAllExceptions()",
-      "file_type": "code",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L18",
-      "id": "config_globalexceptionhandler_globalexceptionhandler_handleallexceptions",
-      "community": 4,
-      "norm_label": ".handleallexceptions()"
-    },
-    {
-      "label": "Exception",
-      "file_type": "code",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L18",
-      "id": "backend_src_main_java_com_visync_config_globalexceptionhandler_java_exception",
-      "community": 4,
-      "norm_label": "exception"
-    },
-    {
-      "label": "HttpServletRequest",
-      "file_type": "code",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L18",
-      "id": "httpservletrequest",
-      "community": 4,
-      "norm_label": "httpservletrequest"
-    },
-    {
-      "label": "ResponseEntity",
-      "file_type": "code",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L18",
-      "id": "backend_src_main_java_com_visync_config_globalexceptionhandler_java_responseentity",
-      "community": 4,
-      "norm_label": "responseentity"
-    },
-    {
-      "label": "Map",
-      "file_type": "code",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L18",
-      "id": "backend_src_main_java_com_visync_config_globalexceptionhandler_java_map",
-      "community": 4,
-      "norm_label": "map"
-    },
-    {
-      "label": "String",
-      "file_type": "code",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L18",
-      "id": "backend_src_main_java_com_visync_config_globalexceptionhandler_java_string",
-      "community": 4,
-      "norm_label": "string"
-    },
-    {
-      "label": "Object",
-      "file_type": "code",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L18",
-      "id": "backend_src_main_java_com_visync_config_globalexceptionhandler_java_object",
-      "community": 4,
-      "norm_label": "object"
-    },
-    {
-      "label": "ExceptionHandler",
-      "file_type": "code",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L18",
-      "id": "exceptionhandler",
-      "community": 4,
-      "norm_label": "exceptionhandler"
-    },
-    {
-      "label": "LoggingConfig.java",
-      "file_type": "code",
-      "source_file": "backend/src/main/java/com/visync/config/LoggingConfig.java",
-      "source_location": "L1",
-      "id": "config_loggingconfig",
-      "community": 49,
-      "norm_label": "loggingconfig.java"
-    },
-    {
-      "label": "LoggingConfig",
-      "file_type": "code",
-      "source_file": "backend/src/main/java/com/visync/config/LoggingConfig.java",
-      "source_location": "L7",
-      "id": "config_loggingconfig_loggingconfig",
-      "community": 49,
-      "norm_label": "loggingconfig"
-    },
-    {
-      "label": ".logFilter()",
-      "file_type": "code",
-      "source_file": "backend/src/main/java/com/visync/config/LoggingConfig.java",
-      "source_location": "L10",
-      "id": "config_loggingconfig_loggingconfig_logfilter",
-      "community": 49,
-      "norm_label": ".logfilter()"
-    },
-    {
-      "label": "CommonsRequestLoggingFilter",
-      "file_type": "code",
-      "source_file": "backend/src/main/java/com/visync/config/LoggingConfig.java",
-      "source_location": "L10",
-      "id": "commonsrequestloggingfilter",
-      "community": 49,
-      "norm_label": "commonsrequestloggingfilter"
-    },
-    {
-      "label": "Bean",
-      "file_type": "code",
-      "source_file": "backend/src/main/java/com/visync/config/LoggingConfig.java",
-      "source_location": "L10",
-      "id": "backend_src_main_java_com_visync_config_loggingconfig_java_bean",
-      "community": 49,
-      "norm_label": "bean"
     },
     {
       "label": "RoomStartupResetRunner.java",
@@ -530,7 +395,7 @@
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/config/WebSocketConfig.java",
       "source_location": "L35",
-      "id": "backend_src_main_java_com_visync_config_websocketconfig_java_bean",
+      "id": "bean",
       "community": 12,
       "norm_label": "bean"
     },
@@ -547,7 +412,7 @@
       "label": "RoomController",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L22",
+      "source_location": "L20",
       "id": "controller_roomcontroller_roomcontroller",
       "community": 0,
       "norm_label": "roomcontroller"
@@ -556,7 +421,7 @@
       "label": ".RoomController()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L34",
+      "source_location": "L30",
       "id": "controller_roomcontroller_roomcontroller_roomcontroller",
       "community": 0,
       "norm_label": ".roomcontroller()"
@@ -565,7 +430,7 @@
       "label": "RoomRepository",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L34",
+      "source_location": "L30",
       "id": "backend_src_main_java_com_visync_controller_roomcontroller_java_roomrepository",
       "community": 0,
       "norm_label": "roomrepository"
@@ -574,7 +439,7 @@
       "label": "DrawingEventRepository",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L34",
+      "source_location": "L30",
       "id": "backend_src_main_java_com_visync_controller_roomcontroller_java_drawingeventrepository",
       "community": 0,
       "norm_label": "drawingeventrepository"
@@ -583,7 +448,7 @@
       "label": "BoardSnapshotRepository",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L34",
+      "source_location": "L30",
       "id": "backend_src_main_java_com_visync_controller_roomcontroller_java_boardsnapshotrepository",
       "community": 0,
       "norm_label": "boardsnapshotrepository"
@@ -592,7 +457,7 @@
       "label": "ChatMessageRepository",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L34",
+      "source_location": "L30",
       "id": "backend_src_main_java_com_visync_controller_roomcontroller_java_chatmessagerepository",
       "community": 0,
       "norm_label": "chatmessagerepository"
@@ -601,7 +466,7 @@
       "label": "TokenService",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L34",
+      "source_location": "L30",
       "id": "backend_src_main_java_com_visync_controller_roomcontroller_java_tokenservice",
       "community": 0,
       "norm_label": "tokenservice"
@@ -610,7 +475,7 @@
       "label": ".createRoom()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L46",
+      "source_location": "L42",
       "id": "controller_roomcontroller_roomcontroller_createroom",
       "community": 0,
       "norm_label": ".createroom()"
@@ -619,7 +484,7 @@
       "label": "CreateRoomRequest",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L46",
+      "source_location": "L42",
       "id": "createroomrequest",
       "community": 0,
       "norm_label": "createroomrequest"
@@ -628,8 +493,8 @@
       "label": "ResponseEntity",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L46",
-      "id": "backend_src_main_java_com_visync_controller_roomcontroller_java_responseentity",
+      "source_location": "L42",
+      "id": "responseentity",
       "community": 0,
       "norm_label": "responseentity"
     },
@@ -637,7 +502,7 @@
       "label": "Room",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L46",
+      "source_location": "L42",
       "id": "room",
       "community": 0,
       "norm_label": "room"
@@ -646,7 +511,7 @@
       "label": "PostMapping",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L46",
+      "source_location": "L42",
       "id": "postmapping",
       "community": 0,
       "norm_label": "postmapping"
@@ -655,7 +520,7 @@
       "label": ".getRoom()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L60",
+      "source_location": "L53",
       "id": "controller_roomcontroller_roomcontroller_getroom",
       "community": 0,
       "norm_label": ".getroom()"
@@ -664,7 +529,7 @@
       "label": "UUID",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L60",
+      "source_location": "L53",
       "id": "backend_src_main_java_com_visync_controller_roomcontroller_java_uuid",
       "community": 0,
       "norm_label": "uuid"
@@ -673,7 +538,7 @@
       "label": "GetMapping",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L60",
+      "source_location": "L53",
       "id": "getmapping",
       "community": 0,
       "norm_label": "getmapping"
@@ -682,7 +547,7 @@
       "label": ".getRoomHistory()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L74",
+      "source_location": "L60",
       "id": "controller_roomcontroller_roomcontroller_getroomhistory",
       "community": 0,
       "norm_label": ".getroomhistory()"
@@ -691,7 +556,7 @@
       "label": "String",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L74",
+      "source_location": "L60",
       "id": "backend_src_main_java_com_visync_controller_roomcontroller_java_string",
       "community": 0,
       "norm_label": "string"
@@ -700,7 +565,7 @@
       "label": "RoomHistoryResponse",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L74",
+      "source_location": "L60",
       "id": "roomhistoryresponse",
       "community": 0,
       "norm_label": "roomhistoryresponse"
@@ -709,7 +574,7 @@
       "label": "CreateRoomRequest",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L110",
+      "source_location": "L89",
       "id": "controller_roomcontroller_createroomrequest",
       "community": 0,
       "norm_label": "createroomrequest"
@@ -718,7 +583,7 @@
       "label": ".getName()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L114",
+      "source_location": "L93",
       "id": "controller_roomcontroller_createroomrequest_getname",
       "community": 0,
       "norm_label": ".getname()"
@@ -727,7 +592,7 @@
       "label": ".setName()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L118",
+      "source_location": "L97",
       "id": "controller_roomcontroller_createroomrequest_setname",
       "community": 0,
       "norm_label": ".setname()"
@@ -736,7 +601,7 @@
       "label": ".getCreatedBy()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L122",
+      "source_location": "L101",
       "id": "controller_roomcontroller_createroomrequest_getcreatedby",
       "community": 0,
       "norm_label": ".getcreatedby()"
@@ -745,7 +610,7 @@
       "label": ".setCreatedBy()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L126",
+      "source_location": "L105",
       "id": "controller_roomcontroller_createroomrequest_setcreatedby",
       "community": 0,
       "norm_label": ".setcreatedby()"
@@ -754,7 +619,7 @@
       "label": "RoomHistoryResponse",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L131",
+      "source_location": "L110",
       "id": "controller_roomcontroller_roomhistoryresponse",
       "community": 0,
       "norm_label": "roomhistoryresponse"
@@ -763,7 +628,7 @@
       "label": ".RoomHistoryResponse()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L137",
+      "source_location": "L116",
       "id": "controller_roomcontroller_roomhistoryresponse_roomhistoryresponse",
       "community": 0,
       "norm_label": ".roomhistoryresponse()"
@@ -772,7 +637,7 @@
       "label": "List",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L137",
+      "source_location": "L116",
       "id": "backend_src_main_java_com_visync_controller_roomcontroller_java_list",
       "community": 0,
       "norm_label": "list"
@@ -781,7 +646,7 @@
       "label": "DrawingEvent",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L137",
+      "source_location": "L116",
       "id": "backend_src_main_java_com_visync_controller_roomcontroller_java_drawingevent",
       "community": 0,
       "norm_label": "drawingevent"
@@ -790,7 +655,7 @@
       "label": "ChatMessage",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L137",
+      "source_location": "L116",
       "id": "backend_src_main_java_com_visync_controller_roomcontroller_java_chatmessage",
       "community": 0,
       "norm_label": "chatmessage"
@@ -799,7 +664,7 @@
       "label": ".getBoardSnapshot()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L145",
+      "source_location": "L124",
       "id": "controller_roomcontroller_roomhistoryresponse_getboardsnapshot",
       "community": 0,
       "norm_label": ".getboardsnapshot()"
@@ -808,7 +673,7 @@
       "label": ".setBoardSnapshot()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L149",
+      "source_location": "L128",
       "id": "controller_roomcontroller_roomhistoryresponse_setboardsnapshot",
       "community": 0,
       "norm_label": ".setboardsnapshot()"
@@ -817,7 +682,7 @@
       "label": ".getRecentEvents()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L153",
+      "source_location": "L132",
       "id": "controller_roomcontroller_roomhistoryresponse_getrecentevents",
       "community": 0,
       "norm_label": ".getrecentevents()"
@@ -826,7 +691,7 @@
       "label": ".setRecentEvents()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L157",
+      "source_location": "L136",
       "id": "controller_roomcontroller_roomhistoryresponse_setrecentevents",
       "community": 0,
       "norm_label": ".setrecentevents()"
@@ -835,7 +700,7 @@
       "label": ".getChatHistory()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L161",
+      "source_location": "L140",
       "id": "controller_roomcontroller_roomhistoryresponse_getchathistory",
       "community": 0,
       "norm_label": ".getchathistory()"
@@ -844,7 +709,7 @@
       "label": ".setChatHistory()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L165",
+      "source_location": "L144",
       "id": "controller_roomcontroller_roomhistoryresponse_setchathistory",
       "community": 0,
       "norm_label": ".setchathistory()"
@@ -853,7 +718,7 @@
       "label": ".getWsToken()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L169",
+      "source_location": "L148",
       "id": "controller_roomcontroller_roomhistoryresponse_getwstoken",
       "community": 0,
       "norm_label": ".getwstoken()"
@@ -862,7 +727,7 @@
       "label": ".setWsToken()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L173",
+      "source_location": "L152",
       "id": "controller_roomcontroller_roomhistoryresponse_setwstoken",
       "community": 0,
       "norm_label": ".setwstoken()"
@@ -909,7 +774,7 @@
       "source_file": "backend/src/main/java/com/visync/entity/BoardSnapshot.java",
       "source_location": "L33",
       "id": "backend_src_main_java_com_visync_entity_boardsnapshot_java_string",
-      "community": 9,
+      "community": 2,
       "norm_label": "string"
     },
     {
@@ -963,7 +828,7 @@
       "source_file": "backend/src/main/java/com/visync/entity/BoardSnapshot.java",
       "source_location": "L47",
       "id": "entity_boardsnapshot_boardsnapshot_setboardstate",
-      "community": 9,
+      "community": 2,
       "norm_label": ".setboardstate()"
     },
     {
@@ -1287,7 +1152,7 @@
       "source_file": "backend/src/main/java/com/visync/entity/DrawingEvent.java",
       "source_location": "L63",
       "id": "entity_drawingevent_drawingevent_getpayload",
-      "community": 2,
+      "community": 6,
       "norm_label": ".getpayload()"
     },
     {
@@ -1332,7 +1197,7 @@
       "source_file": "backend/src/main/java/com/visync/entity/DrawingEvent.java",
       "source_location": "L70",
       "id": "entity_drawingevent_drawingevent_setstrokeid",
-      "community": 2,
+      "community": 6,
       "norm_label": ".setstrokeid()"
     },
     {
@@ -1825,7 +1690,7 @@
       "label": "BoardService",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/BoardService.java",
-      "source_location": "L18",
+      "source_location": "L16",
       "id": "service_boardservice_boardservice",
       "community": 2,
       "norm_label": "boardservice"
@@ -1834,7 +1699,7 @@
       "label": ".BoardService()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/BoardService.java",
-      "source_location": "L28",
+      "source_location": "L24",
       "id": "service_boardservice_boardservice_boardservice",
       "community": 2,
       "norm_label": ".boardservice()"
@@ -1843,7 +1708,7 @@
       "label": "DrawingEventRepository",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/BoardService.java",
-      "source_location": "L28",
+      "source_location": "L24",
       "id": "backend_src_main_java_com_visync_service_boardservice_java_drawingeventrepository",
       "community": 2,
       "norm_label": "drawingeventrepository"
@@ -1852,7 +1717,7 @@
       "label": "BoardSnapshotRepository",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/BoardService.java",
-      "source_location": "L28",
+      "source_location": "L24",
       "id": "backend_src_main_java_com_visync_service_boardservice_java_boardsnapshotrepository",
       "community": 2,
       "norm_label": "boardsnapshotrepository"
@@ -1861,7 +1726,7 @@
       "label": ".clearBoard()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/BoardService.java",
-      "source_location": "L34",
+      "source_location": "L30",
       "id": "service_boardservice_boardservice_clearboard",
       "community": 2,
       "norm_label": ".clearboard()"
@@ -1870,7 +1735,7 @@
       "label": "String",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/BoardService.java",
-      "source_location": "L34",
+      "source_location": "L30",
       "id": "backend_src_main_java_com_visync_service_boardservice_java_string",
       "community": 2,
       "norm_label": "string"
@@ -1879,7 +1744,7 @@
       "label": ".undoStroke()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/BoardService.java",
-      "source_location": "L42",
+      "source_location": "L36",
       "id": "service_boardservice_boardservice_undostroke",
       "community": 2,
       "norm_label": ".undostroke()"
@@ -1888,7 +1753,7 @@
       "label": ".redoStroke()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/BoardService.java",
-      "source_location": "L72",
+      "source_location": "L60",
       "id": "service_boardservice_boardservice_redostroke",
       "community": 2,
       "norm_label": ".redostroke()"
@@ -1897,7 +1762,7 @@
       "label": "JsonNode",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/BoardService.java",
-      "source_location": "L72",
+      "source_location": "L60",
       "id": "backend_src_main_java_com_visync_service_boardservice_java_jsonnode",
       "community": 2,
       "norm_label": "jsonnode"
@@ -1906,7 +1771,7 @@
       "label": ".compactSnapshot()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/BoardService.java",
-      "source_location": "L145",
+      "source_location": "L130",
       "id": "service_boardservice_boardservice_compactsnapshot",
       "community": 2,
       "norm_label": ".compactsnapshot()"
@@ -1915,7 +1780,7 @@
       "label": ".applyTransformToStroke()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/BoardService.java",
-      "source_location": "L292",
+      "source_location": "L271",
       "id": "service_boardservice_boardservice_applytransformtostroke",
       "community": 2,
       "norm_label": ".applytransformtostroke()"
@@ -1924,7 +1789,7 @@
       "label": "Map",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/BoardService.java",
-      "source_location": "L292",
+      "source_location": "L271",
       "id": "backend_src_main_java_com_visync_service_boardservice_java_map",
       "community": 2,
       "norm_label": "map"
@@ -1933,7 +1798,7 @@
       "label": "Object",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/BoardService.java",
-      "source_location": "L292",
+      "source_location": "L271",
       "id": "backend_src_main_java_com_visync_service_boardservice_java_object",
       "community": 2,
       "norm_label": "object"
@@ -1942,7 +1807,7 @@
       "label": ".cleanOldSnapshots()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/BoardService.java",
-      "source_location": "L305",
+      "source_location": "L283",
       "id": "service_boardservice_boardservice_cleanoldsnapshots",
       "community": 2,
       "norm_label": ".cleanoldsnapshots()"
@@ -1951,7 +1816,7 @@
       "label": "UUID",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/BoardService.java",
-      "source_location": "L305",
+      "source_location": "L283",
       "id": "backend_src_main_java_com_visync_service_boardservice_java_uuid",
       "community": 2,
       "norm_label": "uuid"
@@ -1969,7 +1834,7 @@
       "label": "TokenService",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/TokenService.java",
-      "source_location": "L11",
+      "source_location": "L9",
       "id": "service_tokenservice_tokenservice",
       "community": 4,
       "norm_label": "tokenservice"
@@ -1978,7 +1843,7 @@
       "label": ".TokenService()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/TokenService.java",
-      "source_location": "L18",
+      "source_location": "L15",
       "id": "service_tokenservice_tokenservice_tokenservice",
       "community": 4,
       "norm_label": ".tokenservice()"
@@ -1987,7 +1852,7 @@
       "label": ".generateToken()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/TokenService.java",
-      "source_location": "L31",
+      "source_location": "L26",
       "id": "service_tokenservice_tokenservice_generatetoken",
       "community": 4,
       "norm_label": ".generatetoken()"
@@ -1996,7 +1861,7 @@
       "label": "String",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/TokenService.java",
-      "source_location": "L31",
+      "source_location": "L26",
       "id": "backend_src_main_java_com_visync_service_tokenservice_java_string",
       "community": 4,
       "norm_label": "string"
@@ -2005,7 +1870,7 @@
       "label": ".validateToken()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/TokenService.java",
-      "source_location": "L39",
+      "source_location": "L33",
       "id": "service_tokenservice_tokenservice_validatetoken",
       "community": 4,
       "norm_label": ".validatetoken()"
@@ -2014,7 +1879,7 @@
       "label": ".parseTokenWithoutValidation()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/TokenService.java",
-      "source_location": "L94",
+      "source_location": "L65",
       "id": "service_tokenservice_tokenservice_parsetokenwithoutvalidation",
       "community": 4,
       "norm_label": ".parsetokenwithoutvalidation()"
@@ -2023,7 +1888,7 @@
       "label": ".sign()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/service/TokenService.java",
-      "source_location": "L118",
+      "source_location": "L80",
       "id": "service_tokenservice_tokenservice_sign",
       "community": 4,
       "norm_label": ".sign()"
@@ -2041,7 +1906,7 @@
       "label": "RoomWebSocketHandler",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L27",
+      "source_location": "L25",
       "id": "ws_roomwebsockethandler_roomwebsockethandler",
       "community": 2,
       "norm_label": "roomwebsockethandler"
@@ -2059,7 +1924,7 @@
       "label": ".RoomWebSocketHandler()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L52",
+      "source_location": "L48",
       "id": "ws_roomwebsockethandler_roomwebsockethandler_roomwebsockethandler",
       "community": 2,
       "norm_label": ".roomwebsockethandler()"
@@ -2068,7 +1933,7 @@
       "label": "RoomRepository",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L52",
+      "source_location": "L48",
       "id": "backend_src_main_java_com_visync_ws_roomwebsockethandler_java_roomrepository",
       "community": 2,
       "norm_label": "roomrepository"
@@ -2077,7 +1942,7 @@
       "label": "DrawingEventRepository",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L52",
+      "source_location": "L48",
       "id": "backend_src_main_java_com_visync_ws_roomwebsockethandler_java_drawingeventrepository",
       "community": 2,
       "norm_label": "drawingeventrepository"
@@ -2086,7 +1951,7 @@
       "label": "ChatMessageRepository",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L52",
+      "source_location": "L48",
       "id": "backend_src_main_java_com_visync_ws_roomwebsockethandler_java_chatmessagerepository",
       "community": 2,
       "norm_label": "chatmessagerepository"
@@ -2095,7 +1960,7 @@
       "label": "BoardSnapshotRepository",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L52",
+      "source_location": "L48",
       "id": "backend_src_main_java_com_visync_ws_roomwebsockethandler_java_boardsnapshotrepository",
       "community": 2,
       "norm_label": "boardsnapshotrepository"
@@ -2104,7 +1969,7 @@
       "label": "BoardService",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L52",
+      "source_location": "L48",
       "id": "boardservice",
       "community": 2,
       "norm_label": "boardservice"
@@ -2113,7 +1978,7 @@
       "label": ".afterConnectionEstablished()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L68",
+      "source_location": "L63",
       "id": "ws_roomwebsockethandler_roomwebsockethandler_afterconnectionestablished",
       "community": 2,
       "norm_label": ".afterconnectionestablished()"
@@ -2122,7 +1987,7 @@
       "label": "WebSocketSession",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L68",
+      "source_location": "L63",
       "id": "websocketsession",
       "community": 2,
       "norm_label": "websocketsession"
@@ -2131,7 +1996,7 @@
       "label": "Override",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L68",
+      "source_location": "L63",
       "id": "backend_src_main_java_com_visync_ws_roomwebsockethandler_java_override",
       "community": 2,
       "norm_label": "override"
@@ -2140,7 +2005,7 @@
       "label": ".afterConnectionClosed()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L75",
+      "source_location": "L68",
       "id": "ws_roomwebsockethandler_roomwebsockethandler_afterconnectionclosed",
       "community": 2,
       "norm_label": ".afterconnectionclosed()"
@@ -2149,7 +2014,7 @@
       "label": "CloseStatus",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L75",
+      "source_location": "L68",
       "id": "closestatus",
       "community": 2,
       "norm_label": "closestatus"
@@ -2158,7 +2023,7 @@
       "label": ".handleTextMessage()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L127",
+      "source_location": "L114",
       "id": "ws_roomwebsockethandler_roomwebsockethandler_handletextmessage",
       "community": 2,
       "norm_label": ".handletextmessage()"
@@ -2167,7 +2032,7 @@
       "label": "TextMessage",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L127",
+      "source_location": "L114",
       "id": "textmessage",
       "community": 2,
       "norm_label": "textmessage"
@@ -2176,7 +2041,7 @@
       "label": ".handleUserJoin()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L272",
+      "source_location": "L252",
       "id": "ws_roomwebsockethandler_roomwebsockethandler_handleuserjoin",
       "community": 2,
       "norm_label": ".handleuserjoin()"
@@ -2185,7 +2050,7 @@
       "label": "String",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L272",
+      "source_location": "L252",
       "id": "backend_src_main_java_com_visync_ws_roomwebsockethandler_java_string",
       "community": 2,
       "norm_label": "string"
@@ -2194,7 +2059,7 @@
       "label": "JsonNode",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L272",
+      "source_location": "L252",
       "id": "backend_src_main_java_com_visync_ws_roomwebsockethandler_java_jsonnode",
       "community": 2,
       "norm_label": "jsonnode"
@@ -2203,7 +2068,7 @@
       "label": ".sendActiveUserPresence()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L319",
+      "source_location": "L295",
       "id": "ws_roomwebsockethandler_roomwebsockethandler_sendactiveuserpresence",
       "community": 2,
       "norm_label": ".sendactiveuserpresence()"
@@ -2212,7 +2077,7 @@
       "label": ".persistDrawingEvent()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L351",
+      "source_location": "L326",
       "id": "ws_roomwebsockethandler_roomwebsockethandler_persistdrawingevent",
       "community": 2,
       "norm_label": ".persistdrawingevent()"
@@ -2221,7 +2086,7 @@
       "label": ".retryFailedPersists()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L381",
+      "source_location": "L354",
       "id": "ws_roomwebsockethandler_roomwebsockethandler_retryfailedpersists",
       "community": 2,
       "norm_label": ".retryfailedpersists()"
@@ -2230,7 +2095,7 @@
       "label": ".persistAndBroadcastChatMessage()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L405",
+      "source_location": "L373",
       "id": "ws_roomwebsockethandler_roomwebsockethandler_persistandbroadcastchatmessage",
       "community": 2,
       "norm_label": ".persistandbroadcastchatmessage()"
@@ -2239,7 +2104,7 @@
       "label": ".clearBoardData()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L429",
+      "source_location": "L396",
       "id": "ws_roomwebsockethandler_roomwebsockethandler_clearboarddata",
       "community": 2,
       "norm_label": ".clearboarddata()"
@@ -2248,7 +2113,7 @@
       "label": ".triggerSnapshotCompaction()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L438",
+      "source_location": "L404",
       "id": "ws_roomwebsockethandler_roomwebsockethandler_triggersnapshotcompaction",
       "community": 2,
       "norm_label": ".triggersnapshotcompaction()"
@@ -2257,7 +2122,7 @@
       "label": ".broadcastToRoom()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L448",
+      "source_location": "L414",
       "id": "ws_roomwebsockethandler_roomwebsockethandler_broadcasttoroom",
       "community": 2,
       "norm_label": ".broadcasttoroom()"
@@ -2266,7 +2131,7 @@
       "label": "Object",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L448",
+      "source_location": "L414",
       "id": "backend_src_main_java_com_visync_ws_roomwebsockethandler_java_object",
       "community": 2,
       "norm_label": "object"
@@ -2275,7 +2140,7 @@
       "label": ".extractRoomId()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L483",
+      "source_location": "L445",
       "id": "ws_roomwebsockethandler_roomwebsockethandler_extractroomid",
       "community": 2,
       "norm_label": ".extractroomid()"
@@ -2284,7 +2149,7 @@
       "label": "URI",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L483",
+      "source_location": "L445",
       "id": "uri",
       "community": 2,
       "norm_label": "uri"
@@ -2293,7 +2158,7 @@
       "label": "TokenBucket",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L492",
+      "source_location": "L454",
       "id": "ws_roomwebsockethandler_tokenbucket",
       "community": 2,
       "norm_label": "tokenbucket"
@@ -2302,7 +2167,7 @@
       "label": ".TokenBucket()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L498",
+      "source_location": "L460",
       "id": "ws_roomwebsockethandler_tokenbucket_tokenbucket",
       "community": 2,
       "norm_label": ".tokenbucket()"
@@ -2311,7 +2176,7 @@
       "label": ".tryConsume()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L505",
+      "source_location": "L467",
       "id": "ws_roomwebsockethandler_tokenbucket_tryconsume",
       "community": 2,
       "norm_label": ".tryconsume()"
@@ -2320,7 +2185,7 @@
       "label": ".refill()",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L514",
+      "source_location": "L476",
       "id": "ws_roomwebsockethandler_tokenbucket_refill",
       "community": 2,
       "norm_label": ".refill()"
@@ -2610,7 +2475,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L1",
       "id": "lib_geometry",
-      "community": 28,
+      "community": 1,
       "norm_label": "geometry.ts"
     },
     {
@@ -2619,7 +2484,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L15",
       "id": "lib_geometry_rect",
-      "community": 28,
+      "community": 1,
       "norm_label": "rect"
     },
     {
@@ -2637,7 +2502,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L36",
       "id": "lib_geometry_rotatepoint",
-      "community": 28,
+      "community": 1,
       "norm_label": "rotatepoint()"
     },
     {
@@ -2646,7 +2511,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L51",
       "id": "lib_geometry_rangesoverlap",
-      "community": 28,
+      "community": 1,
       "norm_label": "rangesoverlap()"
     },
     {
@@ -2655,7 +2520,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L58",
       "id": "lib_geometry_recttosegments",
-      "community": 28,
+      "community": 1,
       "norm_label": "recttosegments()"
     },
     {
@@ -2664,7 +2529,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L73",
       "id": "lib_geometry_segmentsintersect",
-      "community": 28,
+      "community": 1,
       "norm_label": "segmentsintersect()"
     },
     {
@@ -2673,7 +2538,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L92",
       "id": "lib_geometry_direction",
-      "community": 28,
+      "community": 1,
       "norm_label": "direction()"
     },
     {
@@ -2682,7 +2547,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L96",
       "id": "lib_geometry_onsegment",
-      "community": 28,
+      "community": 1,
       "norm_label": "onsegment()"
     },
     {
@@ -2691,7 +2556,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L106",
       "id": "lib_geometry_pointinrect",
-      "community": 28,
+      "community": 1,
       "norm_label": "pointinrect()"
     },
     {
@@ -2700,7 +2565,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L113",
       "id": "lib_geometry_segmentinsiderect",
-      "community": 28,
+      "community": 1,
       "norm_label": "segmentinsiderect()"
     },
     {
@@ -2709,7 +2574,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L120",
       "id": "lib_geometry_segmentintersectsorinsiderect",
-      "community": 28,
+      "community": 1,
       "norm_label": "segmentintersectsorinsiderect()"
     },
     {
@@ -2718,7 +2583,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L135",
       "id": "lib_geometry_localtoworld",
-      "community": 28,
+      "community": 1,
       "norm_label": "localtoworld()"
     },
     {
@@ -2727,7 +2592,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L155",
       "id": "lib_geometry_getstrokeworldpoints",
-      "community": 28,
+      "community": 1,
       "norm_label": "getstrokeworldpoints()"
     },
     {
@@ -2736,7 +2601,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L199",
       "id": "lib_geometry_getdistancetosegment",
-      "community": 28,
+      "community": 1,
       "norm_label": "getdistancetosegment()"
     },
     {
@@ -2745,7 +2610,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L224",
       "id": "lib_geometry_segmentsdistance",
-      "community": 28,
+      "community": 1,
       "norm_label": "segmentsdistance()"
     },
     {
@@ -2754,7 +2619,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L248",
       "id": "lib_geometry_lineintersectsrect",
-      "community": 28,
+      "community": 1,
       "norm_label": "lineintersectsrect()"
     },
     {
@@ -2763,7 +2628,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L265",
       "id": "lib_geometry_polylineintersectsrect",
-      "community": 28,
+      "community": 1,
       "norm_label": "polylineintersectsrect()"
     },
     {
@@ -2772,7 +2637,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L292",
       "id": "lib_geometry_shaperectintersectsrect",
-      "community": 28,
+      "community": 1,
       "norm_label": "shaperectintersectsrect()"
     },
     {
@@ -2781,7 +2646,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L354",
       "id": "lib_geometry_circleintersectsrect",
-      "community": 28,
+      "community": 1,
       "norm_label": "circleintersectsrect()"
     },
     {
@@ -2790,7 +2655,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L378",
       "id": "lib_geometry_strokeintersectseraser",
-      "community": 28,
+      "community": 1,
       "norm_label": "strokeintersectseraser()"
     },
     {
@@ -2799,7 +2664,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L489",
       "id": "lib_geometry_strokeintersectsrect",
-      "community": 28,
+      "community": 1,
       "norm_label": "strokeintersectsrect()"
     },
     {
@@ -2808,7 +2673,7 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L508",
       "id": "lib_geometry_getstrokeaabb",
-      "community": 28,
+      "community": 1,
       "norm_label": "getstrokeaabb()"
     },
     {
@@ -2970,7 +2835,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L27",
       "id": "lib_ws_websocketclient",
-      "community": 1,
+      "community": 28,
       "norm_label": "websocketclient"
     },
     {
@@ -2979,7 +2844,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L42",
       "id": "lib_ws_websocketclient_constructor",
-      "community": 1,
+      "community": 28,
       "norm_label": ".constructor()"
     },
     {
@@ -2988,7 +2853,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L48",
       "id": "lib_ws_websocketclient_connect",
-      "community": 1,
+      "community": 28,
       "norm_label": ".connect()"
     },
     {
@@ -2997,7 +2862,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L65",
       "id": "lib_ws_websocketclient_initiatesocket",
-      "community": 1,
+      "community": 28,
       "norm_label": ".initiatesocket()"
     },
     {
@@ -3006,7 +2871,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L131",
       "id": "lib_ws_websocketclient_handleincomingevent",
-      "community": 1,
+      "community": 28,
       "norm_label": ".handleincomingevent()"
     },
     {
@@ -3015,7 +2880,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L281",
       "id": "lib_ws_websocketclient_send",
-      "community": 1,
+      "community": 28,
       "norm_label": ".send()"
     },
     {
@@ -3024,7 +2889,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L289",
       "id": "lib_ws_websocketclient_on",
-      "community": 1,
+      "community": 28,
       "norm_label": ".on()"
     },
     {
@@ -3033,7 +2898,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L296",
       "id": "lib_ws_websocketclient_emit",
-      "community": 1,
+      "community": 28,
       "norm_label": ".emit()"
     },
     {
@@ -3042,7 +2907,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L302",
       "id": "lib_ws_websocketclient_attemptreconnect",
-      "community": 1,
+      "community": 28,
       "norm_label": ".attemptreconnect()"
     },
     {
@@ -3051,7 +2916,7 @@
       "source_file": "frontend/lib/ws.ts",
       "source_location": "L325",
       "id": "lib_ws_websocketclient_close",
-      "community": 1,
+      "community": 28,
       "norm_label": ".close()"
     },
     {
@@ -3724,7 +3589,7 @@
       "label": "3. `BoardSnapshot` Table",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L216",
+      "source_location": "L215",
       "id": "readme_3_boardsnapshot_table",
       "community": 5,
       "norm_label": "3. `boardsnapshot` table"
@@ -3733,7 +3598,7 @@
       "label": "4. `ChatMessage` Table",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L227",
+      "source_location": "L226",
       "id": "readme_4_chatmessage_table",
       "community": 5,
       "norm_label": "4. `chatmessage` table"
@@ -3742,7 +3607,7 @@
       "label": "\ud83d\udee0\ufe0f Local Setup & Configuration",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L242",
+      "source_location": "L241",
       "id": "readme_local_setup_configuration",
       "community": 5,
       "norm_label": "\ud83d\udee0\ufe0f local setup & configuration"
@@ -3751,7 +3616,7 @@
       "label": "Prerequisites",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L246",
+      "source_location": "L245",
       "id": "readme_prerequisites",
       "community": 5,
       "norm_label": "prerequisites"
@@ -3760,7 +3625,7 @@
       "label": "1. Backend Setup (Spring Boot)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L254",
+      "source_location": "L253",
       "id": "readme_1_backend_setup_spring_boot",
       "community": 5,
       "norm_label": "1. backend setup (spring boot)"
@@ -3769,7 +3634,7 @@
       "label": "2. Frontend Setup (Next.js & React)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L292",
+      "source_location": "L291",
       "id": "readme_2_frontend_setup_next_js_react",
       "community": 5,
       "norm_label": "2. frontend setup (next.js & react)"
@@ -3778,7 +3643,7 @@
       "label": "\ud83e\uddea Verification & Testing API Docs",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L319",
+      "source_location": "L318",
       "id": "readme_verification_testing_api_docs",
       "community": 5,
       "norm_label": "\ud83e\uddea verification & testing api docs"
@@ -3787,7 +3652,7 @@
       "label": "REST Endpoints",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L323",
+      "source_location": "L322",
       "id": "readme_rest_endpoints",
       "community": 5,
       "norm_label": "rest endpoints"
@@ -3796,7 +3661,7 @@
       "label": "WebSocket Events Protocol",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L330",
+      "source_location": "L329",
       "id": "readme_websocket_events_protocol",
       "community": 5,
       "norm_label": "websocket events protocol"
@@ -3805,7 +3670,7 @@
       "label": "\ud83d\udca1 Architectural Best Practices",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L350",
+      "source_location": "L349",
       "id": "readme_architectural_best_practices",
       "community": 5,
       "norm_label": "\ud83d\udca1 architectural best practices"
@@ -5467,33 +5332,6 @@
       "norm_label": "recommended immediate next step"
     },
     {
-      "label": "Exception",
-      "file_type": "code",
-      "source_file": "backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java",
-      "source_location": "L59",
-      "community": 4,
-      "norm_label": "exception",
-      "id": "exception"
-    },
-    {
-      "label": "Bean",
-      "file_type": "code",
-      "source_file": "backend/src/main/java/com/visync/config/WebSocketConfig.java",
-      "source_location": "L35",
-      "community": 12,
-      "norm_label": "bean",
-      "id": "bean"
-    },
-    {
-      "label": "ResponseEntity",
-      "file_type": "code",
-      "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L42",
-      "community": 0,
-      "norm_label": "responseentity",
-      "id": "responseentity"
-    },
-    {
       "label": "Map",
       "file_type": "code",
       "source_file": "backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java",
@@ -5506,7 +5344,7 @@
       "label": "Visync README",
       "file_type": "document",
       "source_file": "README.md",
-      "community": 1,
+      "community": 9,
       "norm_label": "visync readme",
       "id": "visync_readme"
     },
@@ -5530,7 +5368,7 @@
       "label": "Realtime Synchronization Model",
       "file_type": "concept",
       "source_file": "README.md",
-      "community": 1,
+      "community": 9,
       "norm_label": "realtime synchronization model",
       "id": "visync_readme_realtime_synchronization"
     },
@@ -5538,7 +5376,7 @@
       "label": "Resolution-Independent Virtual Coordinates",
       "file_type": "concept",
       "source_file": "README.md",
-      "community": 1,
+      "community": 9,
       "norm_label": "resolution-independent virtual coordinates",
       "id": "visync_readme_resolution_independence"
     },
@@ -5554,7 +5392,7 @@
       "label": "Hybrid Snapshot Compaction",
       "file_type": "concept",
       "source_file": "README.md",
-      "community": 1,
+      "community": 9,
       "norm_label": "hybrid snapshot compaction",
       "id": "visync_readme_hybrid_snapshot_compaction"
     },
@@ -5562,7 +5400,7 @@
       "label": "Database Schema Design",
       "file_type": "concept",
       "source_file": "README.md",
-      "community": 10,
+      "community": 9,
       "norm_label": "database schema design",
       "id": "visync_readme_database_schema"
     },
@@ -5742,17 +5580,6 @@
       "confidence_score": 1.0,
       "source": "config_authhandshakeinterceptor",
       "target": "handshakeinterceptor"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java",
-      "source_location": "L12",
-      "weight": 1.0,
-      "source": "config_authhandshakeinterceptor",
-      "target": "httpservletrequest",
-      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -6007,228 +5834,12 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java",
-      "source_location": "L73",
-      "weight": 1.0,
-      "context": "parameter_type",
-      "source": "config_authhandshakeinterceptor_authhandshakeinterceptor_afterhandshake",
-      "target": "backend_src_main_java_com_visync_config_authhandshakeinterceptor_java_exception",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java",
       "source_location": "L59",
       "weight": 1.0,
       "context": "parameter_type",
       "confidence_score": 1.0,
       "source": "config_authhandshakeinterceptor_authhandshakeinterceptor_afterhandshake",
       "target": "exception"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L11",
-      "weight": 1.0,
-      "source": "config_globalexceptionhandler",
-      "target": "backend_src_main_java_com_visync_config_globalexceptionhandler_java_map",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "config_globalexceptionhandler",
-      "target": "backend_src_main_java_com_visync_config_globalexceptionhandler_java_responseentity",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L13",
-      "weight": 1.0,
-      "source": "config_globalexceptionhandler",
-      "target": "config_globalexceptionhandler_globalexceptionhandler",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "config_globalexceptionhandler",
-      "target": "exceptionhandler",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L9",
-      "weight": 1.0,
-      "source": "config_globalexceptionhandler",
-      "target": "httpservletrequest",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L18",
-      "weight": 1.0,
-      "source": "config_globalexceptionhandler_globalexceptionhandler",
-      "target": "config_globalexceptionhandler_globalexceptionhandler_handleallexceptions",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L18",
-      "weight": 1.0,
-      "context": "parameter_type",
-      "source": "config_globalexceptionhandler_globalexceptionhandler_handleallexceptions",
-      "target": "backend_src_main_java_com_visync_config_globalexceptionhandler_java_exception",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L18",
-      "weight": 1.0,
-      "context": "generic_arg",
-      "source": "config_globalexceptionhandler_globalexceptionhandler_handleallexceptions",
-      "target": "backend_src_main_java_com_visync_config_globalexceptionhandler_java_map",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L18",
-      "weight": 1.0,
-      "context": "generic_arg",
-      "source": "config_globalexceptionhandler_globalexceptionhandler_handleallexceptions",
-      "target": "backend_src_main_java_com_visync_config_globalexceptionhandler_java_object",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L18",
-      "weight": 1.0,
-      "context": "return_type",
-      "source": "config_globalexceptionhandler_globalexceptionhandler_handleallexceptions",
-      "target": "backend_src_main_java_com_visync_config_globalexceptionhandler_java_responseentity",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L18",
-      "weight": 1.0,
-      "context": "generic_arg",
-      "source": "config_globalexceptionhandler_globalexceptionhandler_handleallexceptions",
-      "target": "backend_src_main_java_com_visync_config_globalexceptionhandler_java_string",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L18",
-      "weight": 1.0,
-      "context": "attribute",
-      "source": "config_globalexceptionhandler_globalexceptionhandler_handleallexceptions",
-      "target": "exceptionhandler",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/GlobalExceptionHandler.java",
-      "source_location": "L18",
-      "weight": 1.0,
-      "context": "parameter_type",
-      "source": "config_globalexceptionhandler_globalexceptionhandler_handleallexceptions",
-      "target": "httpservletrequest",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/LoggingConfig.java",
-      "source_location": "L3",
-      "weight": 1.0,
-      "source": "config_loggingconfig",
-      "target": "backend_src_main_java_com_visync_config_loggingconfig_java_bean",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/LoggingConfig.java",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "config_loggingconfig",
-      "target": "commonsrequestloggingfilter",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/LoggingConfig.java",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "config_loggingconfig",
-      "target": "config_loggingconfig_loggingconfig",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/LoggingConfig.java",
-      "source_location": "L10",
-      "weight": 1.0,
-      "source": "config_loggingconfig_loggingconfig",
-      "target": "config_loggingconfig_loggingconfig_logfilter",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/LoggingConfig.java",
-      "source_location": "L10",
-      "weight": 1.0,
-      "context": "attribute",
-      "source": "config_loggingconfig_loggingconfig_logfilter",
-      "target": "backend_src_main_java_com_visync_config_loggingconfig_java_bean",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/LoggingConfig.java",
-      "source_location": "L10",
-      "weight": 1.0,
-      "context": "return_type",
-      "source": "config_loggingconfig_loggingconfig_logfilter",
-      "target": "commonsrequestloggingfilter",
-      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -6313,17 +5924,6 @@
       "confidence_score": 1.0,
       "source": "config_roomstartupresetrunner_roomstartupresetrunner_run",
       "target": "backend_src_main_java_com_visync_config_roomstartupresetrunner_java_override"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/WebSocketConfig.java",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "config_websocketconfig",
-      "target": "backend_src_main_java_com_visync_config_websocketconfig_java_bean",
-      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -6489,17 +6089,6 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/src/main/java/com/visync/config/WebSocketConfig.java",
-      "source_location": "L35",
-      "weight": 1.0,
-      "context": "attribute",
-      "source": "config_websocketconfig_websocketconfig_createwebsocketcontainer",
-      "target": "backend_src_main_java_com_visync_config_websocketconfig_java_bean",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/config/WebSocketConfig.java",
       "source_location": "L33",
       "weight": 1.0,
       "context": "attribute",
@@ -6583,17 +6172,6 @@
       "confidence_score": 1.0,
       "source": "controller_roomcontroller",
       "target": "backend_src_main_java_com_visync_controller_roomcontroller_java_list"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L14",
-      "weight": 1.0,
-      "source": "controller_roomcontroller",
-      "target": "backend_src_main_java_com_visync_controller_roomcontroller_java_responseentity",
-      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -6798,17 +6376,6 @@
       "target": "backend_src_main_java_com_visync_controller_roomcontroller_java_tokenservice"
     },
     {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L46",
-      "weight": 1.0,
-      "context": "return_type",
-      "source": "controller_roomcontroller_roomcontroller_createroom",
-      "target": "backend_src_main_java_com_visync_controller_roomcontroller_java_responseentity",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -6878,23 +6445,23 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L60",
+      "source_location": "L53",
       "weight": 1.0,
       "context": "return_type",
+      "confidence_score": 1.0,
       "source": "controller_roomcontroller_roomcontroller_getroom",
-      "target": "backend_src_main_java_com_visync_controller_roomcontroller_java_responseentity",
-      "confidence_score": 1.0
+      "target": "responseentity"
     },
     {
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L74",
+      "source_location": "L60",
       "weight": 1.0,
       "context": "return_type",
+      "confidence_score": 1.0,
       "source": "controller_roomcontroller_roomcontroller_getroomhistory",
-      "target": "backend_src_main_java_com_visync_controller_roomcontroller_java_responseentity",
-      "confidence_score": 1.0
+      "target": "responseentity"
     },
     {
       "relation": "references",
@@ -6944,17 +6511,6 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L53",
-      "weight": 1.0,
-      "context": "return_type",
-      "confidence_score": 1.0,
-      "source": "controller_roomcontroller_roomcontroller_getroom",
-      "target": "responseentity"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
       "source_location": "L60",
       "weight": 1.0,
       "context": "parameter_type",
@@ -6994,17 +6550,6 @@
       "weight": 1.0,
       "source": "controller_roomcontroller_roomcontroller_getroomhistory",
       "target": "repository_boardsnapshotrepository_boardsnapshotrepository_findfirstbyroomidorderbycreatedatdesc"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/src/main/java/com/visync/controller/RoomController.java",
-      "source_location": "L60",
-      "weight": 1.0,
-      "context": "return_type",
-      "confidence_score": 1.0,
-      "source": "controller_roomcontroller_roomcontroller_getroomhistory",
-      "target": "responseentity"
     },
     {
       "relation": "references",
@@ -8094,17 +7639,6 @@
       "source_location": "L314",
       "weight": 1.0,
       "source": "ws_roomwebsockethandler_roomwebsockethandler_persistdrawingevent",
-      "target": "entity_chatmessage_chatmessage_getmessage"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java",
-      "source_location": "L397",
-      "weight": 1.0,
-      "source": "ws_roomwebsockethandler_roomwebsockethandler_retryfailedpersists",
       "target": "entity_chatmessage_chatmessage_getmessage"
     },
     {
@@ -11115,9 +10649,9 @@
       "source_file": "frontend/components/CanvasBoard.tsx",
       "source_location": "L9",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "components_canvasboard",
-      "target": "lib_geometry_segment"
+      "target": "lib_geometry_segment",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -11126,9 +10660,9 @@
       "source_file": "frontend/components/CanvasBoard.tsx",
       "source_location": "L9",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "components_canvasboard",
-      "target": "lib_geometry_strokeintersectseraser"
+      "target": "lib_geometry_strokeintersectseraser",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -11411,9 +10945,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L199",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_getdistancetosegment"
+      "target": "lib_geometry_getdistancetosegment",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -11431,9 +10965,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L155",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_getstrokeworldpoints"
+      "target": "lib_geometry_getstrokeworldpoints",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -11451,9 +10985,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L135",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_localtoworld"
+      "target": "lib_geometry_localtoworld",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -11561,9 +11095,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L224",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_segmentsdistance"
+      "target": "lib_geometry_segmentsdistance",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -11591,9 +11125,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L378",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "lib_geometry",
-      "target": "lib_geometry_strokeintersectseraser"
+      "target": "lib_geometry_strokeintersectseraser",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -11656,9 +11190,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L146",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "lib_geometry_localtoworld",
-      "target": "lib_geometry_rotatepoint"
+      "target": "lib_geometry_rotatepoint",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11667,9 +11201,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L458",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "lib_geometry_strokeintersectseraser",
-      "target": "lib_geometry_rotatepoint"
+      "target": "lib_geometry_rotatepoint",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11700,9 +11234,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L225",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "lib_geometry_segmentsdistance",
-      "target": "lib_geometry_segmentsintersect"
+      "target": "lib_geometry_segmentsintersect",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11777,9 +11311,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L460",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "lib_geometry_strokeintersectseraser",
-      "target": "lib_geometry_pointinrect"
+      "target": "lib_geometry_pointinrect",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11810,9 +11344,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L249",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "lib_geometry_lineintersectsrect",
-      "target": "lib_geometry_getstrokeworldpoints"
+      "target": "lib_geometry_getstrokeworldpoints",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11821,9 +11355,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L266",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "lib_geometry_polylineintersectsrect",
-      "target": "lib_geometry_getstrokeworldpoints"
+      "target": "lib_geometry_getstrokeworldpoints",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11832,9 +11366,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L294",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "lib_geometry_shaperectintersectsrect",
-      "target": "lib_geometry_getstrokeworldpoints"
+      "target": "lib_geometry_getstrokeworldpoints",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11843,9 +11377,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L400",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "lib_geometry_strokeintersectseraser",
-      "target": "lib_geometry_getstrokeworldpoints"
+      "target": "lib_geometry_getstrokeworldpoints",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11854,9 +11388,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L235",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "lib_geometry_segmentsdistance",
-      "target": "lib_geometry_getdistancetosegment"
+      "target": "lib_geometry_getdistancetosegment",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11865,9 +11399,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L403",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "lib_geometry_strokeintersectseraser",
-      "target": "lib_geometry_getdistancetosegment"
+      "target": "lib_geometry_getdistancetosegment",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11876,9 +11410,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L412",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "lib_geometry_strokeintersectseraser",
-      "target": "lib_geometry_segmentsdistance"
+      "target": "lib_geometry_segmentsdistance",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11931,9 +11465,9 @@
       "source_file": "frontend/lib/geometry.ts",
       "source_location": "L379",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "lib_geometry_strokeintersectseraser",
-      "target": "lib_geometry_getstrokeaabb"
+      "target": "lib_geometry_getstrokeaabb",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -14897,5 +14431,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "8e6b86bef260ab60f60579f5825663d3bfe0869a"
+  "built_at_commit": "a609c2ffcb50aab209a48cc8cb2449b590869d82"
 }

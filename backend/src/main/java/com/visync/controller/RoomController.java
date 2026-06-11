@@ -1,5 +1,7 @@
 package com.visync.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.visync.entity.BoardSnapshot;
 import com.visync.entity.ChatMessage;
 import com.visync.entity.DrawingEvent;
@@ -21,6 +23,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/rooms")
 public class RoomController {
 
+    private static final Logger logger = LoggerFactory.getLogger(RoomController.class);
+
     private final RoomRepository roomRepository;
     private final DrawingEventRepository drawingEventRepository;
     private final BoardSnapshotRepository boardSnapshotRepository;
@@ -41,28 +45,40 @@ public class RoomController {
 
     @PostMapping
     public ResponseEntity<Room> createRoom(@RequestBody CreateRoomRequest request) {
+        logger.info("REST request to create room with name={}, createdBy={}", request.getName(), request.getCreatedBy());
         if (request.getName() == null || request.getName().trim().isEmpty()) {
+            logger.warn("Create room failed: Room name is missing or empty.");
             return ResponseEntity.badRequest().build();
         }
         String creator = request.getCreatedBy() != null ? request.getCreatedBy().trim() : "Guest";
         Room room = new Room(request.getName().trim(), creator);
         Room savedRoom = roomRepository.save(room);
+        logger.info("Room created successfully. RoomId={}, name={}", savedRoom.getId(), savedRoom.getName());
         return ResponseEntity.ok(savedRoom);
     }
 
     @GetMapping("/{roomId}")
     public ResponseEntity<Room> getRoom(@PathVariable UUID roomId) {
+        logger.debug("REST request to get room with id={}", roomId);
         return roomRepository.findById(roomId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .map(room -> {
+                    logger.debug("Room found: RoomId={}", roomId);
+                    return ResponseEntity.ok(room);
+                })
+                .orElseGet(() -> {
+                    logger.warn("Room not found: RoomId={}", roomId);
+                    return ResponseEntity.notFound().build();
+                });
     }
 
     @GetMapping("/{roomId}/history")
     public ResponseEntity<RoomHistoryResponse> getRoomHistory(
             @PathVariable UUID roomId,
             @RequestParam("userId") String userId) {
+        logger.debug("REST request to get room history for roomId={}, userId={}", roomId, userId);
         Optional<Room> roomOpt = roomRepository.findById(roomId);
         if (roomOpt.isEmpty()) {
+            logger.warn("Room history request failed: Room not found. RoomId={}", roomId);
             return ResponseEntity.notFound().build();
         }
 
@@ -70,22 +86,27 @@ public class RoomController {
         Optional<BoardSnapshot> latestSnapshotOpt = boardSnapshotRepository
                 .findFirstByRoomIdOrderByCreatedAtDesc(roomId);
         String snapshotState = latestSnapshotOpt.map(BoardSnapshot::getBoardState).orElse("[]");
+        logger.debug("Fetched room history snapshot state length={} for roomId={}", snapshotState.length(), roomId);
 
         // Fetch all chronological drawing events. 
         // The compaction process already deletes events that are included in the snapshot, 
         // so whatever is left in the DB MUST be sent to the client, regardless of timestamp.
         List<DrawingEvent> recentEvents = drawingEventRepository.findByRoomIdOrderByTimestampAsc(roomId);
+        logger.debug("Fetched {} recent drawing events for roomId={}", recentEvents.size(), roomId);
 
         // Fetch all chat messages in chronological order
         List<ChatMessage> chatHistory = chatMessageRepository.findByRoomIdOrderByTimestampAsc(roomId);
+        logger.debug("Fetched {} chat messages for roomId={}", chatHistory.size(), roomId);
 
         // Generate token for WebSocket connection authentication
         String wsToken = tokenService.generateToken(userId, roomId.toString());
+        logger.debug("Generated WebSocket auth token for userId={}, roomId={}", userId, roomId);
 
         return ResponseEntity.ok(new RoomHistoryResponse(snapshotState, recentEvents, chatHistory, wsToken));
     }
 
     // DTO Static Classes
+
     public static class CreateRoomRequest {
         private String name;
         private String createdBy;

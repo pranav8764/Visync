@@ -15,9 +15,9 @@
     "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/backend/src/main/java/com/visync/config/AuthHandshakeInterceptor.java": {
-    "mtime": 1781208264.33464,
-    "ast_hash": "fc1c84ea2debc39e23d4083d1b0ef622",
-    "semantic_hash": ""
+    "mtime": 1780480153.106965,
+    "ast_hash": "4e7c7b9e26505c70d5ff80a07aa2dc44",
+    "semantic_hash": "4e7c7b9e26505c70d5ff80a07aa2dc44"
   },
   "/Users/pranavsinghrajoria/Documents/Visync/backend/src/main/java/com/visync/config/RoomStartupResetRunner.java": {
     "mtime": 1780480230.4625866,
@@ -30,9 +30,9 @@
     "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/backend/src/main/java/com/visync/controller/RoomController.java": {
-    "mtime": 1781208284.7632415,
-    "ast_hash": "1ed93954cc30ebc25e811e4b78acb8a0",
-    "semantic_hash": ""
+    "mtime": 1780482495.2565286,
+    "ast_hash": "27e580825942816445aa086167dad5c0",
+    "semantic_hash": "27e580825942816445aa086167dad5c0"
   },
   "/Users/pranavsinghrajoria/Documents/Visync/backend/src/main/java/com/visync/entity/BoardSnapshot.java": {
     "mtime": 1780480182.1012993,
@@ -75,24 +75,24 @@
     "semantic_hash": "3f046745d4b3076459534c3992662f62"
   },
   "/Users/pranavsinghrajoria/Documents/Visync/backend/src/main/java/com/visync/service/BoardService.java": {
-    "mtime": 1781207580.9088683,
-    "ast_hash": "3747e2871ae3b62ed087966e87915ef8",
+    "mtime": 1781038751.7129366,
+    "ast_hash": "8f3637da222ab692796f95eb75505aaf",
     "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/backend/src/main/java/com/visync/service/TokenService.java": {
-    "mtime": 1781207538.8473067,
-    "ast_hash": "ea95eef32de32b651f56464567b1f731",
+    "mtime": 1780860589.62608,
+    "ast_hash": "d1bacf00beb9b3c9811fc594ba395292",
     "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/backend/src/main/java/com/visync/ws/RoomWebSocketHandler.java": {
-    "mtime": 1781208242.7197762,
-    "ast_hash": "0dd422f9ea047d55337a8805f0f542e7",
+    "mtime": 1781034440.8847017,
+    "ast_hash": "5b56ec2b66bb2e9a269ad7d86c6a5d4b",
     "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/backend/src/test/java/com/visync/backend/BackendApplicationTests.java": {
-    "mtime": 1781207636.8698018,
-    "ast_hash": "e48ca66fcd3acb63ced98b1dcb889ede",
-    "semantic_hash": ""
+    "mtime": 1779647144.1319838,
+    "ast_hash": "60cd9ff8171bc79e94e9ba61bd6559a7",
+    "semantic_hash": "60cd9ff8171bc79e94e9ba61bd6559a7"
   },
   "/Users/pranavsinghrajoria/Documents/Visync/frontend/app/layout.tsx": {
     "mtime": 1780860607.032592,
@@ -130,8 +130,8 @@
     "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/frontend/next-env.d.ts": {
-    "mtime": 1781208035.828931,
-    "ast_hash": "d0f8375ae1199dc7acd3977fc33b78b8",
+    "mtime": 1781176971.2407465,
+    "ast_hash": "2a74d3909800ca5467fa83b0ab4a4890",
     "semantic_hash": ""
   },
   "/Users/pranavsinghrajoria/Documents/Visync/frontend/next.config.ts": {
@@ -227,16 +227,6 @@
   "/Users/pranavsinghrajoria/Documents/Visync/frontend/lib/viewport.ts": {
     "mtime": 1780559010.0002825,
     "ast_hash": "cbf34e01c0b877aa1ce05837890b9e8e",
-    "semantic_hash": ""
-  },
-  "/Users/pranavsinghrajoria/Documents/Visync/backend/src/main/java/com/visync/config/GlobalExceptionHandler.java": {
-    "mtime": 1781207527.388747,
-    "ast_hash": "af6e1227ae15f786342574ecb9929d24",
-    "semantic_hash": ""
-  },
-  "/Users/pranavsinghrajoria/Documents/Visync/backend/src/main/java/com/visync/config/LoggingConfig.java": {
-    "mtime": 1781207512.1969655,
-    "ast_hash": "fd26c84682a2c7eb3fabb6e6b727f89f",
     "semantic_hash": ""
   }
 }
