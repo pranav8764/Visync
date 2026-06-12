@@ -11,6 +11,7 @@ import com.visync.repository.ChatMessageRepository;
 import com.visync.repository.DrawingEventRepository;
 import com.visync.repository.RoomRepository;
 import com.visync.service.TokenService;
+import com.visync.service.BoardService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,18 +31,22 @@ public class RoomController {
     private final BoardSnapshotRepository boardSnapshotRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final TokenService tokenService;
+    private final BoardService boardService;
 
     public RoomController(RoomRepository roomRepository,
             DrawingEventRepository drawingEventRepository,
             BoardSnapshotRepository boardSnapshotRepository,
             ChatMessageRepository chatMessageRepository,
-            TokenService tokenService) {
+            TokenService tokenService,
+            BoardService boardService) {
         this.roomRepository = roomRepository;
         this.drawingEventRepository = drawingEventRepository;
         this.boardSnapshotRepository = boardSnapshotRepository;
         this.chatMessageRepository = chatMessageRepository;
         this.tokenService = tokenService;
+        this.boardService = boardService;
     }
+
 
     @PostMapping
     public ResponseEntity<Room> createRoom(@RequestBody CreateRoomRequest request) {
@@ -88,10 +93,8 @@ public class RoomController {
         String snapshotState = latestSnapshotOpt.map(BoardSnapshot::getBoardState).orElse("[]");
         logger.debug("Fetched room history snapshot state length={} for roomId={}", snapshotState.length(), roomId);
 
-        // Fetch all chronological drawing events. 
-        // The compaction process already deletes events that are included in the snapshot, 
-        // so whatever is left in the DB MUST be sent to the client, regardless of timestamp.
-        List<DrawingEvent> recentEvents = drawingEventRepository.findByRoomIdOrderByTimestampAsc(roomId);
+        // Fetch all chronological drawing events (merging Postgres and the active memory buffer).
+        List<DrawingEvent> recentEvents = boardService.getRecentEvents(roomId);
         logger.debug("Fetched {} recent drawing events for roomId={}", recentEvents.size(), roomId);
 
         // Fetch all chat messages in chronological order

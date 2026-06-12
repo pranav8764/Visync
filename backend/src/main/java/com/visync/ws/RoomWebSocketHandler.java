@@ -41,8 +41,6 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
     private final ConcurrentMap<String, String> sessionRoomIds = new ConcurrentHashMap<>(); // sessionId -> roomId
 
     private final ConcurrentMap<String, TokenBucket> sessionRateLimiters = new ConcurrentHashMap<>();
-    private final Queue<DrawingEvent> fallbackQueue = new ConcurrentLinkedQueue<>();
-    private final ScheduledExecutorService fallbackScheduler = Executors.newSingleThreadScheduledExecutor();
     
     // Dedicated executor for blocking database operations to prevent latency
     private final ExecutorService dbExecutor = Executors.newFixedThreadPool(32);
@@ -60,9 +58,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         this.boardSnapshotRepository = boardSnapshotRepository;
         this.boardService = boardService;
 
-        // Schedule periodic database outage fallback queue flushing
-        this.fallbackScheduler.scheduleAtFixedRate(this::retryFailedPersists, 5, 5, TimeUnit.SECONDS);
-        logger.info("RoomWebSocketHandler initialized with fallback scheduler running every 5 seconds.");
+        logger.info("RoomWebSocketHandler initialized.");
     }
 
     @Override
@@ -89,18 +85,12 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                 if (set.isEmpty()) {
                     rooms.remove(roomId);
                     final String emptyRoomId = roomId;
-                    logger.info("Room {} is now empty. Starting async snapshot compaction and setting room inactive.", emptyRoomId);
+                    logger.info("Room {} is now empty. Starting async snapshot compaction.", emptyRoomId);
                     CompletableFuture.runAsync(() -> {
                         try {
                             boardService.compactSnapshot(emptyRoomId, true);
-                            UUID rId = UUID.fromString(emptyRoomId);
-                            roomRepository.findById(rId).ifPresent(room -> {
-                                room.setActive(false);
-                                roomRepository.save(room);
-                                logger.info("Room {} successfully set to inactive.", emptyRoomId);
-                            });
                         } catch (Exception e) {
-                            logger.error("Failed to set room inactive/compact on close for RoomId {}: ", emptyRoomId, e);
+                            logger.error("Failed to compact on close for RoomId {}: ", emptyRoomId, e);
                         }
                     }, dbExecutor);
                 }
@@ -182,36 +172,22 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                 broadcastToRoom(roomId, session.getId(), rootNode);
 
                 if (!eventType.equals("DRAW_MOVE")) {
-                    final String currentRoomId = roomId;
-                    final String currentUserId = userId;
-                    final String currentEventType = eventType;
-                    final JsonNode currentPayloadNode = payloadNode;
-                    final long currentTimestamp = timestamp;
-                    CompletableFuture.runAsync(() -> {
-                        persistDrawingEvent(currentRoomId, currentUserId, currentEventType, currentPayloadNode,
-                                currentTimestamp);
-                    }, dbExecutor);
-                }
-
-                if (eventType.equals("DRAW_END")) {
-                    triggerSnapshotCompaction(roomId);
+                    try {
+                        boardService.bufferDrawingEvent(roomId, userId, eventType, objectMapper.writeValueAsString(payloadNode), timestamp);
+                    } catch (Exception e) {
+                        logger.error("Failed to buffer drawing event for roomId={}: ", roomId, e);
+                    }
                 }
                 break;
             case "OBJECT_TRANSFORM":
             case "OBJECT_DUPLICATE":
+            case "OBJECT_DELETE":
                 broadcastToRoom(roomId, session.getId(), rootNode);
-                
-                final String objRoomId = roomId;
-                final String objUserId = userId;
-                final String objEventType = eventType;
-                final JsonNode objPayloadNode = payloadNode;
-                final long objTimestamp = timestamp;
-                CompletableFuture.runAsync(() -> {
-                    persistDrawingEvent(objRoomId, objUserId, objEventType, objPayloadNode,
-                            objTimestamp);
-                }, dbExecutor);
-                
-                triggerSnapshotCompaction(roomId);
+                try {
+                    boardService.bufferDrawingEvent(roomId, userId, eventType, objectMapper.writeValueAsString(payloadNode), timestamp);
+                } catch (Exception e) {
+                    logger.error("Failed to buffer object event type={} for roomId={}: ", eventType, roomId, e);
+                }
                 break;
             case "CHAT_MESSAGE":
                 persistAndBroadcastChatMessage(roomId, userId, rootNode, payloadNode, timestamp, session.getId());
@@ -283,22 +259,6 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         logger.info("User joined room: SessionId={}, RoomId={}, UserId={}, Username={}", 
                 session.getId(), roomId, userId, username);
 
-        final String joinedRoomId = roomId;
-        CompletableFuture.runAsync(() -> {
-            try {
-                UUID rId = UUID.fromString(joinedRoomId);
-                roomRepository.findById(rId).ifPresent(room -> {
-                    if (!room.isActive()) {
-                        room.setActive(true);
-                        roomRepository.save(room);
-                        logger.info("Room {} activated on user join.", joinedRoomId);
-                    }
-                });
-            } catch (Exception e) {
-                logger.error("Failed to reactivate room {} on user join: ", joinedRoomId, e);
-            }
-        }, dbExecutor);
-
         // Broadcast join event
         Map<String, Object> joinEvent = new HashMap<>();
         joinEvent.put("eventType", "USER_JOIN");
@@ -348,59 +308,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    private void persistDrawingEvent(String roomId, String userId, String eventType, JsonNode payloadNode,
-            long timestamp) {
-        try {
-            UUID rId = UUID.fromString(roomId);
-            String payloadStr = objectMapper.writeValueAsString(payloadNode);
-            String strokeId = (payloadNode != null && payloadNode.has("strokeId")) 
-                    ? payloadNode.get("strokeId").asText() 
-                    : null;
-            DrawingEvent event = new DrawingEvent(rId, userId, eventType, payloadStr, timestamp);
-            event.setStrokeId(strokeId);
-            drawingEventRepository.save(event);
-            logger.trace("Successfully persisted DrawingEvent eventType={} for roomId={}", eventType, roomId);
-        } catch (Exception e) {
-            logger.warn("Failed to save drawing event, enqueuing to fallback queue for roomId={}: {}", roomId, e.getMessage());
-            try {
-                UUID rId = UUID.fromString(roomId);
-                String payloadStr = objectMapper.writeValueAsString(payloadNode);
-                String strokeId = (payloadNode != null && payloadNode.has("strokeId")) 
-                        ? payloadNode.get("strokeId").asText() 
-                        : null;
-                DrawingEvent event = new DrawingEvent(rId, userId, eventType, payloadStr, timestamp);
-                event.setStrokeId(strokeId);
-                fallbackQueue.add(event);
-                logger.info("Successfully enqueued event to fallback queue. Current queue size={}", fallbackQueue.size());
-            } catch (Exception ex) {
-                logger.error("Fatal: failed to enqueue fallback event for roomId={}: ", roomId, ex);
-            }
-        }
-    }
 
-    private void retryFailedPersists() {
-        if (fallbackQueue.isEmpty()) return;
-        logger.info("Database fallback queue has {} pending drawing events. Retrying...", fallbackQueue.size());
-        List<DrawingEvent> toRetry = new ArrayList<>();
-        DrawingEvent ev;
-        while ((ev = fallbackQueue.poll()) != null) {
-            toRetry.add(ev);
-        }
-
-        int successCount = 0;
-        for (DrawingEvent event : toRetry) {
-            try {
-                drawingEventRepository.save(event);
-                successCount++;
-            } catch (Exception e) {
-                fallbackQueue.add(event);
-                logger.warn("Database still unreachable. Re-enqueued event: {}, reason: {}", event.getId(), e.getMessage());
-            }
-        }
-        if (successCount > 0) {
-            logger.info("Successfully flushed {} events from fallback queue.", successCount);
-        }
-    }
 
     private void persistAndBroadcastChatMessage(String roomId, String userId, JsonNode originalMsg,
             JsonNode payloadNode, long timestamp, String senderSessionId) {
@@ -435,15 +343,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    private void triggerSnapshotCompaction(String roomId) {
-        CompletableFuture.runAsync(() -> {
-            try {
-                boardService.compactSnapshot(roomId);
-            } catch (Exception e) {
-                logger.error("Failed to run snapshot compaction for roomId={}: ", roomId, e);
-            }
-        }, dbExecutor);
-    }
+
 
     private void broadcastToRoom(String roomId, String senderSessionId, Object messageObj) {
         Set<WebSocketSession> set = rooms.getOrDefault(roomId, Collections.emptySet());

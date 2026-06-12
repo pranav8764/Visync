@@ -13,6 +13,8 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,11 +27,36 @@ public class BoardService {
     private final BoardSnapshotRepository boardSnapshotRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    private final ConcurrentMap<String, List<DrawingEvent>> roomEventsBuffer = new ConcurrentHashMap<>();
+
     public BoardService(DrawingEventRepository drawingEventRepository,
             BoardSnapshotRepository boardSnapshotRepository) {
         this.drawingEventRepository = drawingEventRepository;
         this.boardSnapshotRepository = boardSnapshotRepository;
     }
+
+    public void bufferDrawingEvent(String roomId, String userId, String eventType, String payloadStr, long timestamp) {
+        UUID rId = UUID.fromString(roomId);
+        DrawingEvent event = new DrawingEvent(rId, userId, eventType, payloadStr, timestamp);
+        roomEventsBuffer.computeIfAbsent(roomId, k -> Collections.synchronizedList(new ArrayList<>())).add(event);
+        logger.trace("Buffered drawing event type={} for roomId={}", eventType, roomId);
+    }
+
+    public List<DrawingEvent> getRecentEvents(UUID roomId) {
+        List<DrawingEvent> dbEvents = drawingEventRepository.findByRoomIdOrderByTimestampAsc(roomId);
+        List<DrawingEvent> bufferedEvents = roomEventsBuffer.get(roomId.toString());
+        if (bufferedEvents != null && !bufferedEvents.isEmpty()) {
+            List<DrawingEvent> combined = new ArrayList<>(dbEvents);
+            synchronized (bufferedEvents) {
+                combined.addAll(bufferedEvents);
+            }
+            logger.debug("Merging room history: dbEvents={}, bufferedEvents={} for roomId={}", 
+                    dbEvents.size(), bufferedEvents.size(), roomId);
+            return combined;
+        }
+        return dbEvents;
+    }
+
 
     public void clearBoard(String roomId) {
         logger.info("Clearing board drawing events and snapshots for roomId={}", roomId);
@@ -148,6 +175,38 @@ public class BoardService {
 
     public void compactSnapshot(String roomId, boolean force) {
         UUID rId = UUID.fromString(roomId);
+
+        // 1. Flush in-memory buffered events to database
+        List<DrawingEvent> bufferedEvents = roomEventsBuffer.get(roomId);
+        if (bufferedEvents != null) {
+            List<DrawingEvent> toSave = null;
+            synchronized (bufferedEvents) {
+                if (!bufferedEvents.isEmpty()) {
+                    toSave = new ArrayList<>(bufferedEvents);
+                }
+            }
+            if (toSave != null && !toSave.isEmpty()) {
+                try {
+                    drawingEventRepository.saveAll(toSave);
+                    logger.info("Flushed {} buffered drawing events to Postgres for roomId={}", toSave.size(), roomId);
+                    synchronized (bufferedEvents) {
+                        bufferedEvents.removeAll(toSave);
+                    }
+                } catch (Exception e) {
+                    logger.error("Failed to flush buffered drawing events to database for roomId={}: ", roomId, e);
+                    // Do not clear the buffer or continue snapshot compaction, keep them in memory to retry next time
+                    return;
+                }
+            }
+            // Clean up empty buffers to save memory
+            synchronized (bufferedEvents) {
+                if (bufferedEvents.isEmpty()) {
+                    roomEventsBuffer.remove(roomId);
+                }
+            }
+        }
+
+        // 2. Fetch all events from the database
         List<DrawingEvent> allEvents = drawingEventRepository.findByRoomIdOrderByTimestampAsc(rId);
 
         if (allEvents.isEmpty()) {
@@ -312,6 +371,20 @@ public class BoardService {
             }
         } catch (Exception ex) {
             logger.error("Failed to clean up old board snapshots for roomId={}: ", roomId, ex);
+        }
+    }
+
+    @org.springframework.scheduling.annotation.Scheduled(fixedRate = 10000)
+    public void flushAndCompactAllRooms() {
+        if (roomEventsBuffer.isEmpty()) return;
+
+        logger.info("Background task: Flushing and compacting active rooms. Active buffer count: {}", roomEventsBuffer.size());
+        for (String roomId : roomEventsBuffer.keySet()) {
+            try {
+                compactSnapshot(roomId, false);
+            } catch (Exception e) {
+                logger.error("Failed background flush and compaction for roomId={}: ", roomId, e);
+            }
         }
     }
 }
