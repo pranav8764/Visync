@@ -42,8 +42,13 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
 
     private final ConcurrentMap<String, TokenBucket> sessionRateLimiters = new ConcurrentHashMap<>();
     
-    // Dedicated executor for blocking database operations to prevent latency
-    private final ExecutorService dbExecutor = Executors.newFixedThreadPool(32);
+    // Bounded executor for blocking database operations.
+    // Using CallerRunsPolicy to apply backpressure instead of an unbounded queue that leaks memory.
+    private final ExecutorService dbExecutor = new java.util.concurrent.ThreadPoolExecutor(
+            4, 8, 60L, java.util.concurrent.TimeUnit.SECONDS,
+            new java.util.concurrent.LinkedBlockingQueue<>(200),
+            new java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy()
+    );
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -79,21 +84,28 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                 session.getId(), status, roomId, userId, username);
 
         if (roomId != null) {
-            Set<WebSocketSession> set = rooms.get(roomId);
-            if (set != null) {
+            // Atomic check-and-remove: prevents a race where a concurrent join adds
+            // a session between isEmpty() and rooms.remove(), orphaning the new session.
+            final boolean[] roomBecameEmpty = {false};
+            rooms.computeIfPresent(roomId, (key, set) -> {
                 set.remove(session);
                 if (set.isEmpty()) {
-                    rooms.remove(roomId);
-                    final String emptyRoomId = roomId;
-                    logger.info("Room {} is now empty. Starting async snapshot compaction.", emptyRoomId);
-                    CompletableFuture.runAsync(() -> {
-                        try {
-                            boardService.compactSnapshot(emptyRoomId, true);
-                        } catch (Exception e) {
-                            logger.error("Failed to compact on close for RoomId {}: ", emptyRoomId, e);
-                        }
-                    }, dbExecutor);
+                    roomBecameEmpty[0] = true;
+                    return null; // atomically removes the key from the map
                 }
+                return set;
+            });
+
+            if (roomBecameEmpty[0]) {
+                final String emptyRoomId = roomId;
+                logger.info("Room {} is now empty. Starting async snapshot compaction.", emptyRoomId);
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        boardService.compactSnapshot(emptyRoomId, true);
+                    } catch (Exception e) {
+                        logger.error("Failed to compact on close for RoomId {}: ", emptyRoomId, e);
+                    }
+                }, dbExecutor);
             }
 
             // Broadcast USER_LEAVE if the user had completed JOIN

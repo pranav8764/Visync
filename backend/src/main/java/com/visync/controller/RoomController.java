@@ -12,9 +12,12 @@ import com.visync.repository.DrawingEventRepository;
 import com.visync.repository.RoomRepository;
 import com.visync.service.TokenService;
 import com.visync.service.BoardService;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -97,8 +100,9 @@ public class RoomController {
         List<DrawingEvent> recentEvents = boardService.getRecentEvents(roomId);
         logger.debug("Fetched {} recent drawing events for roomId={}", recentEvents.size(), roomId);
 
-        // Fetch all chat messages in chronological order
-        List<ChatMessage> chatHistory = chatMessageRepository.findByRoomIdOrderByTimestampAsc(roomId);
+        // Fetch the most recent 200 chat messages (newest-first), then reverse to chronological order
+        List<ChatMessage> chatHistory = new ArrayList<>(chatMessageRepository.findByRoomIdOrderByTimestampDesc(roomId, PageRequest.of(0, 200)));
+        Collections.reverse(chatHistory);
         logger.debug("Fetched {} chat messages for roomId={}", chatHistory.size(), roomId);
 
         // Generate token for WebSocket connection authentication

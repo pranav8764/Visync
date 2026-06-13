@@ -6,6 +6,8 @@ import com.visync.entity.BoardSnapshot;
 import com.visync.entity.DrawingEvent;
 import com.visync.repository.BoardSnapshotRepository;
 import com.visync.repository.DrawingEventRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.JsonNode;
@@ -29,6 +31,12 @@ public class BoardService {
 
     private final ConcurrentMap<String, List<DrawingEvent>> roomEventsBuffer = new ConcurrentHashMap<>();
 
+    // Self-injection to ensure @Scheduled -> compactSnapshot() goes through the Spring proxy,
+    // so @Transactional is respected (direct this.compactSnapshot() bypasses AOP).
+    @Lazy
+    @Autowired
+    private BoardService self;
+
     public BoardService(DrawingEventRepository drawingEventRepository,
             BoardSnapshotRepository boardSnapshotRepository) {
         this.drawingEventRepository = drawingEventRepository;
@@ -38,8 +46,19 @@ public class BoardService {
     public void bufferDrawingEvent(String roomId, String userId, String eventType, String payloadStr, long timestamp) {
         UUID rId = UUID.fromString(roomId);
         DrawingEvent event = new DrawingEvent(rId, userId, eventType, payloadStr, timestamp);
+
+        // Extract strokeId from the payload so undo/delete queries can match on it
+        try {
+            JsonNode payloadNode = objectMapper.readTree(payloadStr);
+            if (payloadNode != null && payloadNode.has("strokeId")) {
+                event.setStrokeId(payloadNode.get("strokeId").asText());
+            }
+        } catch (Exception e) {
+            logger.warn("Failed to extract strokeId from payload for roomId={}: {}", roomId, e.getMessage());
+        }
+
         roomEventsBuffer.computeIfAbsent(roomId, k -> Collections.synchronizedList(new ArrayList<>())).add(event);
-        logger.trace("Buffered drawing event type={} for roomId={}", eventType, roomId);
+        logger.trace("Buffered drawing event type={} for roomId={}, strokeId={}", eventType, roomId, event.getStrokeId());
     }
 
     public List<DrawingEvent> getRecentEvents(UUID roomId) {
@@ -61,6 +80,8 @@ public class BoardService {
     public void clearBoard(String roomId) {
         logger.info("Clearing board drawing events and snapshots for roomId={}", roomId);
         UUID rId = UUID.fromString(roomId);
+        // Clear the in-memory buffer first so stale events don't get flushed back to DB
+        roomEventsBuffer.remove(roomId);
         drawingEventRepository.deleteByRoomId(rId);
         boardSnapshotRepository.deleteByRoomId(rId);
         logger.info("Cleared board successfully for roomId={}", roomId);
@@ -381,7 +402,8 @@ public class BoardService {
         logger.info("Background task: Flushing and compacting active rooms. Active buffer count: {}", roomEventsBuffer.size());
         for (String roomId : roomEventsBuffer.keySet()) {
             try {
-                compactSnapshot(roomId, false);
+                // Call through the proxy so @Transactional is respected
+                self.compactSnapshot(roomId, false);
             } catch (Exception e) {
                 logger.error("Failed background flush and compaction for roomId={}: ", roomId, e);
             }
