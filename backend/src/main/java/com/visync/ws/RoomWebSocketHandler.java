@@ -9,9 +9,11 @@ import com.visync.entity.ChatMessage;
 import com.visync.repository.ChatMessageRepository;
 import com.visync.service.BoardService;
 import org.springframework.stereotype.Component;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import jakarta.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
@@ -33,7 +35,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
     
     // Bounded executor for blocking database operations.
     // Using CallerRunsPolicy to apply backpressure instead of an unbounded queue that leaks memory.
-    private final ExecutorService dbExecutor = new java.util.concurrent.ThreadPoolExecutor(
+    private final ThreadPoolExecutor dbExecutor = new ThreadPoolExecutor(
             4, 8, 60L, java.util.concurrent.TimeUnit.SECONDS,
             new java.util.concurrent.LinkedBlockingQueue<>(200),
             new java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy()
@@ -41,10 +43,10 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
 
     // Board mutations are serialized so DRAW_END, transform, undo, and redo
     // reach storage in exactly the same order as their WebSocket messages.
-    private final ExecutorService boardPersistenceExecutor = new java.util.concurrent.ThreadPoolExecutor(
+    private final ThreadPoolExecutor boardPersistenceExecutor = new ThreadPoolExecutor(
             1, 1, 0L, java.util.concurrent.TimeUnit.MILLISECONDS,
-            new java.util.concurrent.LinkedBlockingQueue<>(2000),
-            new java.util.concurrent.ThreadPoolExecutor.AbortPolicy()
+            new java.util.concurrent.LinkedBlockingQueue<>(200),
+            new java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy()
     );
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -339,6 +341,24 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         } catch (RejectedExecutionException e) {
             logger.error("Board persistence queue is full. eventType={}, roomId={}", eventType, roomId);
         }
+    }
+
+    @Scheduled(fixedDelayString = "${visync.memory-diagnostics.interval-ms:60000}")
+    public void logMemoryDiagnostics() {
+        Runtime runtime = Runtime.getRuntime();
+        long usedMb = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024);
+        long committedMb = runtime.totalMemory() / (1024 * 1024);
+        long maxMb = runtime.maxMemory() / (1024 * 1024);
+        logger.info(
+                "Memory diagnostics: heapUsed={}MB, heapCommitted={}MB, heapMax={}MB, rooms={}, sessions={}, boardQueue={}, chatQueue={}",
+                usedMb, committedMb, maxMb, rooms.size(), sessionRoomIds.size(),
+                boardPersistenceExecutor.getQueue().size(), dbExecutor.getQueue().size());
+    }
+
+    @PreDestroy
+    public void shutdownExecutors() {
+        boardPersistenceExecutor.shutdown();
+        dbExecutor.shutdown();
     }
 
 
