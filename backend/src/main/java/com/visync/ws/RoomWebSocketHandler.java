@@ -2,25 +2,17 @@ package com.visync.ws;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Repository;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
-import com.visync.entity.BoardSnapshot;
 import com.visync.entity.ChatMessage;
-import com.visync.entity.DrawingEvent;
-import com.visync.repository.BoardSnapshotRepository;
 import com.visync.repository.ChatMessageRepository;
-import com.visync.repository.DrawingEventRepository;
-import com.visync.repository.RoomRepository;
 import com.visync.service.BoardService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
-import java.net.URI;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -29,10 +21,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(RoomWebSocketHandler.class);
 
-    private final RoomRepository roomRepository;
-    private final DrawingEventRepository drawingEventRepository;
     private final ChatMessageRepository chatMessageRepository;
-    private final BoardSnapshotRepository boardSnapshotRepository;
     private final BoardService boardService;
 
     private final ConcurrentMap<String, Set<WebSocketSession>> rooms = new ConcurrentHashMap<>();
@@ -50,17 +39,19 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
             new java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy()
     );
 
+    // Board mutations are serialized so DRAW_END, transform, undo, and redo
+    // reach storage in exactly the same order as their WebSocket messages.
+    private final ExecutorService boardPersistenceExecutor = new java.util.concurrent.ThreadPoolExecutor(
+            1, 1, 0L, java.util.concurrent.TimeUnit.MILLISECONDS,
+            new java.util.concurrent.LinkedBlockingQueue<>(2000),
+            new java.util.concurrent.ThreadPoolExecutor.AbortPolicy()
+    );
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public RoomWebSocketHandler(RoomRepository roomRepository,
-            DrawingEventRepository drawingEventRepository,
-            ChatMessageRepository chatMessageRepository,
-            BoardSnapshotRepository boardSnapshotRepository,
+    public RoomWebSocketHandler(ChatMessageRepository chatMessageRepository,
             BoardService boardService) {
-        this.roomRepository = roomRepository;
-        this.drawingEventRepository = drawingEventRepository;
         this.chatMessageRepository = chatMessageRepository;
-        this.boardSnapshotRepository = boardSnapshotRepository;
         this.boardService = boardService;
 
         logger.info("RoomWebSocketHandler initialized.");
@@ -96,17 +87,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                 return set;
             });
 
-            if (roomBecameEmpty[0]) {
-                final String emptyRoomId = roomId;
-                logger.info("Room {} is now empty. Starting async snapshot compaction.", emptyRoomId);
-                CompletableFuture.runAsync(() -> {
-                    try {
-                        boardService.compactSnapshot(emptyRoomId, true);
-                    } catch (Exception e) {
-                        logger.error("Failed to compact on close for RoomId {}: ", emptyRoomId, e);
-                    }
-                }, dbExecutor);
-            }
+            if (roomBecameEmpty[0]) logger.info("Room {} is now empty.", roomId);
 
             // Broadcast USER_LEAVE if the user had completed JOIN
             if (userId != null && username != null) {
@@ -180,26 +161,19 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                 break;
             case "DRAW_START":
             case "DRAW_MOVE":
+                broadcastToRoom(roomId, session.getId(), rootNode);
+                break;
             case "DRAW_END":
                 broadcastToRoom(roomId, session.getId(), rootNode);
-
-                if (!eventType.equals("DRAW_MOVE")) {
-                    try {
-                        boardService.bufferDrawingEvent(roomId, userId, eventType, objectMapper.writeValueAsString(payloadNode), timestamp);
-                    } catch (Exception e) {
-                        logger.error("Failed to buffer drawing event for roomId={}: ", roomId, e);
-                    }
-                }
+                submitBoardPersistence(roomId, eventType,
+                        () -> boardService.saveCompletedStroke(roomId, userId, payloadNode));
                 break;
             case "OBJECT_TRANSFORM":
             case "OBJECT_DUPLICATE":
             case "OBJECT_DELETE":
                 broadcastToRoom(roomId, session.getId(), rootNode);
-                try {
-                    boardService.bufferDrawingEvent(roomId, userId, eventType, objectMapper.writeValueAsString(payloadNode), timestamp);
-                } catch (Exception e) {
-                    logger.error("Failed to buffer object event type={} for roomId={}: ", eventType, roomId, e);
-                }
+                submitBoardPersistence(roomId, eventType,
+                        () -> boardService.applyObjectMutation(roomId, eventType, payloadNode));
                 break;
             case "CHAT_MESSAGE":
                 persistAndBroadcastChatMessage(roomId, userId, rootNode, payloadNode, timestamp, session.getId());
@@ -207,9 +181,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
             case "BOARD_CLEAR":
                 broadcastToRoom(roomId, session.getId(), rootNode);
                 final String clearRoomId = roomId;
-                CompletableFuture.runAsync(() -> {
-                    clearBoardData(clearRoomId);
-                }, dbExecutor);
+                submitBoardPersistence(roomId, eventType, () -> clearBoardData(clearRoomId));
                 break;
             case "UNDO":
                 broadcastToRoom(roomId, session.getId(), rootNode);
@@ -217,13 +189,13 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                 if (!undoStrokeId.isEmpty()) {
                     final String rId = roomId;
                     final String sId = undoStrokeId;
-                    CompletableFuture.runAsync(() -> {
+                    submitBoardPersistence(roomId, eventType, () -> {
                         try {
                             boardService.undoStroke(rId, sId);
                         } catch (Exception e) {
                             logger.error("Failed to run undo in background for roomId={}, strokeId={}: ", rId, sId, e);
                         }
-                    }, dbExecutor);
+                    });
                 }
                 break;
             case "REDO":
@@ -233,13 +205,13 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                     final String rId = roomId;
                     final String uId = userId;
                     final JsonNode sNode = strokeNode;
-                    CompletableFuture.runAsync(() -> {
+                    submitBoardPersistence(roomId, eventType, () -> {
                         try {
                             boardService.redoStroke(rId, uId, sNode);
                         } catch (Exception e) {
                             logger.error("Failed to run redo in background for roomId={}, userId={}: ", rId, uId, e);
                         }
-                    }, dbExecutor);
+                    });
                 }
                 break;
             case "USER_NAME_CHANGE":
@@ -355,6 +327,20 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    private void submitBoardPersistence(String roomId, String eventType, Runnable task) {
+        try {
+            boardPersistenceExecutor.execute(() -> {
+                try {
+                    task.run();
+                } catch (Exception e) {
+                    logger.error("Failed to persist board event type={} for roomId={}: ", eventType, roomId, e);
+                }
+            });
+        } catch (RejectedExecutionException e) {
+            logger.error("Board persistence queue is full. eventType={}, roomId={}", eventType, roomId);
+        }
+    }
+
 
 
     private void broadcastToRoom(String roomId, String senderSessionId, Object messageObj) {
@@ -390,16 +376,6 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         }
         logger.trace("Broadcasted message to {} sessions in roomId={}", broadcastCount, roomId);
     }
-
-
-    private String extractRoomId(URI uri) {
-        if (uri == null)
-            return "unknown";
-        String path = uri.getPath();
-        String[] parts = path.split("/");
-        return parts.length >= 4 ? parts[3] : "unknown";
-    }
-
     // Per-session Token Bucket definition
     private static class TokenBucket {
         private final double capacity;

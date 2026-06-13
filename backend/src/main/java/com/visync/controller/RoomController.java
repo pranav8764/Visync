@@ -2,13 +2,10 @@ package com.visync.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.visync.entity.BoardSnapshot;
 import com.visync.entity.ChatMessage;
 import com.visync.entity.DrawingEvent;
 import com.visync.entity.Room;
-import com.visync.repository.BoardSnapshotRepository;
 import com.visync.repository.ChatMessageRepository;
-import com.visync.repository.DrawingEventRepository;
 import com.visync.repository.RoomRepository;
 import com.visync.service.TokenService;
 import com.visync.service.BoardService;
@@ -21,7 +18,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/rooms")
@@ -30,21 +26,15 @@ public class RoomController {
     private static final Logger logger = LoggerFactory.getLogger(RoomController.class);
 
     private final RoomRepository roomRepository;
-    private final DrawingEventRepository drawingEventRepository;
-    private final BoardSnapshotRepository boardSnapshotRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final TokenService tokenService;
     private final BoardService boardService;
 
     public RoomController(RoomRepository roomRepository,
-            DrawingEventRepository drawingEventRepository,
-            BoardSnapshotRepository boardSnapshotRepository,
             ChatMessageRepository chatMessageRepository,
             TokenService tokenService,
             BoardService boardService) {
         this.roomRepository = roomRepository;
-        this.drawingEventRepository = drawingEventRepository;
-        this.boardSnapshotRepository = boardSnapshotRepository;
         this.chatMessageRepository = chatMessageRepository;
         this.tokenService = tokenService;
         this.boardService = boardService;
@@ -90,15 +80,11 @@ public class RoomController {
             return ResponseEntity.notFound().build();
         }
 
-        // Fetch latest snapshot
-        Optional<BoardSnapshot> latestSnapshotOpt = boardSnapshotRepository
-                .findFirstByRoomIdOrderByCreatedAtDesc(roomId);
-        String snapshotState = latestSnapshotOpt.map(BoardSnapshot::getBoardState).orElse("[]");
+        // Completed strokes are stored individually and assembled only for room recovery.
+        String snapshotState = boardService.getBoardState(roomId);
         logger.debug("Fetched room history snapshot state length={} for roomId={}", snapshotState.length(), roomId);
 
-        // Fetch all chronological drawing events (merging Postgres and the active memory buffer).
-        List<DrawingEvent> recentEvents = boardService.getRecentEvents(roomId);
-        logger.debug("Fetched {} recent drawing events for roomId={}", recentEvents.size(), roomId);
+        List<DrawingEvent> recentEvents = Collections.emptyList();
 
         // Fetch the most recent 200 chat messages (newest-first), then reverse to chronological order
         List<ChatMessage> chatHistory = new ArrayList<>(chatMessageRepository.findByRoomIdOrderByTimestampDesc(roomId, PageRequest.of(0, 200)));

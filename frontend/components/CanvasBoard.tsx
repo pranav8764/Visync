@@ -1009,7 +1009,11 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
         userId,
         roomId,
         timestamp: Date.now(),
-        payload: { strokeId: currentStrokeIdRef.current, points: activeStroke.points }
+        payload: {
+          strokeId: currentStrokeIdRef.current,
+          points: activeStroke.points,
+          stroke: activeStroke
+        }
       });
     }
 
