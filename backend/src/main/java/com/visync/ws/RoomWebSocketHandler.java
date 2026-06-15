@@ -171,6 +171,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
                         () -> boardService.saveCompletedStroke(roomId, userId, payloadNode));
                 break;
             case "OBJECT_TRANSFORM":
+            case "OBJECT_UPDATE":
             case "OBJECT_DUPLICATE":
             case "OBJECT_DELETE":
                 broadcastToRoom(roomId, session.getId(), rootNode);

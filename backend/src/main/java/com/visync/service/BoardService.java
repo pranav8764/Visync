@@ -61,6 +61,7 @@ public class BoardService {
 
         switch (eventType) {
             case "OBJECT_TRANSFORM" -> applyTransforms(roomUuid, payload);
+            case "OBJECT_UPDATE" -> applyUpdates(roomUuid, payload);
             case "OBJECT_DUPLICATE" -> {
                 JsonNode strokes = payload.get("strokes");
                 if (strokes != null && strokes.isArray()) {
@@ -149,6 +150,35 @@ public class BoardService {
         }
     }
 
+    private void applyUpdates(UUID roomId, JsonNode payload) {
+        JsonNode updates = payload.get("updates");
+        if (updates != null && updates.isArray()) {
+            for (JsonNode item : updates) {
+                applyUpdate(roomId, text(item, "strokeId"), item.get("patch"));
+            }
+        } else {
+            applyUpdate(roomId, text(payload, "strokeId"), payload.get("patch"));
+        }
+    }
+
+    private void applyUpdate(UUID roomId, String strokeId, JsonNode patch) {
+        if (strokeId == null || patch == null || !patch.isObject()) return;
+        boardStrokeRepository.findByRoomIdAndStrokeId(roomId, strokeId).ifPresent(row -> {
+            try {
+                ObjectNode stroke = (ObjectNode) objectMapper.readTree(row.getStrokeData());
+                for (String field : List.of("text", "textWidth", "textHeight", "fontSize", "fontFamily",
+                        "fontStyle", "textDecoration", "textAlign", "color", "fill", "fillStyle",
+                        "strokeWidth", "strokeStyle", "roughness", "roundness", "opacity", "zIndex")) {
+                    copyIfPresent(patch, stroke, field);
+                }
+                row.setStrokeData(objectMapper.writeValueAsString(stroke));
+                boardStrokeRepository.save(row);
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to update stroke " + strokeId, e);
+            }
+        });
+    }
+
     private void applyTransform(UUID roomId, String strokeId, JsonNode transform) {
         if (strokeId == null || transform == null || !transform.isObject()) return;
         boardStrokeRepository.findByRoomIdAndStrokeId(roomId, strokeId).ifPresent(row -> {
@@ -228,6 +258,7 @@ public class BoardService {
                         if (stroke != null && payload.has("points")) stroke.set("points", payload.get("points"));
                     }
                     case "OBJECT_TRANSFORM" -> applyLegacyTransform(strokes, payload);
+                    case "OBJECT_UPDATE" -> applyLegacyUpdate(strokes, payload);
                     case "OBJECT_DUPLICATE" -> {
                         JsonNode copies = payload.get("strokes");
                         if (copies != null && copies.isArray()) {
@@ -265,6 +296,24 @@ public class BoardService {
             }
         } else {
             applyTransformNode(strokes.get(text(payload, "strokeId")), payload.get("transform"));
+        }
+    }
+
+    private void applyLegacyUpdate(Map<String, ObjectNode> strokes, JsonNode payload) {
+        JsonNode updates = payload.get("updates");
+        if (updates != null && updates.isArray()) {
+            for (JsonNode item : updates) applyPatchNode(strokes.get(text(item, "strokeId")), item.get("patch"));
+        } else {
+            applyPatchNode(strokes.get(text(payload, "strokeId")), payload.get("patch"));
+        }
+    }
+
+    private void applyPatchNode(ObjectNode stroke, JsonNode patch) {
+        if (stroke == null || patch == null || !patch.isObject()) return;
+        for (String field : List.of("text", "textWidth", "textHeight", "fontSize", "fontFamily",
+                "fontStyle", "textDecoration", "textAlign", "color", "fill", "fillStyle",
+                "strokeWidth", "strokeStyle", "roughness", "roundness", "opacity", "zIndex")) {
+            copyIfPresent(patch, stroke, field);
         }
     }
 

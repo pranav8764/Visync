@@ -9,6 +9,7 @@
  */
 
 import { Point, Stroke } from './useStore';
+import { getTextLocalRect } from './text';
 
 // ─── Primitive Types ─────────────────────────────────────────────────────────
 
@@ -348,6 +349,37 @@ function shapeRectIntersectsRect(stroke: Stroke, selectionRect: Rect): boolean {
   return false;
 }
 
+function getTextWorldCorners(stroke: Stroke): Point[] {
+  const origin = stroke.points[0] ?? { x: 0, y: 0 };
+  const x = stroke.x ?? origin.x;
+  const y = stroke.y ?? origin.y;
+  const scaleX = stroke.scaleX ?? 1;
+  const scaleY = stroke.scaleY ?? 1;
+  const rotation = stroke.rotation ?? 0;
+  const { width, height } = getTextLocalRect(stroke);
+
+  return [
+    { x: 0, y: 0 },
+    { x: width, y: 0 },
+    { x: width, y: height },
+    { x: 0, y: height },
+  ].map((point) => {
+    const scaled = { x: point.x * scaleX, y: point.y * scaleY };
+    const rotated = rotation === 0 ? scaled : rotatePoint(scaled, { x: 0, y: 0 }, rotation);
+    return { x: rotated.x + x, y: rotated.y + y };
+  });
+}
+
+function textIntersectsRect(stroke: Stroke, selectionRect: Rect): boolean {
+  const corners = getTextWorldCorners(stroke);
+  if (corners.some((corner) => pointInRect(corner, selectionRect))) return true;
+  const edges = corners.map((corner, index) => {
+    const next = corners[(index + 1) % corners.length];
+    return { x1: corner.x, y1: corner.y, x2: next.x, y2: next.y };
+  });
+  return edges.some((edge) => segmentIntersectsOrInsideRect(edge, selectionRect));
+}
+
 /**
  * Test if a circle shape intersects a selection rect.
  */
@@ -475,6 +507,20 @@ export function strokeIntersectsEraser(stroke: Stroke, eraserSeg: Segment, erase
       const dist = getDistanceToSegment({ x: cx, y: cy }, eraserSeg);
       return dist <= radius + threshold;
     }
+    case 'text': {
+      const corners = getTextWorldCorners(stroke);
+      const edges = corners.map((corner, index) => {
+        const next = corners[(index + 1) % corners.length];
+        return { x1: corner.x, y1: corner.y, x2: next.x, y2: next.y };
+      });
+      if (edges.some((edge) => segmentsDistance(edge, eraserSeg) <= threshold)) return true;
+
+      const end = { x: eraserSeg.x2, y: eraserSeg.y2 };
+      let intersections = 0;
+      const ray = { x1: end.x, y1: end.y, x2: end.x + 1e9, y2: end.y };
+      edges.forEach((edge) => { if (segmentsIntersect(ray, edge)) intersections++; });
+      return intersections % 2 === 1;
+    }
     default:
       return false;
   }
@@ -497,6 +543,8 @@ export function strokeIntersectsRect(stroke: Stroke, selectionRect: Rect): boole
       return shapeRectIntersectsRect(stroke, selectionRect);
     case 'circle':
       return circleIntersectsRect(stroke, selectionRect);
+    case 'text':
+      return textIntersectsRect(stroke, selectionRect);
     default:
       return true;
   }
@@ -521,7 +569,14 @@ export function getStrokeAABB(stroke: Stroke): Rect {
   let minY = Infinity;
   let maxY = -Infinity;
 
-  if (stroke.tool === 'rect') {
+  if (stroke.tool === 'text') {
+    getTextWorldCorners(stroke).forEach((point) => {
+      minX = Math.min(minX, point.x);
+      maxX = Math.max(maxX, point.x);
+      minY = Math.min(minY, point.y);
+      maxY = Math.max(maxY, point.y);
+    });
+  } else if (stroke.tool === 'rect') {
     const p1 = stroke.points[0];
     const p2 = stroke.points[1] || stroke.points[0];
     const x = Math.min(p1.x, p2.x);
@@ -574,7 +629,7 @@ export function getStrokeAABB(stroke: Stroke): Rect {
     });
   }
 
-  const padding = (stroke.strokeWidth ?? 3) / 2;
+  const padding = stroke.tool === 'text' ? 0 : (stroke.strokeWidth ?? 3) / 2;
   return {
     x: minX - padding,
     y: minY - padding,
@@ -582,4 +637,3 @@ export function getStrokeAABB(stroke: Stroke): Rect {
     height: (maxY - minY) + (stroke.strokeWidth ?? 3)
   };
 }
-

@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
-import { Stage, Layer, Line as KonvaLine, Rect as KonvaRect, Circle as KonvaCircle, Transformer } from 'react-konva';
+import { Stage, Layer, Line as KonvaLine, Rect as KonvaRect, Circle as KonvaCircle, Text as KonvaText, Transformer } from 'react-konva';
 import Konva from 'konva';
 import axios from 'axios';
 import { useStore, Stroke, Point } from '@/lib/useStore';
 import { WebSocketClient } from '@/lib/ws';
 import { strokeIntersectsRect, getStrokeAABB, strokeIntersectsEraser, Segment } from '@/lib/geometry';
+import { DEFAULT_TEXT_WIDTH, getTextFontStyle, measureTextHeight, TEXT_LINE_HEIGHT } from '@/lib/text';
 import {
   Viewport,
   worldToScreen,
@@ -171,7 +172,19 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
   const isDarkMode = useStore((state) => state.isDarkMode);
   const toggleDarkMode = useStore((state) => state.toggleDarkMode);
   const color = useStore((state) => state.color);
+  const fillColor = useStore((state) => state.fillColor);
+  const opacity = useStore((state) => state.opacity);
   const strokeWidth = useStore((state) => state.strokeWidth);
+  const fillStyle = useStore((state) => state.fillStyle);
+  const strokeStyle = useStore((state) => state.strokeStyle);
+  const roughness = useStore((state) => state.roughness);
+  const roundness = useStore((state) => state.roundness);
+  const fontSize = useStore((state) => state.fontSize);
+  const fontFamily = useStore((state) => state.fontFamily);
+  const textAlign = useStore((state) => state.textAlign);
+  const isTextBold = useStore((state) => state.isTextBold);
+  const isTextItalic = useStore((state) => state.isTextItalic);
+  const isTextUnderlined = useStore((state) => state.isTextUnderlined);
   const username = useStore((state) => state.username);
   const roomName = useStore((state) => state.roomName);
   const strokes = useStore((state) => state.strokes);
@@ -186,7 +199,16 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
   const setRoomName = useStore((state) => state.setRoomName);
   const setActiveTool = useStore((state) => state.setActiveTool);
   const setColor = useStore((state) => state.setColor);
+  const setFillColor = useStore((state) => state.setFillColor);
+  const setOpacity = useStore((state) => state.setOpacity);
   const setStrokeWidth = useStore((state) => state.setStrokeWidth);
+  const setFillStyle = useStore((state) => state.setFillStyle);
+  const setStrokeStyle = useStore((state) => state.setStrokeStyle);
+  const setRoughness = useStore((state) => state.setRoughness);
+  const setRoundness = useStore((state) => state.setRoundness);
+  const setFontSize = useStore((state) => state.setFontSize);
+  const setFontFamily = useStore((state) => state.setFontFamily);
+  const setTextAlign = useStore((state) => state.setTextAlign);
   const setStrokes = useStore((state) => state.setStrokes);
   const addStroke = useStore((state) => state.addStroke);
   const updateLastStrokePoints = useStore((state) => state.updateLastStrokePoints);
@@ -212,6 +234,25 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
   const [isToolbarOpen, setIsToolbarOpen] = useState(true);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [wsToken, setWsToken] = useState<string | null>(null);
+  const [textEditor, setTextEditor] = useState<{
+    strokeId: string | null;
+    x: number;
+    y: number;
+    value: string;
+    width: number;
+    fontSize: number;
+    fontFamily: string;
+    fontStyle: string;
+    textDecoration: string;
+    textAlign: 'left' | 'center' | 'right';
+    color: string;
+    opacity: number;
+    rotation: number;
+    scaleX: number;
+    scaleY: number;
+  } | null>(null);
+  const textEditorRef = useRef<HTMLTextAreaElement>(null);
+  const suppressCanvasPointerRef = useRef(false);
 
   // User identity state
   const [isEditingName, setIsEditingName] = useState(false);
@@ -258,6 +299,42 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
 
   // --- Derived: is panning active? ---
   const isPanning = isPanMode || isSpacePanning || isMiddlePanning;
+  const selectedTextStroke = useMemo(
+    () => strokes.find((stroke) => selectedIds.includes(stroke.id) && stroke.tool === 'text'),
+    [strokes, selectedIds]
+  );
+  const selectedShapeStroke = useMemo(
+    () => strokes.find((stroke) => selectedIds.includes(stroke.id) && ['pen', 'line', 'rect', 'circle'].includes(stroke.tool)),
+    [strokes, selectedIds]
+  );
+  const shapeToolActive = ['pen', 'line', 'rect', 'circle'].includes(activeTool);
+  const showShapeProperties = shapeToolActive || Boolean(selectedShapeStroke);
+  const renderedStrokes = useMemo(
+    () => strokes
+      .map((stroke, index) => ({ stroke, index }))
+      .sort((a, b) => (a.stroke.zIndex ?? a.index) - (b.stroke.zIndex ?? b.index))
+      .map(({ stroke }) => stroke),
+    [strokes]
+  );
+  const displayedFontSize = selectedTextStroke?.fontSize ?? fontSize;
+  const displayedFontFamily = selectedTextStroke?.fontFamily ?? fontFamily;
+  const displayedTextAlign = selectedTextStroke?.textAlign ?? textAlign;
+  const displayedTextColor = selectedTextStroke?.color ?? color;
+  const displayedTextOpacity = Math.round((selectedTextStroke?.opacity ?? opacity) * 100);
+  const displayedShapeColor = selectedShapeStroke?.color ?? color;
+  const displayedShapeFill = selectedShapeStroke?.fill ?? fillColor;
+  const displayedShapeFillStyle = selectedShapeStroke?.fillStyle ?? fillStyle;
+  const displayedShapeStrokeWidth = selectedShapeStroke?.strokeWidth ?? strokeWidth;
+  const displayedShapeStrokeStyle = selectedShapeStroke?.strokeStyle ?? strokeStyle;
+  const displayedShapeRoughness = selectedShapeStroke?.roughness ?? roughness;
+  const displayedShapeRoundness = selectedShapeStroke?.roundness ?? roundness;
+  const displayedShapeOpacity = Math.round((selectedShapeStroke?.opacity ?? opacity) * 100);
+  const displayedShapeTool = selectedShapeStroke?.tool ?? activeTool;
+  const shapeSupportsFill = displayedShapeTool === 'rect' || displayedShapeTool === 'circle';
+  const shapeSupportsEdges = displayedShapeTool === 'rect';
+  const textEditorIdentity = textEditor
+    ? `${textEditor.strokeId ?? 'new'}:${textEditor.x}:${textEditor.y}`
+    : null;
 
   const checkScroll = () => {
     const el = toolScrollRef.current;
@@ -279,17 +356,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
   const displayRoomCode = roomId;
 
-  // Curated Sleek Premium HSL Colors Palette
-  const colorsPalette = [
-    '#2563eb', // Royal Electric Blue
-    '#ec4899', // Hot Neon Pink
-    '#10b981', // Mint Emerald Green
-    '#f59e0b', // Deep Amber Gold
-    '#8b5cf6', // Electric Violet Purple
-    '#ef4444', // Crimson Coral Red
-    '#ffffff', // Chalk White
-    '#000000', // Ink Black
-  ];
+  const textColorsPalette = ['#1b1b1f', '#e03131', '#2f9e44', '#1971c2', '#f08c00'];
 
   // Width stroke values
   const strokeWidths = [2, 4, 8, 12, 20];
@@ -469,6 +536,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
           case 'r': state.setActiveTool('rect'); setIsPanMode(false); break;
           case 'c': state.setActiveTool('circle'); setIsPanMode(false); break;
           case 'l': state.setActiveTool('line'); setIsPanMode(false); break;
+          case 't': state.setActiveTool('text'); setIsPanMode(false); break;
           case 'e': state.setActiveTool('eraser'); setIsPanMode(false); break;
           case 'backspace':
           case 'delete':
@@ -702,6 +770,169 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
     }
   }, [historyLoading, activeTool, dimensions]);
 
+  useEffect(() => {
+    if (!textEditorIdentity) return;
+    requestAnimationFrame(() => {
+      textEditorRef.current?.focus();
+    });
+  }, [textEditorIdentity]);
+
+  useEffect(() => {
+    if (!textEditor) return;
+
+    const captureCanvasPointer = (event: PointerEvent) => {
+      if (event.target instanceof HTMLCanvasElement) {
+        suppressCanvasPointerRef.current = true;
+        textEditorRef.current?.blur();
+      }
+    };
+
+    document.addEventListener('pointerdown', captureCanvasPointer, true);
+    return () => document.removeEventListener('pointerdown', captureCanvasPointer, true);
+  }, [textEditor]);
+
+  const startEditingText = useCallback((stroke: Stroke) => {
+    const origin = stroke.points[0] ?? { x: 0, y: 0 };
+    setTextEditor({
+      strokeId: stroke.id,
+      x: stroke.x ?? origin.x,
+      y: stroke.y ?? origin.y,
+      value: stroke.text ?? '',
+      width: stroke.textWidth ?? DEFAULT_TEXT_WIDTH,
+      fontSize: stroke.fontSize ?? 24,
+      fontFamily: stroke.fontFamily ?? 'Arial',
+      fontStyle: stroke.fontStyle ?? 'normal',
+      textDecoration: stroke.textDecoration ?? '',
+      textAlign: stroke.textAlign ?? 'left',
+      color: stroke.color,
+      opacity: stroke.opacity ?? 1,
+      rotation: stroke.rotation ?? 0,
+      scaleX: stroke.scaleX ?? 1,
+      scaleY: stroke.scaleY ?? 1,
+    });
+    setSelectedIds([stroke.id]);
+  }, [setSelectedIds]);
+
+  const commitTextEditor = useCallback(() => {
+    if (!textEditor) return;
+    const value = textEditor.value.trimEnd();
+
+    if (textEditor.strokeId) {
+      const existing = useStore.getState().strokes.find((stroke) => stroke.id === textEditor.strokeId);
+      if (existing && value.trim()) {
+        const patch: Partial<Stroke> = {
+          text: value,
+          textWidth: textEditor.width,
+          textHeight: measureTextHeight(value, textEditor.fontSize, textEditor.width),
+        };
+        updateStrokeTransform(existing.id, patch);
+        wsRef.current?.send({
+          eventType: 'OBJECT_UPDATE', userId, roomId, timestamp: Date.now(),
+          payload: { strokeId: existing.id, patch }
+        });
+      }
+    } else if (value.trim()) {
+      const strokeId = `${userId}-${Date.now()}`;
+      const newStroke: Stroke = {
+        id: strokeId,
+        userId,
+        tool: 'text',
+        points: [{ x: textEditor.x, y: textEditor.y }],
+        x: textEditor.x,
+        y: textEditor.y,
+        color: textEditor.color,
+        strokeWidth: 0,
+        text: value,
+        textWidth: textEditor.width,
+        textHeight: measureTextHeight(value, textEditor.fontSize, textEditor.width),
+        fontSize: textEditor.fontSize,
+        fontFamily: textEditor.fontFamily,
+        fontStyle: textEditor.fontStyle,
+        textDecoration: textEditor.textDecoration,
+        textAlign: textEditor.textAlign,
+        opacity: textEditor.opacity,
+      };
+      addStroke(newStroke);
+      pushToUndo(newStroke);
+      setSelectedIds([strokeId]);
+      wsRef.current?.send({
+        eventType: 'DRAW_START', userId, roomId, timestamp: Date.now(),
+        payload: { ...newStroke, strokeId, point: newStroke.points[0] }
+      });
+      wsRef.current?.send({
+        eventType: 'DRAW_END', userId, roomId, timestamp: Date.now(),
+        payload: { strokeId, points: newStroke.points, stroke: newStroke }
+      });
+    }
+
+    setTextEditor(null);
+  }, [textEditor, userId, roomId, addStroke, pushToUndo, setSelectedIds, updateStrokeTransform]);
+
+  const updateSelectedText = useCallback((patch: Partial<Stroke>) => {
+    const textIds = useStore.getState().selectedIds.filter((id) =>
+      useStore.getState().strokes.some((stroke) => stroke.id === id && stroke.tool === 'text')
+    );
+    const updates = textIds.map((strokeId) => {
+      const stroke = useStore.getState().strokes.find((item) => item.id === strokeId)!;
+      const nextPatch = { ...patch };
+      if (patch.fontSize !== undefined || patch.textWidth !== undefined || patch.text !== undefined) {
+        const nextFontSize = patch.fontSize ?? stroke.fontSize ?? 24;
+        const nextWidth = patch.textWidth ?? stroke.textWidth ?? DEFAULT_TEXT_WIDTH;
+        nextPatch.textHeight = measureTextHeight(patch.text ?? stroke.text ?? '', nextFontSize, nextWidth);
+      }
+      updateStrokeTransform(strokeId, nextPatch);
+      return { strokeId, patch: nextPatch };
+    });
+    if (textIds.length > 0) {
+      wsRef.current?.send({
+        eventType: 'OBJECT_UPDATE', userId, roomId, timestamp: Date.now(),
+        payload: { updates }
+      });
+    }
+  }, [roomId, userId, updateStrokeTransform]);
+
+  const updateSelectedShapes = useCallback((patch: Partial<Stroke>) => {
+    const shapeIds = useStore.getState().selectedIds.filter((id) =>
+      useStore.getState().strokes.some((stroke) => stroke.id === id && ['pen', 'line', 'rect', 'circle'].includes(stroke.tool))
+    );
+    const updates = shapeIds.map((strokeId) => {
+      updateStrokeTransform(strokeId, patch);
+      return { strokeId, patch };
+    });
+    if (updates.length > 0) {
+      wsRef.current?.send({
+        eventType: 'OBJECT_UPDATE', userId, roomId, timestamp: Date.now(), payload: { updates }
+      });
+    }
+  }, [roomId, userId, updateStrokeTransform]);
+
+  const moveSelectedLayer = useCallback((direction: 'back' | 'backward' | 'forward' | 'front') => {
+    const selectedStroke = selectedTextStroke ?? selectedShapeStroke;
+    if (!selectedStroke) return;
+    const current = [...useStore.getState().strokes]
+      .map((stroke, index) => ({ stroke, index }))
+      .sort((a, b) => (a.stroke.zIndex ?? a.index) - (b.stroke.zIndex ?? b.index))
+      .map(({ stroke }) => stroke);
+    const index = current.findIndex((stroke) => stroke.id === selectedStroke.id);
+    if (index < 0) return;
+    const nextIndex = direction === 'back'
+      ? 0
+      : direction === 'front'
+        ? current.length - 1
+        : direction === 'backward'
+          ? Math.max(0, index - 1)
+          : Math.min(current.length - 1, index + 1);
+    if (nextIndex === index) return;
+    const [stroke] = current.splice(index, 1);
+    current.splice(nextIndex, 0, stroke);
+    const next = current.map((item, zIndex) => ({ ...item, zIndex }));
+    const updates = next.map((item) => ({ strokeId: item.id, patch: { zIndex: item.zIndex } }));
+    setStrokes(next);
+    wsRef.current?.send({
+      eventType: 'OBJECT_UPDATE', userId, roomId, timestamp: Date.now(), payload: { updates }
+    });
+  }, [roomId, selectedShapeStroke, selectedTextStroke, setStrokes, userId]);
+
   // ===================================================================
   // Canvas Event Handlers
   // ===================================================================
@@ -732,6 +963,11 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
    */
   const handleMouseDown = useCallback((e: any) => {
     if (historyLoading) return;
+
+    if (suppressCanvasPointerRef.current) {
+      suppressCanvasPointerRef.current = false;
+      return;
+    }
 
     const stage = stageRef.current;
     if (!stage) return;
@@ -782,6 +1018,27 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
       return;
     }
 
+    if (activeTool === 'text') {
+      setTextEditor({
+        strokeId: null,
+        x: worldPos.x,
+        y: worldPos.y,
+        value: '',
+        width: DEFAULT_TEXT_WIDTH,
+        fontSize,
+        fontFamily,
+        fontStyle: getTextFontStyle(isTextBold, isTextItalic),
+        textDecoration: isTextUnderlined ? 'underline' : '',
+        textAlign,
+        color,
+        opacity,
+        rotation: 0,
+        scaleX: 1,
+        scaleY: 1,
+      });
+      return;
+    }
+
     setIsDrawing(true);
 
     const strokeId = `${userId}-${Date.now()}`;
@@ -792,6 +1049,12 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
       userId,
       color: color,
       strokeWidth: strokeWidth,
+      fill: fillColor,
+      fillStyle,
+      strokeStyle,
+      roughness,
+      roundness,
+      opacity,
       tool: activeTool,
       points: [worldPos]
     };
@@ -807,6 +1070,12 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
         strokeId,
         color: newStroke.color,
         strokeWidth: newStroke.strokeWidth,
+        fill: newStroke.fill,
+        fillStyle: newStroke.fillStyle,
+        strokeStyle: newStroke.strokeStyle,
+        roughness: newStroke.roughness,
+        roundness: newStroke.roundness,
+        opacity: newStroke.opacity,
         tool: activeTool,
         point: worldPos
       }
@@ -819,7 +1088,7 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
       timestamp: Date.now(),
       payload: { strokeId, point: worldPos }
     });
-  }, [historyLoading, isPanMode, userId, activeTool, color, strokeWidth, roomId, addStroke, setViewport, eraseStrokesAt]);
+  }, [historyLoading, isPanMode, userId, activeTool, color, fillColor, fillStyle, strokeStyle, roughness, roundness, opacity, strokeWidth, fontSize, fontFamily, textAlign, isTextBold, isTextItalic, isTextUnderlined, roomId, addStroke, eraseStrokesAt]);
 
   /**
    * Handle mouse move — draw or pan depending on active mode.
@@ -1272,11 +1541,14 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
 
   const stageX = -viewport.offsetX * viewport.scale;
   const stageY = -viewport.offsetY * viewport.scale;
+  const textEditorScreenPosition = textEditor
+    ? worldToScreen(textEditor.x, textEditor.y, viewport)
+    : null;
 
   // Determine cursor style
   const cursorStyle = isPanning
     ? (panStartRef.current ? 'cursor-grabbing' : 'cursor-grab')
-    : 'cursor-crosshair';
+    : activeTool === 'text' ? 'cursor-text' : 'cursor-crosshair';
 
   // ===================================================================
   // Render
@@ -1320,10 +1592,66 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
 
           {/* Drawing Layer — all strokes rendered in world coordinates */}
           <Layer ref={drawingLayerRef}>
-            {strokes.map((stroke) => {
+            {renderedStrokes.map((stroke) => {
               const pointsArr = stroke.points.flatMap((p) => [p.x, p.y]);
 
               if (pointsArr.length === 0) return null;
+
+              if (stroke.tool === 'text') {
+                const origin = stroke.points[0];
+                return (
+                  <KonvaText
+                    key={stroke.id}
+                    id={stroke.id}
+                    x={stroke.x ?? origin.x}
+                    y={stroke.y ?? origin.y}
+                    scaleX={stroke.scaleX ?? 1}
+                    scaleY={stroke.scaleY ?? 1}
+                    rotation={stroke.rotation ?? 0}
+                    visible={textEditor?.strokeId !== stroke.id}
+                    draggable={activeTool === 'select'}
+                    text={stroke.text ?? ''}
+                    width={stroke.textWidth ?? DEFAULT_TEXT_WIDTH}
+                    height={stroke.textHeight ?? measureTextHeight(stroke.text ?? '', stroke.fontSize ?? 24, stroke.textWidth)}
+                    fontSize={stroke.fontSize ?? 24}
+                    fontFamily={stroke.fontFamily ?? 'Arial'}
+                    fontStyle={stroke.fontStyle ?? 'normal'}
+                    textDecoration={stroke.textDecoration ?? ''}
+                    align={stroke.textAlign ?? 'left'}
+                    lineHeight={TEXT_LINE_HEIGHT}
+                    fill={stroke.color}
+                    opacity={stroke.opacity ?? 1}
+                    wrap="word"
+                    onClick={(e) => {
+                      if (activeTool === 'select') {
+                        if (e.evt.shiftKey) {
+                          if (selectedIds.includes(stroke.id)) setSelectedIds(selectedIds.filter(id => id !== stroke.id));
+                          else setSelectedIds([...selectedIds, stroke.id]);
+                        } else setSelectedIds([stroke.id]);
+                        e.cancelBubble = true;
+                      }
+                    }}
+                    onTap={(e) => {
+                      if (activeTool === 'select') {
+                        setSelectedIds([stroke.id]);
+                        e.cancelBubble = true;
+                      }
+                    }}
+                    onDblClick={(e) => {
+                      if (activeTool === 'select' || activeTool === 'text') startEditingText(stroke);
+                      e.cancelBubble = true;
+                    }}
+                    onDblTap={(e) => {
+                      startEditingText(stroke);
+                      e.cancelBubble = true;
+                    }}
+                    onDragStart={(e) => handleNodeDragStart(e, stroke.id)}
+                    onDragMove={(e) => handleNodeDragMove(e, stroke.id)}
+                    onDragEnd={(e) => handleNodeDragEnd(e)}
+                    onTransformEnd={(e) => handleNodeTransformEnd(e, stroke.id)}
+                  />
+                );
+              }
 
               if (stroke.tool === 'pen' || stroke.tool === 'eraser') {
                 return (
@@ -1359,9 +1687,16 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                     points={pointsArr}
                     stroke={stroke.color}
                     strokeWidth={stroke.strokeWidth}
-                    lineCap="round"
-                    lineJoin="round"
-                    tension={0.5}
+                    dash={stroke.strokeStyle === 'dashed' ? [12, 8] : stroke.strokeStyle === 'dotted' ? [2, 7] : undefined}
+                    opacity={stroke.opacity ?? 1}
+                    lineCap={stroke.strokeStyle === 'dotted' ? 'round' : stroke.roundness === 'sharp' ? 'butt' : 'round'}
+                    lineJoin={stroke.roundness === 'sharp' ? 'miter' : 'round'}
+                    tension={stroke.roughness === 0 ? 0 : stroke.roughness === 2 ? 0.65 : 0.35}
+                    shadowColor={stroke.color}
+                    shadowBlur={(stroke.roughness ?? 1) * 0.35}
+                    shadowOffsetX={stroke.roughness ?? 1}
+                    shadowOffsetY={-(stroke.roughness ?? 1)}
+                    shadowOpacity={stroke.roughness ? 0.28 : 0}
                     globalCompositeOperation={stroke.tool === 'eraser' ? 'destination-out' : 'source-over'}
                   />
                 );
@@ -1405,8 +1740,15 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                     ]}
                     stroke={stroke.color}
                     strokeWidth={stroke.strokeWidth}
-                    lineCap="round"
-                    lineJoin="round"
+                    dash={stroke.strokeStyle === 'dashed' ? [12, 8] : stroke.strokeStyle === 'dotted' ? [2, 7] : undefined}
+                    opacity={stroke.opacity ?? 1}
+                    lineCap={stroke.strokeStyle === 'dotted' ? 'round' : stroke.roundness === 'sharp' ? 'butt' : 'round'}
+                    lineJoin={stroke.roundness === 'sharp' ? 'miter' : 'round'}
+                    shadowColor={stroke.color}
+                    shadowBlur={(stroke.roughness ?? 1) * 0.35}
+                    shadowOffsetX={stroke.roughness ?? 1}
+                    shadowOffsetY={-(stroke.roughness ?? 1)}
+                    shadowOpacity={stroke.roughness ? 0.28 : 0}
                   />
                 );
               } else if (stroke.tool === 'rect') {
@@ -1451,9 +1793,19 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                     height={height}
                     stroke={stroke.color}
                     strokeWidth={stroke.strokeWidth}
-                    lineJoin="round"
-                    lineCap="round"
-                    cornerRadius={4}
+                    fill={stroke.fillStyle === 'solid' ? stroke.fill : stroke.fill === 'transparent' ? 'transparent' : stroke.fill}
+                    fillOpacity={stroke.fillStyle === 'hachure' ? 0.22 : stroke.fillStyle === 'cross-hatch' ? 0.42 : 1}
+                    fillEnabled={stroke.fill !== 'transparent'}
+                    dash={stroke.strokeStyle === 'dashed' ? [12, 8] : stroke.strokeStyle === 'dotted' ? [2, 7] : undefined}
+                    opacity={stroke.opacity ?? 1}
+                    lineJoin={stroke.roundness === 'sharp' ? 'miter' : 'round'}
+                    lineCap={stroke.strokeStyle === 'dotted' ? 'round' : stroke.roundness === 'sharp' ? 'butt' : 'round'}
+                    cornerRadius={stroke.roundness === 'sharp' ? 0 : 8}
+                    shadowColor={stroke.color}
+                    shadowBlur={(stroke.roughness ?? 1) * 0.35}
+                    shadowOffsetX={stroke.roughness ?? 1}
+                    shadowOffsetY={-(stroke.roughness ?? 1)}
+                    shadowOpacity={stroke.roughness ? 0.28 : 0}
                   />
                 );
               } else if (stroke.tool === 'circle') {
@@ -1496,6 +1848,16 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                     radius={r}
                     stroke={stroke.color}
                     strokeWidth={stroke.strokeWidth}
+                    fill={stroke.fill === 'transparent' ? undefined : stroke.fill}
+                    fillOpacity={stroke.fillStyle === 'hachure' ? 0.22 : stroke.fillStyle === 'cross-hatch' ? 0.42 : 1}
+                    dash={stroke.strokeStyle === 'dashed' ? [12, 8] : stroke.strokeStyle === 'dotted' ? [2, 7] : undefined}
+                    opacity={stroke.opacity ?? 1}
+                    lineCap={stroke.strokeStyle === 'dotted' ? 'round' : 'butt'}
+                    shadowColor={stroke.color}
+                    shadowBlur={(stroke.roughness ?? 1) * 0.35}
+                    shadowOffsetX={stroke.roughness ?? 1}
+                    shadowOffsetY={-(stroke.roughness ?? 1)}
+                    shadowOpacity={stroke.roughness ? 0.28 : 0}
                   />
                 );
               }
@@ -1521,6 +1883,20 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                 onDragEnd={(e) => handleNodeDragEnd(e)}
                 onClick={(e) => { e.cancelBubble = true; }}
                 onTap={(e) => { e.cancelBubble = true; }}
+                onDblClick={(e) => {
+                  if (selectedIds.length === 1) {
+                    const selected = strokes.find((stroke) => stroke.id === selectedIds[0]);
+                    if (selected?.tool === 'text') startEditingText(selected);
+                  }
+                  e.cancelBubble = true;
+                }}
+                onDblTap={(e) => {
+                  if (selectedIds.length === 1) {
+                    const selected = strokes.find((stroke) => stroke.id === selectedIds[0]);
+                    if (selected?.tool === 'text') startEditingText(selected);
+                  }
+                  e.cancelBubble = true;
+                }}
               />
             )}
             {activeTool === 'select' && (
@@ -1564,6 +1940,45 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
           </Layer>
         </Stage>
 
+        {textEditor && textEditorScreenPosition && (
+          <textarea
+            ref={textEditorRef}
+            aria-label="Text editor"
+            value={textEditor.value}
+            placeholder="Type something"
+            onChange={(event) => setTextEditor({ ...textEditor, value: event.target.value })}
+            onBlur={commitTextEditor}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                event.preventDefault();
+                setTextEditor(null);
+              } else if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+                event.preventDefault();
+                commitTextEditor();
+              }
+            }}
+            className="absolute z-30 resize-none overflow-hidden border border-blue-500 bg-white/90 p-0 outline-none shadow-sm"
+            style={{
+              left: textEditorScreenPosition.x,
+              top: textEditorScreenPosition.y,
+              width: Math.max(40, textEditor.width * viewport.scale * textEditor.scaleX),
+              minHeight: textEditor.fontSize * TEXT_LINE_HEIGHT * viewport.scale * textEditor.scaleY,
+              height: measureTextHeight(textEditor.value, textEditor.fontSize, textEditor.width) * viewport.scale * textEditor.scaleY,
+              color: textEditor.color,
+              opacity: textEditor.opacity,
+              fontSize: textEditor.fontSize * viewport.scale * textEditor.scaleY,
+              fontFamily: textEditor.fontFamily,
+              fontWeight: textEditor.fontStyle.includes('bold') ? 700 : 400,
+              fontStyle: textEditor.fontStyle.includes('italic') ? 'italic' : 'normal',
+              textDecoration: textEditor.textDecoration,
+              textAlign: textEditor.textAlign,
+              lineHeight: TEXT_LINE_HEIGHT,
+              transform: `rotate(${textEditor.rotation}deg)`,
+              transformOrigin: 'top left',
+            }}
+          />
+        )}
+
         {/* 2. Floating Collaborative Cursor Overlays */}
         <CollaborativeCursors userId={userId} viewport={viewport} />
 
@@ -1601,6 +2016,12 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                 <line strokeLinecap="round" x1="5" y1="19" x2="19" y2="5" />
               </svg>
             </ToolButton>
+            {/* Text Tool */}
+            <ToolButton isActive={activeTool === 'text' && !isPanMode} onClick={() => { setActiveTool('text'); setIsPanMode(false); }} title="Text (T)">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 5h14M12 5v14M8 19h8" />
+              </svg>
+            </ToolButton>
             {/* Eraser Tool */}
             <ToolButton isActive={activeTool === 'eraser' && !isPanMode} onClick={() => { setActiveTool('eraser'); setIsPanMode(false); }} title="Eraser (E)">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -1632,27 +2053,271 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
 
         {/* 4. Left-Side Property & Action Panel */}
         <div className={`absolute left-4 top-1/2 -translate-y-1/2 flex items-center z-40 select-none transition-transform duration-300 ease-in-out ${isToolbarOpen ? 'translate-x-0' : '-translate-x-[calc(100%-36px)]'}`}>
-          <div className="glass-panel-light p-2.5 rounded-2xl flex flex-col items-center gap-3 shadow-2xl border border-zinc-200/80 backdrop-blur-lg">
+          <div className={`glass-panel-light flex flex-col items-center shadow-2xl border border-zinc-200/80 backdrop-blur-lg ${activeTool === 'text' || selectedTextStroke || showShapeProperties ? 'w-[284px] max-h-[calc(100dvh-32px)] gap-0 overflow-y-auto rounded-xl p-4' : 'gap-3 rounded-2xl p-2.5'}`}>
             {/* Color Properties */}
-            {activeTool !== 'eraser' && (
-              <div className="flex flex-col gap-1.5 p-1.5 bg-white/50 rounded-xl w-full">
-                <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider text-center">Colors</div>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {colorsPalette.slice(0, 8).map((col) => (
-                    <button
-                      key={col}
-                      onClick={() => setColor(col)}
-                      className={`w-8 h-8 rounded-full border-2 transition-transform active:scale-95 flex items-center justify-center ${color === col ? 'border-blue-500 scale-110 shadow-sm' : 'border-black/5 hover:scale-105'}`}
-                      style={{ backgroundColor: col }}
-                    >
-                    </button>
-                  ))}
-                </div>
+            {showShapeProperties && (
+              <div className="flex w-full flex-col gap-5 text-zinc-800">
+                <section>
+                  <div className="mb-2.5 text-sm font-semibold">Stroke</div>
+                  <div className="flex items-center gap-2">
+                    {textColorsPalette.map((col) => (
+                      <button key={col} aria-label={`Set stroke color to ${col}`}
+                        onClick={() => { setColor(col); updateSelectedShapes({ color: col }); }}
+                        className={`h-9 w-9 rounded-md border-2 transition-all hover:-translate-y-0.5 ${displayedShapeColor === col ? 'border-[#6965db] ring-1 ring-[#6965db]' : 'border-transparent'}`}
+                        style={{ backgroundColor: col }} />
+                    ))}
+                    <div className="mx-0.5 h-7 w-px bg-zinc-200" />
+                    <label className="relative h-9 w-9 cursor-pointer overflow-hidden rounded-md border border-zinc-200 bg-zinc-50" title="Custom stroke color">
+                      <input aria-label="Custom stroke color" type="color" value={displayedShapeColor}
+                        onChange={(event) => { setColor(event.target.value); updateSelectedShapes({ color: event.target.value }); }}
+                        className="absolute -inset-2 h-14 w-14 cursor-pointer border-0 p-0" />
+                    </label>
+                  </div>
+                </section>
+
+                {shapeSupportsFill && <section>
+                  <div className="mb-2.5 text-sm font-semibold">Background</div>
+                  <div className="flex items-center gap-2">
+                    {['transparent', '#ffc9c9', '#b2f2bb', '#a5d8ff', '#ffec99'].map((col) => (
+                      <button key={col} aria-label={col === 'transparent' ? 'Transparent background' : `Set background to ${col}`}
+                        onClick={() => { setFillColor(col); updateSelectedShapes({ fill: col }); }}
+                        className={`h-9 w-9 rounded-md border-2 transition-all ${displayedShapeFill === col ? 'border-[#6965db] ring-1 ring-[#6965db]' : 'border-transparent'}`}
+                        style={col === 'transparent' ? { backgroundColor: '#fff', backgroundImage: 'linear-gradient(45deg,#ddd 25%,transparent 25%),linear-gradient(-45deg,#ddd 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ddd 75%),linear-gradient(-45deg,transparent 75%,#ddd 75%)', backgroundSize: '10px 10px', backgroundPosition: '0 0,0 5px,5px -5px,-5px 0' } : { backgroundColor: col }} />
+                    ))}
+                    <div className="mx-0.5 h-7 w-px bg-zinc-200" />
+                    <label className="relative h-9 w-9 cursor-pointer overflow-hidden rounded-md border border-zinc-200 bg-[#a5d8ff]" title="Custom background color">
+                      <input aria-label="Custom background color" type="color" value={displayedShapeFill === 'transparent' ? '#a5d8ff' : displayedShapeFill}
+                        onChange={(event) => { setFillColor(event.target.value); updateSelectedShapes({ fill: event.target.value }); }}
+                        className="absolute -inset-2 h-14 w-14 cursor-pointer border-0 p-0" />
+                    </label>
+                  </div>
+                </section>}
+
+                {shapeSupportsFill && <section>
+                  <div className="mb-2.5 text-sm font-semibold">Fill</div>
+                  <div className="flex gap-2">
+                    {([
+                      { value: 'hachure', icon: '////' },
+                      { value: 'cross-hatch', icon: '####' },
+                      { value: 'solid', icon: '■' },
+                    ] as const).map((option) => (
+                      <button key={option.value} aria-label={`${option.value} fill`}
+                        onClick={() => { setFillStyle(option.value); updateSelectedShapes({ fillStyle: option.value }); }}
+                        className={`flex h-11 w-11 items-center justify-center rounded-lg text-sm font-bold transition-colors ${displayedShapeFillStyle === option.value ? 'bg-[#e3e2ff] text-[#10069f]' : 'bg-[#f1f0f7] hover:bg-[#e9e8f0]'}`}>{option.icon}</button>
+                    ))}
+                  </div>
+                </section>}
+
+                <section>
+                  <div className="mb-2.5 text-sm font-semibold">Stroke width</div>
+                  <div className="flex gap-2">
+                    {[2, 4, 8].map((width) => (
+                      <button key={width} aria-label={`Set stroke width to ${width}`}
+                        onClick={() => { setStrokeWidth(width); updateSelectedShapes({ strokeWidth: width }); }}
+                        className={`flex h-11 w-11 items-center justify-center rounded-lg transition-colors ${displayedShapeStrokeWidth === width ? 'bg-[#e3e2ff]' : 'bg-[#f1f0f7] hover:bg-[#e9e8f0]'}`}>
+                        <span className="w-4 rounded-full bg-zinc-900" style={{ height: Math.max(1, width / 2) }} />
+                      </button>
+                    ))}
+                  </div>
+                </section>
+
+                <section>
+                  <div className="mb-2.5 text-sm font-semibold">Stroke style</div>
+                  <div className="flex gap-2">
+                    {(['solid', 'dashed', 'dotted'] as const).map((style) => (
+                      <button key={style} aria-label={`${style} stroke`}
+                        onClick={() => { setStrokeStyle(style); updateSelectedShapes({ strokeStyle: style }); }}
+                        className={`flex h-11 w-11 items-center justify-center rounded-lg transition-colors ${displayedShapeStrokeStyle === style ? 'bg-[#e3e2ff]' : 'bg-[#f1f0f7] hover:bg-[#e9e8f0]'}`}>
+                        <svg className="h-4 w-6" viewBox="0 0 24 8"><line x1="2" y1="4" x2="22" y2="4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray={style === 'solid' ? undefined : style === 'dashed' ? '6 4' : '1 4'} /></svg>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+
+                <section>
+                  <div className="mb-2.5 text-sm font-semibold">Sloppiness</div>
+                  <div className="flex gap-2">
+                    {([0, 1, 2] as const).map((value) => (
+                      <button key={value} aria-label={`Sloppiness ${value}`}
+                        onClick={() => { setRoughness(value); updateSelectedShapes({ roughness: value }); }}
+                        className={`flex h-11 w-11 items-center justify-center rounded-lg transition-colors ${displayedShapeRoughness === value ? 'bg-[#e3e2ff] text-[#10069f]' : 'bg-[#f1f0f7] hover:bg-[#e9e8f0]'}`}>
+                        <svg className="h-5 w-6" viewBox="0 0 24 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d={value === 0 ? 'M2 8 L22 6' : value === 1 ? 'M2 9 Q7 3 12 7 T22 5' : 'M2 9 Q5 2 9 8 T15 5 T22 7'} /></svg>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+
+                {shapeSupportsEdges && <section>
+                  <div className="mb-2.5 text-sm font-semibold">Edges</div>
+                  <div className="flex gap-2">
+                    {(['round', 'sharp'] as const).map((edge) => (
+                      <button key={edge} aria-label={`${edge} edges`}
+                        onClick={() => { setRoundness(edge); updateSelectedShapes({ roundness: edge }); }}
+                        className={`flex h-11 w-11 items-center justify-center rounded-lg transition-colors ${displayedShapeRoundness === edge ? 'bg-[#e3e2ff] text-[#10069f]' : 'bg-[#f1f0f7] hover:bg-[#e9e8f0]'}`}>
+                        <span className={`h-5 w-5 border-2 border-current border-dashed ${edge === 'round' ? 'rounded-md' : ''}`} />
+                      </button>
+                    ))}
+                  </div>
+                </section>}
+
+                <section>
+                  <div className="mb-2.5 text-sm font-semibold">Opacity</div>
+                  <input aria-label="Shape opacity" type="range" min="0" max="100" value={displayedShapeOpacity}
+                    onChange={(event) => { const value = Number(event.target.value) / 100; setOpacity(value); updateSelectedShapes({ opacity: value }); }}
+                    className="h-1 w-full cursor-pointer accent-[#6965db]" />
+                  <div className="mt-2 flex justify-between text-xs text-zinc-600"><span>0</span><span>100</span></div>
+                </section>
+
+                <section>
+                  <div className="mb-2.5 text-sm font-semibold">Layers</div>
+                  <div className="flex gap-2">
+                    {[
+                      { direction: 'back' as const, label: 'Send to back', icon: '⇩' },
+                      { direction: 'backward' as const, label: 'Send backward', icon: '↓' },
+                      { direction: 'forward' as const, label: 'Bring forward', icon: '↑' },
+                      { direction: 'front' as const, label: 'Bring to front', icon: '⇧' },
+                    ].map((action) => (
+                      <button key={action.direction} aria-label={action.label} title={action.label} disabled={!selectedShapeStroke}
+                        onClick={() => moveSelectedLayer(action.direction)}
+                        className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#f1f0f7] text-xl text-zinc-700 transition-colors hover:bg-[#e9e8f0] disabled:cursor-not-allowed disabled:opacity-40">{action.icon}</button>
+                    ))}
+                  </div>
+                </section>
+              </div>
+            )}
+
+            {/* Text Properties */}
+            {(activeTool === 'text' || selectedTextStroke) && (
+              <div className="flex w-full flex-col gap-5 text-zinc-800">
+                <section>
+                  <div className="mb-2.5 text-sm font-semibold">Stroke</div>
+                  <div className="flex items-center gap-2">
+                    {textColorsPalette.map((col) => (
+                      <button
+                        key={col}
+                        aria-label={`Set text color to ${col}`}
+                        onClick={() => { setColor(col); updateSelectedText({ color: col }); }}
+                        className={`h-9 w-9 rounded-md border-2 transition-all hover:-translate-y-0.5 ${displayedTextColor === col ? 'border-[#6965db] ring-1 ring-[#6965db]' : 'border-transparent'}`}
+                        style={{ backgroundColor: col }}
+                      />
+                    ))}
+                    <div className="mx-0.5 h-7 w-px bg-zinc-200" />
+                    <label className="relative h-9 w-9 cursor-pointer overflow-hidden rounded-md border border-zinc-200 bg-zinc-50" title="Custom color">
+                      <input
+                        aria-label="Custom text color"
+                        type="color"
+                        value={displayedTextColor}
+                        onChange={(event) => { setColor(event.target.value); updateSelectedText({ color: event.target.value }); }}
+                        className="absolute -inset-2 h-14 w-14 cursor-pointer border-0 p-0"
+                      />
+                    </label>
+                  </div>
+                </section>
+
+                <section>
+                  <div className="mb-2.5 text-sm font-semibold">Font family</div>
+                  <div className="flex gap-2">
+                    {[
+                      { family: 'Arial', label: 'Aa', style: 'font-sans' },
+                      { family: 'Georgia', label: 'A', style: 'font-serif' },
+                      { family: 'Courier New', label: '</>', style: 'font-mono text-sm' },
+                      { family: 'Times New Roman', label: 'A', style: 'font-serif' },
+                    ].map((font) => (
+                      <button
+                        key={font.family}
+                        aria-label={`Use ${font.family}`}
+                        title={font.family}
+                        onClick={() => { setFontFamily(font.family); updateSelectedText({ fontFamily: font.family }); }}
+                        className={`flex h-11 w-11 items-center justify-center rounded-lg text-lg transition-colors ${displayedFontFamily === font.family ? 'bg-[#e3e2ff] text-[#514dc8]' : 'bg-[#f1f0f7] hover:bg-[#e9e8f0]'}`}
+                      >
+                        <span className={font.style}>{font.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+
+                <section>
+                  <div className="mb-2.5 text-sm font-semibold">Font size</div>
+                  <div className="flex gap-2">
+                    {[
+                      { label: 'S', size: 16 },
+                      { label: 'M', size: 24 },
+                      { label: 'L', size: 36 },
+                      { label: 'XL', size: 48 },
+                    ].map((option) => (
+                      <button
+                        key={option.label}
+                        aria-label={`Set font size to ${option.size}`}
+                        onClick={() => { setFontSize(option.size); updateSelectedText({ fontSize: option.size }); }}
+                        className={`h-11 min-w-11 rounded-lg px-3 text-base transition-colors ${displayedFontSize === option.size ? 'bg-[#e3e2ff] text-[#514dc8]' : 'bg-[#f1f0f7] hover:bg-[#e9e8f0]'}`}
+                      >{option.label}</button>
+                    ))}
+                  </div>
+                </section>
+
+                <section>
+                  <div className="mb-2.5 text-sm font-semibold">Text align</div>
+                  <div className="flex gap-2">
+                    {(['left', 'center', 'right'] as const).map((alignment) => (
+                      <button
+                        key={alignment}
+                        aria-label={`Align text ${alignment}`}
+                        onClick={() => { setTextAlign(alignment); updateSelectedText({ textAlign: alignment }); }}
+                        className={`flex h-11 w-11 items-center justify-center rounded-lg transition-colors ${displayedTextAlign === alignment ? 'bg-[#e3e2ff] text-[#514dc8]' : 'bg-[#f1f0f7] hover:bg-[#e9e8f0]'}`}
+                      >
+                        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                          {alignment === 'left' && <><path d="M4 6h16"/><path d="M4 10h10"/><path d="M4 14h16"/><path d="M4 18h10"/></>}
+                          {alignment === 'center' && <><path d="M4 6h16"/><path d="M7 10h10"/><path d="M4 14h16"/><path d="M7 18h10"/></>}
+                          {alignment === 'right' && <><path d="M4 6h16"/><path d="M10 10h10"/><path d="M4 14h16"/><path d="M10 18h10"/></>}
+                        </svg>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+
+                <section>
+                  <div className="mb-2.5 text-sm font-semibold">Opacity</div>
+                  <input
+                    aria-label="Text opacity"
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={displayedTextOpacity}
+                    onChange={(event) => {
+                      const nextOpacity = Number(event.target.value) / 100;
+                      setOpacity(nextOpacity);
+                      updateSelectedText({ opacity: nextOpacity });
+                    }}
+                    className="h-1 w-full cursor-pointer accent-[#6965db]"
+                  />
+                  <div className="mt-2 flex justify-between text-xs text-zinc-600"><span>0</span><span>100</span></div>
+                </section>
+
+                <section>
+                  <div className="mb-2.5 text-sm font-semibold">Layers</div>
+                  <div className="flex gap-2">
+                    {[
+                      { direction: 'back' as const, label: 'Send to back', icon: '⇩' },
+                      { direction: 'backward' as const, label: 'Send backward', icon: '↓' },
+                      { direction: 'forward' as const, label: 'Bring forward', icon: '↑' },
+                      { direction: 'front' as const, label: 'Bring to front', icon: '⇧' },
+                    ].map((action) => (
+                      <button
+                        key={action.direction}
+                        aria-label={action.label}
+                        title={action.label}
+                        disabled={!selectedTextStroke}
+                        onClick={() => moveSelectedLayer(action.direction)}
+                        className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#f1f0f7] text-xl text-zinc-700 transition-colors hover:bg-[#e9e8f0] disabled:cursor-not-allowed disabled:opacity-40"
+                      >{action.icon}</button>
+                    ))}
+                  </div>
+                </section>
               </div>
             )}
 
             {/* Stroke Width */}
-            <div className="flex flex-col gap-1.5 w-full items-center p-1.5 bg-white/50 rounded-xl">
+            {!showShapeProperties && activeTool !== 'text' && !selectedTextStroke && <div className="flex flex-col gap-1.5 w-full items-center p-1.5 bg-white/50 rounded-xl">
               <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider text-center">Width</div>
               <div className="flex flex-col gap-2 w-full items-center">
                 {strokeWidths.map((width) => (
@@ -1665,25 +2330,27 @@ export default function CanvasBoard({ roomId, userId }: { roomId: string; userId
                   </button>
                 ))}
               </div>
-            </div>
+            </div>}
 
-            <div className="w-10 h-px bg-zinc-200 my-1" />
+            {!showShapeProperties && activeTool !== 'text' && !selectedTextStroke && <>
+              <div className="w-10 h-px bg-zinc-200 my-1" />
 
-            {/* Operations */}
-            <div className="flex flex-col items-center gap-1.5 w-full">
-              <button
-                onClick={handleUndo} disabled={undoStack.length === 0} title="Undo (Cmd+Z)"
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-600 hover:bg-zinc-100 disabled:opacity-30"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
-              </button>
-              <button
-                onClick={handleRedo} disabled={redoStack.length === 0} title="Redo (Cmd+Shift+Z)"
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-600 hover:bg-zinc-100 disabled:opacity-30"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M21 10H11a8 8 0 00-8 8v2m18-8l-6 6m6-6l-6-6" /></svg>
-              </button>
-            </div>
+              {/* Operations */}
+              <div className="flex flex-col items-center gap-1.5 w-full">
+                <button
+                  onClick={handleUndo} disabled={undoStack.length === 0} title="Undo (Cmd+Z)"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-600 hover:bg-zinc-100 disabled:opacity-30"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
+                </button>
+                <button
+                  onClick={handleRedo} disabled={redoStack.length === 0} title="Redo (Cmd+Shift+Z)"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-600 hover:bg-zinc-100 disabled:opacity-30"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M21 10H11a8 8 0 00-8 8v2m18-8l-6 6m6-6l-6-6" /></svg>
+                </button>
+              </div>
+            </>}
           </div>
 
           <button

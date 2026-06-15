@@ -12,7 +12,7 @@ export interface Stroke {
   points: Point[];
   color: string;
   strokeWidth: number;
-  tool: 'pen' | 'line' | 'rect' | 'circle' | 'eraser' | 'select';
+  tool: 'pen' | 'line' | 'rect' | 'circle' | 'eraser' | 'select' | 'text';
   
   // Transform & Style Properties
   x?: number;
@@ -21,8 +21,21 @@ export interface Stroke {
   scaleY?: number;
   rotation?: number;
   fill?: string;
+  fillStyle?: 'hachure' | 'cross-hatch' | 'solid';
+  strokeStyle?: 'solid' | 'dashed' | 'dotted';
+  roughness?: 0 | 1 | 2;
+  roundness?: 'round' | 'sharp';
   opacity?: number;
+  zIndex?: number;
   isDeleted?: boolean;
+  text?: string;
+  textWidth?: number;
+  textHeight?: number;
+  fontSize?: number;
+  fontFamily?: string;
+  fontStyle?: string;
+  textDecoration?: string;
+  textAlign?: 'left' | 'center' | 'right';
 }
 
 export interface UserPresence {
@@ -51,16 +64,36 @@ interface VisyncState {
   setDarkMode: (isDark: boolean) => void;
 
   // Whiteboard configuration
-  activeTool: 'pen' | 'line' | 'rect' | 'circle' | 'eraser' | 'select';
+  activeTool: 'pen' | 'line' | 'rect' | 'circle' | 'eraser' | 'select' | 'text';
   color: string;
   fillColor: string; // Used for shape fills
   opacity: number;
   strokeWidth: number;
-  setActiveTool: (tool: 'pen' | 'line' | 'rect' | 'circle' | 'eraser' | 'select') => void;
+  fillStyle: 'hachure' | 'cross-hatch' | 'solid';
+  strokeStyle: 'solid' | 'dashed' | 'dotted';
+  roughness: 0 | 1 | 2;
+  roundness: 'round' | 'sharp';
+  fontSize: number;
+  fontFamily: string;
+  textAlign: 'left' | 'center' | 'right';
+  isTextBold: boolean;
+  isTextItalic: boolean;
+  isTextUnderlined: boolean;
+  setActiveTool: (tool: 'pen' | 'line' | 'rect' | 'circle' | 'eraser' | 'select' | 'text') => void;
   setColor: (color: string) => void;
   setFillColor: (color: string) => void;
   setOpacity: (opacity: number) => void;
   setStrokeWidth: (width: number) => void;
+  setFillStyle: (style: 'hachure' | 'cross-hatch' | 'solid') => void;
+  setStrokeStyle: (style: 'solid' | 'dashed' | 'dotted') => void;
+  setRoughness: (roughness: 0 | 1 | 2) => void;
+  setRoundness: (roundness: 'round' | 'sharp') => void;
+  setFontSize: (size: number) => void;
+  setFontFamily: (family: string) => void;
+  setTextAlign: (alignment: 'left' | 'center' | 'right') => void;
+  setTextBold: (bold: boolean) => void;
+  setTextItalic: (italic: boolean) => void;
+  setTextUnderlined: (underlined: boolean) => void;
 
   // Viewport state for infinite canvas
   viewport: Viewport;
@@ -123,6 +156,16 @@ export const useStore = create<VisyncState>((set, get) => ({
   fillColor: 'transparent',
   opacity: 1,
   strokeWidth: 3,
+  fillStyle: 'solid',
+  strokeStyle: 'solid',
+  roughness: 1,
+  roundness: 'round',
+  fontSize: 24,
+  fontFamily: 'Arial',
+  textAlign: 'left',
+  isTextBold: false,
+  isTextItalic: false,
+  isTextUnderlined: false,
   roomId: null,
   userId: null,
   username: null,
@@ -152,6 +195,16 @@ export const useStore = create<VisyncState>((set, get) => ({
   setFillColor: (fillColor) => set({ fillColor }),
   setOpacity: (opacity) => set({ opacity }),
   setStrokeWidth: (strokeWidth) => set({ strokeWidth }),
+  setFillStyle: (fillStyle) => set({ fillStyle }),
+  setStrokeStyle: (strokeStyle) => set({ strokeStyle }),
+  setRoughness: (roughness) => set({ roughness }),
+  setRoundness: (roundness) => set({ roundness }),
+  setFontSize: (fontSize) => set({ fontSize }),
+  setFontFamily: (fontFamily) => set({ fontFamily }),
+  setTextAlign: (textAlign) => set({ textAlign }),
+  setTextBold: (isTextBold) => set({ isTextBold }),
+  setTextItalic: (isTextItalic) => set({ isTextItalic }),
+  setTextUnderlined: (isTextUnderlined) => set({ isTextUnderlined }),
 
   // Viewport setters
   setViewport: (viewport) => set({ viewport }),

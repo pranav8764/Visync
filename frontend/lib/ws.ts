@@ -16,6 +16,7 @@ export interface DrawEvent {
     | 'REDO'
     | 'USER_NAME_CHANGE'
     | 'OBJECT_TRANSFORM'
+    | 'OBJECT_UPDATE'
     | 'OBJECT_DUPLICATE'
     | 'OBJECT_DELETE';
   userId: string;
@@ -188,7 +189,24 @@ export class WebSocketClient {
               points: point ? [point] : [],
               color,
               strokeWidth,
-              tool
+              tool,
+              fill: payload.fill,
+              fillStyle: payload.fillStyle,
+              strokeStyle: payload.strokeStyle,
+              roughness: payload.roughness,
+              roundness: payload.roundness,
+              opacity: payload.opacity,
+              ...(tool === 'text' ? {
+                x: payload.x,
+                y: payload.y,
+                text: payload.text,
+                textWidth: payload.textWidth,
+                textHeight: payload.textHeight,
+                fontSize: payload.fontSize,
+                fontFamily: payload.fontFamily,
+                fontStyle: payload.fontStyle,
+                textDecoration: payload.textDecoration,
+              } : {})
             }
           ];
         });
@@ -200,7 +218,11 @@ export class WebSocketClient {
         break;
       }
       case 'DRAW_END':
-        // Optional tracking logs
+        if (payload.stroke) {
+          store.setStrokes((prev) => prev.map((stroke) =>
+            stroke.id === payload.stroke.id ? payload.stroke : stroke
+          ));
+        }
         break;
       case 'OBJECT_TRANSFORM': {
         if (payload.transforms && Array.isArray(payload.transforms)) {
@@ -210,6 +232,14 @@ export class WebSocketClient {
         } else {
           const { strokeId, transform } = payload;
           store.updateStrokeTransform(strokeId, transform);
+        }
+        break;
+      }
+      case 'OBJECT_UPDATE': {
+        if (payload.updates && Array.isArray(payload.updates)) {
+          payload.updates.forEach((update: any) => store.updateStrokeTransform(update.strokeId, update.patch));
+        } else {
+          store.updateStrokeTransform(payload.strokeId, payload.patch);
         }
         break;
       }
