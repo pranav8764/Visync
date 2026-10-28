@@ -263,6 +263,17 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         sendActiveUserPresence(session, roomId);
     }
 
+    /**
+     * Tomcat's WebSocket remote endpoint does not allow two threads to write to the same
+     * session at once (TEXT_PARTIAL_WRITING). Several handler threads can target one session
+     * (broadcasts from other users plus the join presence list), so writes are serialized per session.
+     */
+    private void sendSerialized(WebSocketSession session, TextMessage message) throws IOException {
+        synchronized (session) {
+            session.sendMessage(message);
+        }
+    }
+
     private void sendActiveUserPresence(WebSocketSession session, String roomId) {
         Set<WebSocketSession> sessions = rooms.getOrDefault(roomId, Collections.emptySet());
         List<Map<String, String>> usersList = new ArrayList<>();
@@ -288,7 +299,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         presenceEvent.put("payload", usersList);
 
         try {
-            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(presenceEvent)));
+            sendSerialized(session, new TextMessage(objectMapper.writeValueAsString(presenceEvent)));
             logger.trace("Successfully sent PRESENCE_LIST to sessionId={} in roomId={}", session.getId(), roomId);
         } catch (IOException e) {
             logger.error("Failed to send presence list to sessionId={} in roomId={}: ", session.getId(), roomId, e);
@@ -388,9 +399,9 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
         for (WebSocketSession s : set) {
             if (s.isOpen() && !s.getId().equals(senderSessionId)) {
                 try {
-                    s.sendMessage(message);
+                    sendSerialized(s, message);
                     broadcastCount++;
-                } catch (IOException e) {
+                } catch (IOException | IllegalStateException e) {
                     logger.warn("Failed to send broadcast message to sessionId={} in roomId={}: {}", s.getId(), roomId, e.getMessage());
                 }
             }
