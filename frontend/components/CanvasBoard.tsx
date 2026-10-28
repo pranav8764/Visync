@@ -2691,4 +2691,4 @@ function AccessorySidebar({
       </div>
     </div>
   );
-                }
+}
